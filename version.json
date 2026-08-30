@@ -1,13 +1,14 @@
 {
-  "version": "0.8.6",
-  "build": "expanded-world-large-leafs",
+  "version": "0.8.7",
+  "build": "natural-controls-open-world-leafs",
   "notes": [
-    "Portal chamber outer walls expanded and reinforced",
-    "Playable route extended to more than three times its previous length",
-    "Expanded world reuses v0.5 stone, floor, crystal and lantern materials",
-    "Happy Dude Leafs rebuilt nearly Gamer Bro scale with thicker 3D bodies, arms, legs, feet and facial detail",
-    "Leaf targets distributed farther through the expanded map and easier for the glasses beam to hit",
-    "Camera drag also influences hero facing direction",
-    "Player-select colour labels removed"
+    "Removed enclosing portal walls, ceiling, arches and buttresses",
+    "Natural camera-relative analog movement without joystick-driven camera spin",
+    "Camera holds heading while moving and softly recenters behind the hero after release",
+    "Expanded pinch zoom and drag-look",
+    "Added multiple open bridges, side loops, diagonal shortcuts and long routes",
+    "Rebuilt Happy Dude Leafs to closely match the supplied rounded maple-leaf reference silhouette",
+    "Happy Dude Leafs are near Gamer Bro scale with same-colour arms and feet",
+    "Developer mode remains off by default and session Leaf Score remains local only"
   ]
 }
