@@ -486,7 +486,9 @@
     }
     // Position the two real torch lights before the one-time room reflection bake.
     if(torches.length){torchLightA.position.copy(torches[0].worldPos);torchLightB.position.copy(torches[2%torches.length].worldPos);}
-    bakeEnvironment();
+    // M4A startup hotfix: skip the old six-face CubeCamera/PMREM bake.
+    // The expanded arena made this a blocking preloader workload on mobile.
+    scene.environment=null;environmentTarget=null;applyRoomLight();
 
     // ------------------------------------------------------------
     // PORTAL MACHINE — SAME SILHOUETTE, BETTER MATERIAL RESPONSE
