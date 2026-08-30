@@ -1,24 +1,9 @@
 const chunkPaths = [
-  './chunks/01.txt',
-  './chunks/02.txt',
-  './chunks/03.txt',
-  './chunks/04.txt',
-  './chunks/05.txt',
-  './chunks/06.txt',
-  './chunks/07.txt',
-  './chunks/08.txt',
-  './chunks/09.txt',
-  './chunks/10.txt',
-  './chunks/11.txt',
-  './chunks/12.txt',
-  './chunks/13.txt',
-  './chunks/14.txt',
-  './chunks/15.txt',
-  './chunks/16.txt',
-  './chunks/17.txt',
-  './chunks/18.txt',
-  './chunks/19.txt',
-  './chunks/20.txt'
+  './chunks/part01.txt',
+  './chunks/part02.txt',
+  './chunks/part03.txt',
+  './chunks/part04.txt',
+  './chunks/part05.txt'
 ];
 
 try {
