@@ -1,0 +1,7 @@
+{
+  "version": "0.8.2",
+  "channel": "gamer-bros-world",
+  "build": "character-action-chunked-deploy",
+  "visualBaseline": "v0.5 stone/tube + v0.8.1 quality-preserved extension",
+  "domain": "game.happydude.ca"
+}
