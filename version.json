@@ -1,7 +1,7 @@
 {
-  "version": "0.8.3",
+  "version": "0.8.4",
   "channel": "public-game",
-  "build": "hero-select-safe-glasses-zap-auto-portal",
+  "build": "thumb-stick-rear-camera-pinch-leaf-score-character-polish",
   "visualBaseline": "v0.5 stone/tube + v0.8.1 quality-preserved extension",
   "domain": "game.happydude.ca"
 }
