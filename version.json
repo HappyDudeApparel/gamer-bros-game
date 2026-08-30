@@ -1,7 +1,14 @@
 {
-  "version": "0.8.4",
-  "channel": "public-game",
-  "build": "thumb-stick-rear-camera-pinch-leaf-score-character-polish",
-  "visualBaseline": "v0.5 stone/tube + v0.8.1 quality-preserved extension",
-  "domain": "game.happydude.ca"
+  "version": "0.8.5",
+  "build": "control-camera-menu-fix",
+  "notes": [
+    "No legacy player-select menu flash",
+    "Gamer Bros menu art uses bundled image asset",
+    "Analog thumb-stick movement",
+    "About 80 percent gentler steering near centre",
+    "Rear-follow camera farther and higher",
+    "Drag-look works while follow lock is enabled",
+    "Pinch zoom works in follow mode",
+    "Happy Dude Leafs raised to ground level"
+  ]
 }
