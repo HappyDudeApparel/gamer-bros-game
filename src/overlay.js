@@ -101,28 +101,32 @@ function buildMenu() {
       localStorage.setItem('gamerBroHero', which);
     }
 
+    // Outer game action can fire, while the internal controller/grip pose stays off.
     bro.setAction = (v) => { originalSetAction(false); return !!v; };
     if (bro.controllerGroup) {
+      // The legacy laser reads this emitter, so relocate the invisible emitter to the glasses.
       bro.controllerGroup.position.set(0, 1.845, 0.58);
       bro.controllerGroup.rotation.set(0, 0, 0);
       bro.controllerGroup.visible = false;
     }
     if (bro.controllerEmitter) bro.controllerEmitter.position.set(0, 0.02, 0.20);
 
+    // Stronger/faster locomotion cadence to eliminate the hover-walk appearance.
     const originalUpdate = bro.update.bind(bro);
     let heroAnimClock = 0;
     bro.update = (t, dt, fx) => {
       const m = bro.motion;
-      const rate = m === 'run' ? 2.15 : (m === 'walk' ? 1.78 : 1.0);
+      const rate = m === 'run' ? 2.60 : (m === 'walk' ? 2.20 : 1.0);
       heroAnimClock += Math.min(0.05, dt) * rate;
       originalUpdate(heroAnimClock, dt, fx);
       if (bro.controllerGroup) bro.controllerGroup.visible = false;
     };
 
+    // Phone-safe raycasts: never recurse through the full instanced environment.
     const nativeIntersectObject = THREE.Raycaster.prototype.intersectObject;
     const rayCaches = new WeakMap();
     THREE.Raycaster.prototype.intersectObject = function(object, recursive = true, optionalTarget = []) {
-      if (!recursive || !object?.traverseVisible || (object.children?.length || 0) < 10) {
+      if (!recursive || !object?.traverseVisible) {
         return nativeIntersectObject.call(this, object, recursive, optionalTarget);
       }
       let c = rayCaches.get(object);
@@ -141,7 +145,7 @@ function buildMenu() {
       const now = performance.now();
       const ro = this.ray.origin, rd = this.ray.direction;
       const moved = Math.abs(ro.x-c.ox)+Math.abs(ro.y-c.oy)+Math.abs(ro.z-c.oz) > 0.10 || Math.abs(rd.x-c.dx)+Math.abs(rd.y-c.dy)+Math.abs(rd.z-c.dz) > 0.025;
-      if (moved || now - c.lastAt > 95) {
+      if (moved || now - c.lastAt > 110) {
         c.lastAt = now; c.ox=ro.x; c.oy=ro.y; c.oz=ro.z; c.dx=rd.x; c.dy=rd.y; c.dz=rd.z;
         const hits = [];
         for (const candidate of c.candidates) nativeIntersectObject.call(this, candidate, false, hits);
@@ -152,6 +156,7 @@ function buildMenu() {
       return optionalTarget;
     };
 
+    // Turn the legacy toggle into tap/hold shooting.
     let bypassActionClick = false;
     let firing = false;
     let fireStartedAt = 0;
@@ -167,8 +172,8 @@ function buildMenu() {
       if (firing) return;
       e?.preventDefault?.();
       firing = true; fireStartedAt = performance.now();
-      actionBtn.classList.add('active'); actionBtn.textContent = 'ZAP';
       legacyActionToggle();
+      actionBtn.classList.add('active'); actionBtn.textContent = 'ZAP';
     }
     function stopFire(e) {
       e?.preventDefault?.();
@@ -193,6 +198,7 @@ function buildMenu() {
       e.preventDefault(); e.stopImmediatePropagation(); stopFire(e);
     }, true);
 
+    // Walking into the portal now starts the full existing load + activate sequence.
     let portalArmed = true;
     let autoActivatePending = false;
     function monitorPortal() {
@@ -241,6 +247,7 @@ function buildMenu() {
       hideMenu();
     }));
 
+    // Reset means reset world, then reopen hero select/settings.
     let bypassReset = false;
     resetBtn.addEventListener('click', e => {
       if (bypassReset) return;
@@ -252,11 +259,12 @@ function buildMenu() {
     function updateSelectedLabel() {
       if (characterStatus && !/ENTERING|PORTAL READY|CONVERTING|TRANSMITTED/.test(characterStatus.textContent || '')) {
         const motion = bro.motion?.toUpperCase?.() || 'IDLE';
-        characterStatus.textContent = `${selectedLabel} · ${motion}`;
+        const wanted = `${selectedLabel} · ${motion}`;
+        if (characterStatus.textContent !== wanted) characterStatus.textContent = wanted;
       }
-      actionBtn.textContent = 'ZAP';
-      if (bro.controllerGroup) bro.controllerGroup.visible = false;
-      requestAnimationFrame(updateSelectedLabel);
+      if (actionBtn.textContent !== 'ZAP') actionBtn.textContent = 'ZAP';
+      if (bro.controllerGroup?.visible) bro.controllerGroup.visible = false;
+      setTimeout(updateSelectedLabel, 140);
     }
 
     applyHero(localStorage.getItem('gamerBroHero') === 'gb1' ? 'gb1' : 'gb2');
