@@ -1,0 +1,36 @@
+name: Hotfix Hybrid M4A startup
+
+on:
+  push:
+    branches: [hybrid-v0.9]
+    paths:
+      - tools/hotfix-m4a-startup.mjs
+      - .github/workflows/hotfix-m4a-startup.yml
+
+permissions:
+  contents: write
+
+jobs:
+  hotfix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hybrid-v0.9
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply startup hotfix
+        run: node tools/hotfix-m4a-startup.mjs
+      - name: Syntax check
+        run: node --check hybrid-v09/src/game.js
+      - name: Commit hotfix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hybrid-v09/src/game.js hybrid-v09/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Hotfix Hybrid M4A startup stall"
+          git push origin HEAD:hybrid-v0.9
