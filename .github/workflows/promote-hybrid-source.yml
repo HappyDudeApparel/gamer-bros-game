@@ -1,0 +1,34 @@
+name: Promote Hybrid clean source
+
+on:
+  push:
+    branches: [hybrid-m1m2-build]
+    paths:
+      - tools/promote-hybrid-source.mjs
+      - .github/workflows/promote-hybrid-source.yml
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hybrid-m1m2-build
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate clean Hybrid source
+        run: node tools/promote-hybrid-source.mjs
+      - name: Commit promoted source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hybrid-v09/src/game.js hybrid-v09/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Promote Hybrid v0.9 to clean M1 source and rebuild portal M2"
+          git push origin HEAD:hybrid-m1m2-build
