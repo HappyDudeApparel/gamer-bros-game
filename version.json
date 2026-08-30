@@ -1,14 +1,13 @@
 {
-  "version": "0.8.5",
-  "build": "control-camera-menu-fix",
+  "version": "0.8.6",
+  "build": "expanded-world-large-leafs",
   "notes": [
-    "No legacy player-select menu flash",
-    "Gamer Bros menu art uses bundled image asset",
-    "Analog thumb-stick movement",
-    "About 80 percent gentler steering near centre",
-    "Rear-follow camera farther and higher",
-    "Drag-look works while follow lock is enabled",
-    "Pinch zoom works in follow mode",
-    "Happy Dude Leafs raised to ground level"
+    "Portal chamber outer walls expanded and reinforced",
+    "Playable route extended to more than three times its previous length",
+    "Expanded world reuses v0.5 stone, floor, crystal and lantern materials",
+    "Happy Dude Leafs rebuilt nearly Gamer Bro scale with thicker 3D bodies, arms, legs, feet and facial detail",
+    "Leaf targets distributed farther through the expanded map and easier for the glasses beam to hit",
+    "Camera drag also influences hero facing direction",
+    "Player-select colour labels removed"
   ]
 }
