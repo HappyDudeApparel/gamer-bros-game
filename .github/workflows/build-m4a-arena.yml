@@ -43,3 +43,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Build Hybrid v0.9 M4A vertical arena foundation"
           git push origin HEAD:hybrid-m4a-build
+
+# one-time migration workflow; delete after successful source commit
