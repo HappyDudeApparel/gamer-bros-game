@@ -12,3 +12,4 @@ let html=fs.readFileSync(indexPath,'utf8');
 html=html.replace('./src/game.js?v=090m4a','./src/game.js?v=090m4a1');
 fs.writeFileSync(indexPath,html);
 console.log('Applied M4A startup hotfix');
+// workflow trigger
