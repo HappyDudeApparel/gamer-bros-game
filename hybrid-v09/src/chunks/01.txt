@@ -1,0 +1,177 @@
+(async()=>{
+  const boot=document.getElementById('boot');
+  const fatal=document.getElementById('fatal');
+  const fatalText=document.getElementById('fatalText');
+  const ui=document.getElementById('ui');
+  const stage=document.getElementById('stage');
+  const statsLine=document.getElementById('statsLine');
+  const qualityLine=document.getElementById('qualityLine');
+  const phaseLine=document.getElementById('phaseLine');
+  const qualityBtn=document.getElementById('qualityBtn');
+  const orbitBtn=document.getElementById('orbitBtn');
+  const followLockBtn=document.getElementById('followLockBtn');
+  const actionTouchBtn=document.getElementById('actionTouchBtn');
+  const runTouchBtn=document.getElementById('runTouchBtn');
+  const jumpTouchBtn=document.getElementById('jumpTouchBtn');
+  const activateBtn=document.getElementById('activateBtn');
+  const dropBtn=document.getElementById('dropBtn');
+  const resetBtn=document.getElementById('resetBtn');
+  const viewBtn=document.getElementById('viewBtn');
+  const hint=document.getElementById('hint');
+  const lightingSlider=document.getElementById('lightingSlider');
+  const lightingValue=document.getElementById('lightingValue');
+  const motionBtn=document.getElementById('motionBtn');
+  const characterBtn=document.getElementById('characterBtn');
+  const characterStatus=document.getElementById('characterStatus');
+  hint.textContent='WASD / arrows or the on-screen pad to move · Shift/RUN to sprint · Space/JUMP · CAM cycles ORBIT/FOLLOW/TIGHT · FOLLOW LOCK keeps the camera behind the hero';
+
+  try{
+    const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js');
+
+    // ------------------------------------------------------------
+    // RENDERER / QUALITY FOUNDATION
+    // ------------------------------------------------------------
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+    renderer.outputColorSpace=THREE.SRGBColorSpace;
+    renderer.toneMapping=THREE.AgXToneMapping;
+    renderer.toneMappingExposure=1.40;
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.shadowMap.autoUpdate=true;
+    renderer.shadowMap.needsUpdate=true;
+    renderer.setClearColor(0x090812,1);
+    stage.appendChild(renderer.domElement);
+
+    const scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x090812);
+    scene.fog=new THREE.FogExp2(0x120d1b,0.0100);
+    const camera=new THREE.PerspectiveCamera(36,1,.15,70);
+    camera.layers.enable(1);
+
+    const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const memory=navigator.deviceMemory||4;
+    const presets={
+      performance:{label:'PERFORMANCE',dpr:1.0,shadow:1024,particles:140,arcs:14,doubleGlass:false},
+      balanced:{label:'BALANCED',dpr:Math.min(devicePixelRatio||1,1.35),shadow:1536,particles:240,arcs:24,doubleGlass:false},
+      high:{label:'HIGH',dpr:Math.min(devicePixelRatio||1,1.8),shadow:2048,particles:360,arcs:36,doubleGlass:true}
+    };
+    let qualityMode='auto';
+    let resolvedQuality=(mobile||memory<=3)?'performance':(memory>=8?'high':'balanced');
+    let particleBudget=240,arcBudget=24,dprScale=1,fpsAvg=60,dprCooldown=0;
+    let shadowFramesLeft=2;
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    const smooth=t=>t*t*(3-2*t);
+    const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    function requestShadowUpdate(frames=1){shadowFramesLeft=0;} // room shadow is baked before the moving hero is added
+
+    // ------------------------------------------------------------
+    // PROCEDURAL PBR TEXTURE SET
+    // ------------------------------------------------------------
+    function finishTexture(t,isColor=true){
+      t.colorSpace=isColor?THREE.SRGBColorSpace:THREE.NoColorSpace;
+      t.wrapS=t.wrapT=THREE.RepeatWrapping;
+      t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+      return t;
+    }
+    function stoneAlbedo(size=768){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
+      const grad=g.createLinearGradient(0,0,size,size);
+      grad.addColorStop(0,'#39323b');grad.addColorStop(.28,'#504651');grad.addColorStop(.55,'#322c35');grad.addColorStop(.78,'#46404a');grad.addColorStop(1,'#362f39');
+      g.fillStyle=grad;g.fillRect(0,0,size,size);
+      for(let i=0;i<260;i++){
+        const x=Math.random()*size,y=Math.random()*size,r=size*(.045+Math.random()*.15);
+        const warm=Math.random()<.42;const col=warm?[96,79,74]:[75,72,91];const a=.035+Math.random()*.105;
+        const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,`rgba(${col[0]},${col[1]},${col[2]},${a})`);rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+      }
+      g.lineCap='round';
+      for(let i=0;i<48;i++){
+        let x=Math.random()*size,y=Math.random()*size;g.strokeStyle=`rgba(14,11,17,${.13+Math.random()*.20})`;g.lineWidth=2+Math.random()*5;g.beginPath();g.moveTo(x,y);
+        for(let k=0;k<3+Math.random()*4;k++){x+=(Math.random()-.5)*size*.18;y+=(Math.random()-.5)*size*.14;g.lineTo(x,y);}g.stroke();
+      }
+      for(let i=0;i<size*4;i++){
+        const v=58+Math.random()*46,a=.018+Math.random()*.055;g.fillStyle=`rgba(${v|0},${(v*.91)|0},${(v*1.04)|0},${a})`;const q=2+Math.random()*2;g.fillRect(Math.random()*size,Math.random()*size,q,q);
+      }
+      // Dark mortar / weathered edge border; every block face maps 0..1.
+      const b=Math.round(size*.055);const eg=g.createLinearGradient(0,0,0,b);eg.addColorStop(0,'rgba(8,6,11,.78)');eg.addColorStop(.42,'rgba(24,20,28,.35)');eg.addColorStop(1,'rgba(8,6,11,0)');
+      for(let s=0;s<4;s++){g.save();g.translate(size/2,size/2);g.rotate(s*Math.PI/2);g.translate(-size/2,-size/2);g.fillStyle=eg;g.fillRect(0,0,size,b);g.restore();}
+      return finishTexture(new THREE.CanvasTexture(c),true);
+    }
+    function stoneHeightCanvas(size=512){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
+      g.fillStyle='#8a8a8a';g.fillRect(0,0,size,size);
+      for(let i=0;i<250;i++){
+        const x=Math.random()*size,y=Math.random()*size,r=size*(.035+Math.random()*.145),v=100+Math.random()*88;
+        const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,`rgba(${v|0},${v|0},${v|0},.32)`);rg.addColorStop(1,'rgba(138,138,138,0)');g.fillStyle=rg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+      }
+      g.lineCap='round';
+      for(let i=0;i<44;i++){
+        let x=Math.random()*size,y=Math.random()*size;g.strokeStyle=`rgba(36,36,36,${.30+Math.random()*.35})`;g.lineWidth=size*(.004+Math.random()*.010);g.beginPath();g.moveTo(x,y);
+        for(let k=0;k<3+Math.random()*3;k++){x+=(Math.random()-.5)*size*.22;y+=(Math.random()-.5)*size*.18;g.lineTo(x,y);}g.stroke();
+      }
+      for(const [cx,cy] of [[0,0],[size,0],[0,size],[size,size]])if(Math.random()>.45){g.fillStyle='rgba(50,50,50,.52)';g.beginPath();g.arc(cx,cy,size*(.025+Math.random()*.05),0,Math.PI*2);g.fill();}
+      const b=Math.round(size*.055);const edge=g.createLinearGradient(0,0,0,b);edge.addColorStop(0,'rgba(24,24,24,1)');edge.addColorStop(.52,'rgba(88,88,88,.72)');edge.addColorStop(1,'rgba(138,138,138,0)');
+      for(let s=0;s<4;s++){g.save();g.translate(size/2,size/2);g.rotate(s*Math.PI/2);g.translate(-size/2,-size/2);g.fillStyle=edge;g.fillRect(0,0,size,b);g.restore();}
+      return c;
+    }
+    function normalFromHeight(hc,strength=2.6){
+      const size=hc.width,src=hc.getContext('2d').getImageData(0,0,size,size).data;
+      const out=document.createElement('canvas');out.width=out.height=size;const ctx=out.getContext('2d'),img=ctx.createImageData(size,size),d=img.data,M=size-1;
+      const H=(x,y)=>src[((((y+size)&M)*size)+((x+size)&M))*4]/255;
+      for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+        const dx=H(x+1,y)-H(x-1,y),dy=H(x,y+1)-H(x,y-1);let nx=-dx*strength,ny=-dy*strength,nz=1;const l=Math.hypot(nx,ny,nz);nx/=l;ny/=l;nz/=l;const i=(y*size+x)*4;
+        d[i]=(nx*.5+.5)*255;d[i+1]=(ny*.5+.5)*255;d[i+2]=(nz*.5+.5)*255;d[i+3]=255;
+      }
+      ctx.putImageData(img,0,0);return finishTexture(new THREE.CanvasTexture(out),false);
+    }
+    function floorAlbedo(size=768){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');
+      const grad=g.createLinearGradient(0,0,size,size);grad.addColorStop(0,'#4e454d');grad.addColorStop(.48,'#332e36');grad.addColorStop(1,'#453d46');g.fillStyle=grad;g.fillRect(0,0,size,size);
+      for(let i=0;i<180;i++){
+        const x=Math.random()*size,y=Math.random()*size,r=size*(.04+Math.random()*.18),warm=Math.random()>.55;const rg=g.createRadialGradient(x,y,0,x,y,r);
+        rg.addColorStop(0,warm?'rgba(118,86,70,.10)':'rgba(78,80,98,.10)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+      }
+      // worn polished sweeps
+      for(let i=0;i<18;i++){
+        const x=Math.random()*size,y=Math.random()*size,w=80+Math.random()*220,h=12+Math.random()*44,a=Math.random()*Math.PI;g.save();g.translate(x,y);g.rotate(a);const rg=g.createLinearGradient(-w/2,0,w/2,0);rg.addColorStop(0,'rgba(125,118,127,0)');rg.addColorStop(.5,'rgba(150,140,148,.16)');rg.addColorStop(1,'rgba(125,118,127,0)');g.fillStyle=rg;g.beginPath();g.ellipse(0,0,w/2,h/2,0,0,Math.PI*2);g.fill();g.restore();
+      }
+      const b=Math.round(size*.045);const eg=g.createLinearGradient(0,0,0,b);eg.addColorStop(0,'rgba(7,6,9,.84)');eg.addColorStop(1,'rgba(7,6,9,0)');for(let s=0;s<4;s++){g.save();g.translate(size/2,size/2);g.rotate(s*Math.PI/2);g.translate(-size/2,-size/2);g.fillStyle=eg;g.fillRect(0,0,size,b);g.restore();}
+      return finishTexture(new THREE.CanvasTexture(c),true);
+    }
+    function floorRoughness(size=512){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');g.fillStyle='rgb(210,210,210)';g.fillRect(0,0,size,size);
+      for(let i=0;i<90;i++){
+        const x=Math.random()*size,y=Math.random()*size,r=15+Math.random()*80,v=85+Math.random()*105;const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,`rgb(${v|0},${v|0},${v|0})`);rg.addColorStop(1,'rgba(210,210,210,0)');g.fillStyle=rg;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+      }
+      return finishTexture(new THREE.CanvasTexture(c),false);
+    }
+    function runeTexture(size=256){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d');g.clearRect(0,0,size,size);g.translate(size/2,size/2);g.strokeStyle='#d886ff';g.lineWidth=11;g.shadowColor='#8c45ff';g.shadowBlur=22;
+      g.beginPath();g.moveTo(0,-65);g.lineTo(58,0);g.lineTo(0,65);g.lineTo(-58,0);g.closePath();g.stroke();g.lineWidth=7;g.strokeStyle='#79eaff';g.beginPath();g.moveTo(0,-34);g.lineTo(26,0);g.lineTo(0,34);g.lineTo(-26,0);g.closePath();g.stroke();g.beginPath();g.moveTo(-42,0);g.lineTo(42,0);g.moveTo(0,-48);g.lineTo(0,48);g.stroke();
+      return finishTexture(new THREE.CanvasTexture(c),true);
+    }
+    function radialTexture(size=128,stops=[['0','rgba(255,255,255,1)'],['1','rgba(255,255,255,0)']]){
+      const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d'),rg=g.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);for(const [p,col] of stops)rg.addColorStop(Number(p),col);g.fillStyle=rg;g.fillRect(0,0,size,size);return finishTexture(new THREE.CanvasTexture(c),true);
+    }
+
+    const stoneMap=stoneAlbedo();
+    const stoneHeight=stoneHeightCanvas();
+    const stoneNormal=normalFromHeight(stoneHeight,2.75);
+    const floorMap=floorAlbedo();
+    const floorRough=floorRoughness();
+    const runeMap=runeTexture();
+    const contactTex=radialTexture(128,[['0','rgba(0,0,0,.62)'],['.52','rgba(0,0,0,.28)'],['1','rgba(0,0,0,0)']]);
+    const glowTex=radialTexture(128,[['0','rgba(255,255,255,1)'],['.28','rgba(220,180,255,.46)'],['1','rgba(125,55,255,0)']]);
+
+    // ------------------------------------------------------------
+    // MATERIALS
+    // ------------------------------------------------------------
+    const stoneMat=new THREE.MeshStandardMaterial({map:stoneMap,normalMap:stoneNormal,normalScale:new THREE.Vector2(1,1),color:0x948b98,roughness:.86,metalness:.02});
+    const stoneDark=new THREE.MeshStandardMaterial({map:stoneMap,normalMap:stoneNormal,normalScale:new THREE.Vector2(1,1),color:0x5f5664,roughness:.90,metalness:.02});
+    const floorMat=new THREE.MeshPhysicalMaterial({map:floorMap,normalMap:stoneNormal,normalScale:new THREE.Vector2(.75,.75),roughnessMap:floorRough,color:0x857b84,roughness:.82,metalness:.025,clearcoat:.08,clearcoatRoughness:.42});
+    const metalDark=new THREE.MeshPhysicalMaterial({color:0x161820,metalness:.94,roughness:.20,clearcoat:.28,clearcoatRoughness:.12,anisotropy:.32,envMapIntensity:1.35});
+    const metalMid=new THREE.MeshPhysicalMaterial({color:0x656b79,metalness:.93,roughness:.17,clearcoat:.34,clearcoatRoughness:.10,anisotropy:.42,anisotropyRotation:.45,envMapIntensity:1.45});
+    const metalLight=new THREE.MeshPhysicalMaterial({color:0xb8c1cf,metalness:.89,roughness:.14,clearcoat:.42,clearcoatRoughness:.08,anisotropy:.48,anisotropyRotation:1.1,envMapIntensity:1.5});
+    const bronze=new THREE.MeshPhysicalMaterial({color:0x9b6c36,metalness:.92,roughness:.23,clearcoat:.24,clearcoatRoughness:.16,envMapIntensity:1.35});
+    const blackRubber=new THREE.MeshStandardMaterial({color:0x0e0e14,metalness:.07,roughness:.82});
+    const crystalMat=new THREE.MeshPhysicalMaterial({color:0xe0d1ff,roughness:.09,metalness:0,transmission:.90,thickness:.36,ior:1.72,attenuationColor:new THREE.Color(0x5a1fd0),attenuationDistance:.50,emissive:0x3d0f96,emissiveIntensity:.65,envMapIntensity:1.55});
+    const glowPurple=new THREE.MeshStandardMaterial({color:0xe1b8ff,emissive:0x8b2cff,emissiveIntensity:6.8,roughness:.17,metalness:.05});

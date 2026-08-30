@@ -1,0 +1,313 @@
+    const width = o.width, thick = o.thick;
+    const upRef = (o.up || V3(0, 0, 1)).clone().normalize();
+    const pos = [], idx = [];
+    const T = V3(), B = V3(), N = V3(), tmp = V3();
+    for (let j = 0; j <= seg; j++) {
+      const t = j / seg;
+      const p = curve.getPointAt(t);
+      curve.getTangentAt(t, T);
+      B.copy(T).cross(upRef);
+      if (B.lengthSq() < 1e-8) B.set(1, 0, 0); else B.normalize();
+      N.copy(B).cross(T).normalize();
+      const w = width(t) * 0.5, th = thick(t) * 0.5;
+      for (let k = 0; k < radial; k++) {
+        const ph = (k / radial) * Math.PI * 2;
+        tmp.copy(p).addScaledVector(B, w * Math.cos(ph)).addScaledVector(N, th * Math.sin(ph));
+        pos.push(tmp.x, tmp.y, tmp.z);
+      }
+    }
+    for (let j = 0; j < seg; j++) for (let k = 0; k < radial; k++) {
+      const k2 = (k + 1) % radial;
+      const a = j * radial + k, b = (j + 1) * radial + k, c = (j + 1) * radial + k2, d = j * radial + k2;
+      idx.push(a, b, d, b, c, d);
+    }
+    const s = curve.getPointAt(0), e = curve.getPointAt(1);
+    const ci = pos.length / 3; pos.push(s.x, s.y, s.z);
+    const ce = ci + 1; pos.push(e.x, e.y, e.z);
+    for (let k = 0; k < radial; k++) {
+      const k2 = (k + 1) % radial;
+      idx.push(ci, k, k2);                                           // base cap, faces -T
+      idx.push(ce, seg * radial + k2, seg * radial + k);             // tip cap, faces +T
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  // Superellipse cross-section swept along +Z. Flat-bottomed soles, sneaker uppers.
+  function shoeSweep(o) {
+    const slices = o.slices, segZ = o.segZ || 26, segK = o.segK || 30;
+    const n = o.n || 3.0, ex = 2 / n;
+    const cw = new THREE.CatmullRomCurve3(slices.map(s => V3(s[0], s[1], s[2])), false, 'centripetal');
+    const cy = new THREE.CatmullRomCurve3(slices.map(s => V3(s[0], s[3], 0)), false, 'centripetal');
+    const pos = [], idx = [];
+    const sgn = (x) => (x < 0 ? -1 : 1);
+    for (let j = 0; j <= segZ; j++) {
+      const t = j / segZ;
+      const a = cw.getPoint(t), b = cy.getPoint(t);
+      const z = a.x, hw = Math.max(0.004, a.y), hh = Math.max(0.004, a.z), yc = b.y;
+      for (let k = 0; k < segK; k++) {
+        const ph = (k / segK) * Math.PI * 2;
+        const c = Math.cos(ph), s = Math.sin(ph);
+        pos.push(hw * sgn(c) * Math.pow(Math.abs(c), ex), yc + hh * sgn(s) * Math.pow(Math.abs(s), ex), z);
+      }
+    }
+    for (let j = 0; j < segZ; j++) for (let k = 0; k < segK; k++) {
+      const k2 = (k + 1) % segK;
+      const a = j * segK + k, b = (j + 1) * segK + k, c = (j + 1) * segK + k2, d = j * segK + k2;
+      idx.push(a, d, b, d, c, b);
+    }
+    const s0 = cw.getPoint(0), s1 = cw.getPoint(1), y0 = cy.getPoint(0), y1 = cy.getPoint(1);
+    const c0 = pos.length / 3; pos.push(0, y0.y, s0.x);
+    const c1 = c0 + 1; pos.push(0, y1.y, s1.x);
+    for (let k = 0; k < segK; k++) {
+      const k2 = (k + 1) % segK;
+      idx.push(c0, k, k2);
+      idx.push(c1, segZ * segK + k2, segZ * segK + k);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* PROFILES                                                               */
+  /* --------------------------------------------------------------------- */
+
+  const headProf = profile([
+    [0.000, 1.200], [0.200, 1.215], [0.375, 1.265], [0.520, 1.360], [0.625, 1.495],
+    [0.685, 1.650], [0.712, 1.820], [0.705, 1.985], [0.660, 2.150], [0.575, 2.300],
+    [0.440, 2.420], [0.245, 2.495], [0.000, 2.520]
+  ], Q.headPts);
+
+  const shirtProf = profile([
+    [0.000, 0.585], [0.310, 0.590], [0.500, 0.612], [0.605, 0.658], [0.628, 0.722],
+    [0.622, 0.822], [0.605, 0.932], [0.585, 1.032], [0.548, 1.132], [0.495, 1.216],
+    [0.425, 1.292], [0.330, 1.352], [0.205, 1.400], [0.090, 1.421], [0.000, 1.426]
+  ], Q.bodyPts);
+
+  const hipProf = profile([
+    [0.000, 0.300], [0.250, 0.306], [0.400, 0.332], [0.470, 0.396], [0.500, 0.492],
+    [0.505, 0.602], [0.480, 0.692], [0.400, 0.756], [0.220, 0.790], [0.000, 0.800]
+  ], Q.hipPts);
+
+  const hairCapProf = profile([
+    [0.000, 1.905], [0.380, 1.915], [0.560, 1.936], [0.664, 1.968], [0.686, 2.062],
+    [0.646, 2.204], [0.566, 2.352], [0.424, 2.472], [0.238, 2.542], [0.000, 2.566]
+  ], Q.capPts);
+
+  const cupProf = profile([
+    [0.000, 0.000], [0.150, 0.005], [0.250, 0.032], [0.296, 0.082], [0.306, 0.150],
+    [0.294, 0.206], [0.248, 0.236], [0.150, 0.249], [0.000, 0.252]
+  ], Q.cupPts);
+
+  const fistProf = profile([
+    [0.000, -0.215], [0.105, -0.198], [0.168, -0.150], [0.204, -0.070],
+    [0.212, 0.020], [0.192, 0.110], [0.138, 0.180], [0.070, 0.212], [0.000, 0.222]
+  ], Q.fistPts);
+
+  /* --------------------------------------------------------------------- */
+  /* TEXTURES                                                               */
+  /* --------------------------------------------------------------------- */
+
+  function cvs(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+  function tex(c, srgb) {
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = srgb === false ? THREE.NoColorSpace : THREE.SRGBColorSpace;
+    t.anisotropy = aniso;
+    t.wrapS = THREE.RepeatWrapping;
+    t.wrapT = THREE.ClampToEdgeWrapping;
+    t.needsUpdate = true;
+    return t;
+  }
+  function speckle(g, w, h, count, alpha) {
+    for (let i = 0; i < count; i++) {
+      const x = Math.random() * w, y = Math.random() * h, r = 0.6 + Math.random() * 1.8;
+      g.fillStyle = 'rgba(255,255,255,' + (alpha * (0.3 + Math.random() * 0.7)).toFixed(3) + ')';
+      g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
+    }
+  }
+
+  // --- face -------------------------------------------------------------
+  function faceCanvas() {
+    const W = 2048, H = 1024, c = cvs(W, H), g = c.getContext('2d');
+    g.fillStyle = '#eda152'; g.fillRect(0, 0, W, H);
+
+    // vertical form shading: dark under the jaw, dark again where hair sits
+    let vg = g.createLinearGradient(0, H, 0, 0);
+    vg.addColorStop(0.00, 'rgba(120,58,14,0.92)');
+    vg.addColorStop(0.13, 'rgba(155,80,24,0.55)');
+    vg.addColorStop(0.30, 'rgba(255,205,150,0.10)');
+    vg.addColorStop(0.52, 'rgba(255,220,175,0.20)');
+    vg.addColorStop(0.70, 'rgba(150,78,24,0.30)');
+    vg.addColorStop(0.86, 'rgba(96,44,10,0.80)');
+    vg.addColorStop(1.00, 'rgba(70,30,6,0.95)');
+    g.fillStyle = vg; g.fillRect(0, 0, W, H);
+
+    // side occlusion where the ear cups clamp on
+    for (const u of [0.25, 0.75]) {
+      const rg = g.createRadialGradient(u * W, 0.48 * H, 10, u * W, 0.48 * H, 0.19 * W);
+      rg.addColorStop(0, 'rgba(96,44,10,0.52)'); rg.addColorStop(1, 'rgba(96,44,10,0)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
+    }
+    // back of the head sits in shadow
+    for (const u of [0.0, 1.0]) {
+      const rg = g.createRadialGradient(u * W, 0.5 * H, 10, u * W, 0.5 * H, 0.20 * W);
+      rg.addColorStop(0, 'rgba(70,30,6,0.55)'); rg.addColorStop(1, 'rgba(70,30,6,0)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
+    }
+
+    const mv = headProf.vAt(1.605);          // mouth centre, from real geometry
+    const mx = 0.5 * W, my = (1 - mv) * H;
+
+    // cheeks
+    for (const s of [-1, 1]) {
+      const rg = g.createRadialGradient(mx + s * 0.088 * W, my - 0.035 * H, 6, mx + s * 0.088 * W, my - 0.035 * H, 0.072 * W);
+      rg.addColorStop(0, 'rgba(255,150,96,0.55)'); rg.addColorStop(1, 'rgba(255,150,96,0)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
+    }
+
+    // soft shadow the visor throws onto the face
+    const bv = headProf.vAt(1.775);
+    const sg = g.createLinearGradient(0, (1 - bv) * H - 60, 0, (1 - bv) * H + 70);
+    sg.addColorStop(0, 'rgba(60,24,4,0.55)'); sg.addColorStop(1, 'rgba(60,24,4,0)');
+    g.fillStyle = sg; g.fillRect(0.30 * W, (1 - bv) * H - 60, 0.40 * W, 140);
+
+    // --- open laughing mouth, painted with depth ---
+    const MW = 152, MH = 92;
+    g.save(); g.translate(mx, my);
+    const halo = g.createRadialGradient(0, 0, MW * 0.5, 0, 0, MW * 1.5);
+    halo.addColorStop(0, 'rgba(120,52,12,0.50)'); halo.addColorStop(1, 'rgba(120,52,12,0)');
+    g.fillStyle = halo; g.fillRect(-MW * 1.6, -MH * 1.8, MW * 3.2, MH * 3.6);
+
+    g.beginPath();
+    g.moveTo(-MW, -MH * 0.34);
+    g.quadraticCurveTo(0, -MH * 0.62, MW, -MH * 0.34);
+    g.quadraticCurveTo(MW * 0.72, MH * 1.06, 0, MH * 1.06);
+    g.quadraticCurveTo(-MW * 0.72, MH * 1.06, -MW, -MH * 0.34);
+    g.closePath();
+    const cav = g.createLinearGradient(0, -MH * 0.6, 0, MH * 1.1);
+    cav.addColorStop(0, '#1b0708'); cav.addColorStop(0.55, '#3a1113'); cav.addColorStop(1, '#571a1c');
+    g.fillStyle = cav; g.fill();
+    g.save(); g.clip();
+
+    // tongue
+    const tg = g.createRadialGradient(0, MH * 0.62, 8, 0, MH * 0.62, MW * 0.78);
+    tg.addColorStop(0, '#f2776a'); tg.addColorStop(0.7, '#d4514a'); tg.addColorStop(1, '#8e2b2c');
+    g.fillStyle = tg;
+    g.beginPath(); g.ellipse(0, MH * 0.72, MW * 0.66, MH * 0.55, 0, 0, 6.2832); g.fill();
+
+    // upper teeth
+    g.fillStyle = '#fff8e8';
+    g.beginPath();
+    g.moveTo(-MW * 0.94, -MH * 0.30);
+    g.quadraticCurveTo(0, -MH * 0.58, MW * 0.94, -MH * 0.30);
+    g.lineTo(MW * 0.86, MH * 0.02);
+    g.quadraticCurveTo(0, MH * 0.24, -MW * 0.86, MH * 0.02);
+    g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(150,120,90,0.35)'; g.lineWidth = 2.5;
+    for (const d of [-0.52, -0.18, 0.18, 0.52]) {
+      g.beginPath(); g.moveTo(MW * d, -MH * 0.42); g.lineTo(MW * d * 0.94, MH * 0.12); g.stroke();
+    }
+    // occlusion just inside the lip line
+    const inner = g.createLinearGradient(0, -MH * 0.6, 0, -MH * 0.05);
+    inner.addColorStop(0, 'rgba(0,0,0,0.55)'); inner.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = inner; g.fillRect(-MW, -MH * 0.7, MW * 2, MH * 0.7);
+    g.restore();
+
+    // lower lip catch-light
+    g.strokeStyle = 'rgba(255,196,140,0.55)'; g.lineWidth = 9;
+    g.beginPath(); g.moveTo(-MW * 0.8, MH * 1.14); g.quadraticCurveTo(0, MH * 1.46, MW * 0.8, MH * 1.14); g.stroke();
+    g.restore();
+
+    speckle(g, W, H, 2600, 0.035);
+    return c;
+  }
+
+  // --- shirt ------------------------------------------------------------
+  function logoOn(g, x, y, w, mono) {
+    const h = w * 0.78;
+    g.save(); g.translate(x, y); g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '900 ' + (h * 0.66).toFixed(0) + 'px "Arial Black", Arial, sans-serif';
+    if (mono) {
+      g.fillStyle = '#ffffff';
+      g.fillText('G', -w * 0.17, -h * 0.10);
+      g.fillText('B', w * 0.19, -h * 0.10);
+    } else {
+      g.fillStyle = '#fdf7e4';
+      g.fillText('G', -w * 0.17, -h * 0.10);
+      const grad = g.createLinearGradient(w * 0.02, 0, w * 0.36, 0);
+      grad.addColorStop(0.00, '#9df6ff'); grad.addColorStop(0.48, '#48d6e6');
+      grad.addColorStop(0.50, '#ff5cc8'); grad.addColorStop(1.00, '#d24cff');
+      g.fillStyle = grad;
+      g.fillText('B', w * 0.19, -h * 0.10);
+    }
+    g.font = '900 ' + (h * 0.155).toFixed(0) + 'px "Arial Black", Arial, sans-serif';
+    g.fillStyle = mono ? '#ffffff' : '#f6fbff';
+    g.letterSpacing && (g.letterSpacing = '4px');
+    g.fillText('GAMER BROS', 0, h * 0.36);
+    g.restore();
+  }
+
+  function shirtCanvases() {
+    const W = 2048, H = 1024;
+    const alb = cvs(W, H), ga = alb.getContext('2d');
+    const emi = cvs(W, H), ge = emi.getContext('2d');
+    const rgh = cvs(1024, 512), gr = rgh.getContext('2d');
+
+    ga.fillStyle = P.shirt; ga.fillRect(0, 0, W, H);
+    let vg = ga.createLinearGradient(0, H, 0, 0);
+    vg.addColorStop(0.00, 'rgba(0,0,0,0.50)');
+    vg.addColorStop(0.16, 'rgba(0,0,0,0.24)');
+    vg.addColorStop(0.55, 'rgba(255,255,255,0.06)');
+    vg.addColorStop(0.86, 'rgba(255,255,255,0.16)');
+    vg.addColorStop(1.00, 'rgba(0,0,0,0.42)');       // collar rolls into shadow
+    ga.fillStyle = vg; ga.fillRect(0, 0, W, H);
+
+    for (const u of [0.235, 0.765]) {                 // armpit occlusion
+      const rg = ga.createRadialGradient(u * W, 0.72 * H, 12, u * W, 0.72 * H, 0.16 * W);
+      rg.addColorStop(0, 'rgba(0,0,0,0.46)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      ga.fillStyle = rg; ga.fillRect(0, 0, W, H);
+    }
+    for (const u of [0.0, 1.0]) {
+      const rg = ga.createRadialGradient(u * W, 0.5 * H, 12, u * W, 0.5 * H, 0.22 * W);
+      rg.addColorStop(0, 'rgba(0,0,0,0.34)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      ga.fillStyle = rg; ga.fillRect(0, 0, W, H);
+    }
+    ga.fillStyle = P.shirtLo;
+    ga.globalAlpha = 0.85; ga.fillRect(0, 0, W, 0.045 * H); ga.globalAlpha = 1;  // hem band
+
+    const lv = shirtProf.vAt(1.020);
+    const lx = 0.5 * W, ly = (1 - lv) * H, lw = 0.235 * W;
+    logoOn(ga, lx, ly, lw, false);
+    speckle(ga, W, H, 5200, 0.045);
+
+    ge.fillStyle = '#000'; ge.fillRect(0, 0, W, H);
+    logoOn(ge, lx, ly, lw, true);
+
+    gr.fillStyle = '#9c9c9c'; gr.fillRect(0, 0, 1024, 512);
+    speckle(gr, 1024, 512, 4200, 0.20);
+    gr.fillStyle = '#4a4a4a';
+    gr.globalAlpha = 0.9;
+    gr.fillRect(0.5 * 1024 - lw * 0.28, (1 - lv) * 512 - lw * 0.22, lw * 0.56, lw * 0.44);
+    gr.globalAlpha = 1;
+    return { alb, emi, rgh };
+  }
+
+  function hipCanvas() {
+    const W = 1024, H = 512, c = cvs(W, H), g = c.getContext('2d');
+    g.fillStyle = '#14161f'; g.fillRect(0, 0, W, H);
+    const vg = g.createLinearGradient(0, H, 0, 0);
+    vg.addColorStop(0, 'rgba(0,0,0,0.65)');
+    vg.addColorStop(0.45, 'rgba(120,130,160,0.16)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.70)');
+    g.fillStyle = vg; g.fillRect(0, 0, W, H);
+    for (const u of [0.0, 1.0, 0.25, 0.75]) {
+      const rg = g.createRadialGradient(u * W, 0.5 * H, 8, u * W, 0.5 * H, 0.16 * W);
+      rg.addColorStop(0, 'rgba(0,0,0,0.45)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
+    }
