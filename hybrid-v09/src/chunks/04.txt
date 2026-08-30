@@ -1,0 +1,210 @@
+    ring(.82,1.56,glowCyan,.035);ring(.90,1.43,glowPurple,.03);ring(5.18,1.57,glowPurple,.04);ring(5.28,1.44,glowCyan,.03);
+    const pylonGeo=new THREE.BoxGeometry(.16,4.72,.16),pylonInst=new THREE.InstancedMesh(pylonGeo,metalDark,4);pylonInst.castShadow=true;pylonInst.receiveShadow=true;tube.add(pylonInst);
+    const pylonGlowInst=new THREE.InstancedMesh(new THREE.BoxGeometry(.055,3.85,.035),glowPurple,4);pylonGlowInst.castShadow=false;tube.add(pylonGlowInst);
+    for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,x=Math.cos(a)*1.83,z=Math.sin(a)*1.83;dummy.position.set(x,3.04,z);dummy.rotation.set(0,-a+.78,0);dummy.scale.set(1,1,1);dummy.updateMatrix();pylonInst.setMatrixAt(i,dummy.matrix);dummy.position.set(x*.998,3.04,z*.998);dummy.updateMatrix();pylonGlowInst.setMatrixAt(i,dummy.matrix);}pylonInst.instanceMatrix.needsUpdate=true;pylonGlowInst.instanceMatrix.needsUpdate=true;
+    const accents=new THREE.InstancedMesh(new THREE.BoxGeometry(.34,.10,.10),bronze,16);accents.castShadow=false;tube.add(accents);for(let i=0;i<16;i++){const a=i/16*Math.PI*2,r=2.03;dummy.position.set(Math.cos(a)*r,.53,Math.sin(a)*r);dummy.rotation.set(0,-a,0);dummy.scale.set(1,1,1);dummy.updateMatrix();accents.setMatrixAt(i,dummy.matrix);}accents.instanceMatrix.needsUpdate=true;
+    const panelFrame=tmesh(new THREE.BoxGeometry(.94,.54,.18),metalDark,1.00);panelFrame.position.z=2.12;panelFrame.rotation.x=-.08;
+    const panelScreen=tmesh(new THREE.CylinderGeometry(.20,.20,.035,8),glowCyan,1.00,false);panelScreen.rotation.x=Math.PI/2;panelScreen.position.z=2.225;
+    const panelRing=tmesh(new THREE.TorusGeometry(.28,.045,10,8),bronze,1.00);panelRing.rotation.x=Math.PI/2;panelRing.position.z=2.24;panelRing.rotation.z=Math.PI/8;
+
+    // Cheap bloom-like additive sprites. Real post bloom remains intentionally absent.
+    const glowSprites=[];
+    function glowAt(y,scale,color,baseOpacity){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:baseOpacity}));s.position.set(0,y,0);s.scale.set(scale,scale,1);s.userData.baseScale=scale;s.userData.baseOpacity=baseOpacity;tube.add(s);glowSprites.push(s);return s;}
+    glowAt(.86,4.1,0xb54cff,.10);glowAt(5.22,3.8,0x50dcff,.09);glowAt(3.04,2.8,0x8c3dff,.035);
+
+    // ------------------------------------------------------------
+    // PORTAL FX SHADERS
+    // ------------------------------------------------------------
+    const energyMat=new THREE.ShaderMaterial({
+      transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,
+      uniforms:{uTime:{value:0},uFill:{value:.10},uIntensity:{value:.20},uDissolve:{value:0}},
+      vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+      fragmentShader:`
+        varying vec2 vUv;uniform float uTime;uniform float uFill;uniform float uIntensity;uniform float uDissolve;
+        float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+        void main(){
+          float y=vUv.y,x=vUv.x;
+          float fill=1.0-smoothstep(uFill-.045,uFill+.045,y);
+          float s1=sin(x*34.0+y*18.0-uTime*4.0+sin(y*13.0+uTime*1.7)*2.2);
+          float s2=sin(x*21.0-y*37.0+uTime*2.8+sin(x*9.0-uTime)*1.5);
+          float filament=pow(max(0.0,.5+.5*s1),5.0);
+          float wisps=pow(max(0.0,.5+.5*s2),7.0);
+          float braid=pow(max(0.0,.5+.5*sin(x*13.0+y*52.0-uTime*6.2)),9.0);
+          float grain=hash(floor(vec2(x*118.0,y*168.0)+uTime*2.0));
+          float idle=.055*(filament+wisps);
+          float a=(idle+fill*(.11+.40*filament+.19*wisps+.14*braid+.12*step(.987,grain)))*uIntensity;
+          float drain=1.0-smoothstep(1.0-uDissolve-.10,1.0-uDissolve+.10,y);
+          a*=mix(1.0,drain,step(.001,uDissolve));
+          vec3 cyan=vec3(.10,.74,1.0),violet=vec3(.68,.10,1.0);vec3 col=mix(cyan,violet,.46+.34*sin(y*9.0+uTime*1.2));
+          gl_FragColor=vec4(col,a);
+        }`
+    });
+    const energyColumn=tmesh(new THREE.CylinderGeometry(1.28,1.28,4.08,56,1,true),energyMat,3.04,false);energyColumn.receiveShadow=false;energyColumn.renderOrder=2;
+    const discMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uTime:{value:0},uIntensity:{value:.28}},vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`varying vec2 vUv;uniform float uTime;uniform float uIntensity;void main(){vec2 p=vUv-.5;float r=length(p)*2.0,a=atan(p.y,p.x);float rings=.5+.5*sin(44.0*r-uTime*5.0+sin(a*6.0+uTime*1.8)*2.0);float spokes=.5+.5*sin(a*10.0+r*18.0-uTime*3.0);float fade=1.0-smoothstep(.72,1.0,r);float alpha=(.10+.42*pow(rings,5.0)+.18*pow(spokes,8.0))*fade*uIntensity;vec3 c=mix(vec3(.15,.8,1.0),vec3(.78,.16,1.0),r);gl_FragColor=vec4(c,alpha);}`});
+    const floorDisc=new THREE.Mesh(new THREE.CircleGeometry(1.44,64),discMat);floorDisc.rotation.x=-Math.PI/2;floorDisc.position.y=.87;tube.add(floorDisc);
+    const topDisc=floorDisc.clone();topDisc.material=discMat.clone();topDisc.rotation.x=Math.PI/2;topDisc.position.y=5.19;tube.add(topDisc);
+    const risingRings=[];for(let i=0;i<7;i++){const m=new THREE.Mesh(new THREE.TorusGeometry(1.08,.018,9,56),new THREE.MeshBasicMaterial({color:i%2?0xb44dff:0x56dcff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));m.rotation.x=Math.PI/2;m.position.y=1.0+i*.55;tube.add(m);risingRings.push(m);}
+
+    const maxParticles=400,particleGeo=new THREE.BufferGeometry(),particlePos=new Float32Array(maxParticles*3),particleSeeds=[];
+    for(let i=0;i<maxParticles;i++)particleSeeds.push({a:Math.random()*Math.PI*2,r:.22+Math.sqrt(Math.random())*1.05,s:.45+Math.random()*1.15,y:Math.random(),w:Math.random()});
+    particleGeo.setAttribute('position',new THREE.BufferAttribute(particlePos,3));particleGeo.setDrawRange(0,Math.floor(particleBudget*.30));
+    const particleMat=new THREE.PointsMaterial({color:0xd7a6ff,size:.030,transparent:true,opacity:.24,depthWrite:false,blending:THREE.AdditiveBlending});const particles=new THREE.Points(particleGeo,particleMat);tube.add(particles);
+    const maxArcSegments=40,arcPos=new Float32Array(maxArcSegments*2*3),arcGeo=new THREE.BufferGeometry();arcGeo.setAttribute('position',new THREE.BufferAttribute(arcPos,3));arcGeo.setDrawRange(0,0);const arcMat=new THREE.LineBasicMaterial({color:0xc66cff,transparent:true,opacity:.78,blending:THREE.AdditiveBlending,depthWrite:false});const arcs=new THREE.LineSegments(arcGeo,arcMat);tube.add(arcs);let nextArcShuffle=0;
+
+/* ============================================================================
+   GAMER BRO — procedural hero character · v1.0
+   Drop-in replacement for the v0.6 "TEAL MASTER VISUAL BENCHMARK" block.
+
+   Design notes (why this looks different from the primitive-sphere version):
+     · Body / head / hips / shoes are SWEPT SURFACES with authored profiles,
+       not unions of intersecting spheres. No hard intersection creases.
+     · Shirt and face carry real UV-mapped canvas textures with baked
+       ambient occlusion, so shading survives in a dark room.
+     · Visor is a genuinely curved shell that hugs the skull, with thickness
+       and a rim — not a flat extruded slab.
+     · Hair is swept ribbon blades with a flat cross-section, not lathed cones.
+     · Character-only rim lights + a character-only shadow-casting light on
+       render layer 1, giving true self-shadowing at ~1 object of shadow cost.
+   ========================================================================= */
+
+function createGamerBro(THREE, renderer, options) {
+  const cfg = Object.assign({ colorway: 'teal', detail: 'high', height: 2.62 }, options || {});
+  const HI = cfg.detail !== 'low';
+  const Q = HI
+    ? { headSeg: 56, headPts: 44, bodySeg: 52, bodyPts: 40, hipSeg: 36, hipPts: 26,
+        capSeg: 44, capPts: 32, cupSeg: 26, cupPts: 16, fistSeg: 22, fistPts: 18,
+        lockSeg: 14, lockRad: 9, limbSeg: 14, limbRad: 12, shoeZ: 18, shoeK: 20,
+        visA: 44, visV: 6 }
+    : { headSeg: 36, headPts: 30, bodySeg: 34, bodyPts: 26, hipSeg: 24, hipPts: 18,
+        capSeg: 28, capPts: 22, cupSeg: 18, cupPts: 12, fistSeg: 16, fistPts: 14,
+        lockSeg: 10, lockRad: 7, limbSeg: 10, limbRad: 9, shoeZ: 12, shoeK: 14,
+        visA: 32, visV: 4 };
+  const aniso = renderer ? Math.min(8, renderer.capabilities.getMaxAnisotropy()) : 4;
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+
+  const PALETTES = {
+    teal: { shirt: '#1ec9c8', shirtHi: '#48e3df', shirtLo: '#0a7a88', trim: '#f149a9', cup: '#1ec9c8', cupAccent: '#ffab33' },
+    pink: { shirt: '#ef3d9f', shirtHi: '#ff74c2', shirtLo: '#8e1160', trim: '#31d6d8', cup: '#ef3d9f', cupAccent: '#31d6d8' }
+  };
+  let P = PALETTES[cfg.colorway] || PALETTES.teal;
+
+  /* --------------------------------------------------------------------- */
+  /* GEOMETRY HELPERS                                                       */
+  /* --------------------------------------------------------------------- */
+
+  // Resample an authored [x,y] profile by arc length and expose y→v lookups so
+  // textures can be painted against real geometry instead of guessed numbers.
+  function profile(raw, samples) {
+    samples = samples || 72;
+    const curve = new THREE.CatmullRomCurve3(raw.map(p => V3(p[0], p[1], 0)), false, 'centripetal');
+    const pts = curve.getSpacedPoints(samples);
+    const arc = [0];
+    for (let i = 1; i < pts.length; i++) arc.push(arc[i - 1] + pts[i].distanceTo(pts[i - 1]));
+    const total = arc[arc.length - 1] || 1;
+    const p2 = pts.map((p, i) => {
+      const last = i === 0 || i === pts.length - 1;
+      return new THREE.Vector2(last ? Math.max(0, p.x) : Math.max(0.0006, p.x), p.y);
+    });
+    function find(y) {
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i];
+        if ((y >= a.y && y <= b.y) || (y <= a.y && y >= b.y)) {
+          const f = Math.abs(b.y - a.y) < 1e-7 ? 0 : (y - a.y) / (b.y - a.y);
+          return { i, f };
+        }
+      }
+      return null;
+    }
+    return {
+      points: p2,
+      vAt(y) {
+        const h = find(y); if (!h) return y < pts[0].y ? 0 : 1;
+        return (arc[h.i - 1] + (arc[h.i] - arc[h.i - 1]) * h.f) / total;
+      },
+      rAt(y) {
+        const h = find(y); if (!h) return 0;
+        return pts[h.i - 1].x + (pts[h.i].x - pts[h.i - 1].x) * h.f;
+      }
+    };
+  }
+
+  // phiStart = PI puts u = 0.5 dead centre-front, u = 0 on the back seam,
+  // and keeps canvas-left on screen-left. Textures can be painted unmirrored.
+  function latheOf(prof, seg) {
+    return new THREE.LatheGeometry(prof.points, seg || 76, Math.PI, Math.PI * 2);
+  }
+
+  // Curved shell with thickness + rim. Used for the visor frame and lens.
+  function wrapShell(o) {
+    const rx = o.rx, rz = o.rz, yc = o.yc, half = o.half, span = o.span, thick = o.thick;
+    const centerA = o.centerA || 0;
+    const segA = o.segA || 56, segV = o.segV || 8;
+    const notch = o.notch || 0, notchW = o.notchW || 0.22;
+    const taper = o.taper == null ? 0.26 : o.taper, domeY = o.domeY == null ? 0.20 : o.domeY;
+    const A = segA + 1, B = segV + 1;
+
+    function surf(a, t) {
+      const k = Math.abs(a-centerA) / (span / 2);
+      const hh = half * (1 - taper * Math.pow(k, 2.4));
+      const yb = yc - hh + notch * Math.exp(-((a-centerA) * (a-centerA)) / (notchW * notchW));
+      const yt = yc + hh;
+      const y = yb + (yt - yb) * t;
+      const dy = (y - yc) / Math.max(1e-4, half);
+      const s = 1 - domeY * dy * dy;
+      return V3(rx * s * Math.sin(a), y, rz * s * Math.cos(a));
+    }
+    function nrm(a, t) {
+      const e = 0.005;
+      const p0 = surf(a, t);
+      const ta = surf(a + e, t).sub(p0);
+      const tt = surf(a, Math.min(1, t + e)).sub(p0);
+      const n = ta.cross(tt);
+      return n.lengthSq() < 1e-12 ? V3(0, 0, 1) : n.normalize();
+    }
+
+    const pos = [], idx = [];
+    const push = (v) => { pos.push(v.x, v.y, v.z); };
+    for (let s = 0; s < 2; s++) {                     // 0 = outer shell, 1 = inner
+      for (let i = 0; i < A; i++) {
+        const a = centerA - span / 2 + (i / segA) * span;
+        for (let j = 0; j < B; j++) {
+          const t = j / segV;
+          push(surf(a, t).addScaledVector(nrm(a, t), (s === 0 ? 0.5 : -0.5) * thick));
+        }
+      }
+    }
+    const SH = A * B;
+    for (let i = 0; i < segA; i++) for (let j = 0; j < segV; j++) {
+      const a = i * B + j, b = (i + 1) * B + j, c = (i + 1) * B + j + 1, d = i * B + j + 1;
+      idx.push(a, b, d, b, c, d);                                   // outer, faces out
+      idx.push(SH + a, SH + d, SH + b, SH + b, SH + d, SH + c);     // inner, reversed
+    }
+    // Border loop, counter-clockwise seen from outside, duplicated for a crisp rim.
+    const loop = [];
+    for (let i = 0; i < A; i++) loop.push([i, 0]);
+    for (let j = 1; j < B; j++) loop.push([A - 1, j]);
+    for (let i = A - 2; i >= 0; i--) loop.push([i, B - 1]);
+    for (let j = B - 2; j >= 1; j--) loop.push([0, j]);
+    const RB = pos.length / 3;
+    for (const [i, j] of loop) {
+      const a = centerA - span / 2 + (i / segA) * span, t = j / segV;
+      const p = surf(a, t), n = nrm(a, t);
+      push(p.clone().addScaledVector(n, thick * 0.5));
+      push(p.clone().addScaledVector(n, -thick * 0.5));
+    }
+    for (let k = 0; k < loop.length; k++) {
+      const k2 = (k + 1) % loop.length;
+      const o1 = RB + k * 2, i1 = o1 + 1, o2 = RB + k2 * 2, i2 = o2 + 1;
+      idx.push(o1, i1, i2, o1, i2, o2);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  // Ribbon/tube sweep with a controllable flat cross-section. Hair, arms, band.
+  function swept(o) {
+    const curve = new THREE.CatmullRomCurve3(o.path, false, 'centripetal');
+    const seg = o.seg || 20, radial = o.radial || 12;
