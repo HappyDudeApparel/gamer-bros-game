@@ -1,1 +1,30 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<title>Gamer Bros · Hybrid v0.9 · Phase 1</title>
+<link rel="stylesheet" href="../styles.css?v=090p1">
+<link rel="stylesheet" href="./phase1.css?v=090p1">
+</head>
+<body>
+<div id="app"><div id="stage"></div></div>
+<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Hybrid v0.9 · Phase 1</strong><p>Loading the v0.5 portal/tube inside the new open landscaped movement benchmark.</p></div></div>
+<div id="fatal"><div class="bootCard"><strong>Hybrid preview could not start</strong><p id="fatalText"></p></div></div>
+<div id="ui">
+  <div class="phaseBadge">HYBRID v0.9 · PHASE 1</div>
+  <div class="devOnly top">
+    <div class="panel stats"><div class="eyebrow">RENDER TEST</div><div id="statsLine">— FPS</div><div id="qualityLine">AUTO</div><div id="phaseLine">IDLE · EMPTY</div></div>
+    <div class="actions"><button id="qualityBtn">QUALITY: AUTO</button><button id="orbitBtn">CAM: FOLLOW</button><button id="followLockBtn" class="active">FOLLOW LOCK: ON</button></div>
+  </div>
+  <div id="hint">Thumb stick moves relative to the camera · drag anywhere else to look · pinch to zoom · camera softly returns behind GB</div>
+  <div class="devOnly panel" id="lightingPanel"><div class="eyebrow">ROOM LIGHTING</div><span id="lightingValue">220%</span><input id="lightingSlider" type="range" min="35" max="220" value="220" step="1"></div>
+  <div class="devOnly panel" id="characterPanel"><div class="eyebrow">GAMER BRO TEST</div><div id="characterStatus">TEAL · IDLE</div><button id="motionBtn">MOTION: IDLE</button><button id="characterBtn" class="active">HERO: ON</button></div>
+  <div class="movePad" id="movePad" aria-label="Movement joystick"><div class="stickRing"></div><div class="stickKnob" id="stickKnob"></div></div>
+  <div class="moveActions"><button id="actionTouchBtn">ZAP</button><button id="runTouchBtn">RUN</button><button id="jumpTouchBtn">JUMP</button></div>
+  <div class="portalControls"><button class="devOnly" id="activateBtn" disabled>ACTIVATE PORTAL</button><button class="devOnly" id="dropBtn">LOAD HERO</button><div class="minorRow"><button id="resetBtn">RESET</button><button class="devOnly" id="viewBtn">CAMERA: HERO</button></div></div>
+</div>
+<script type="module" src="./main.js?v=090p1"></script>
+</body>
+</html>
