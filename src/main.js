@@ -8,7 +8,17 @@ const chunkPaths = [
   './chunks/07.txt',
   './chunks/08.txt',
   './chunks/09.txt',
-  './chunks/10.txt'
+  './chunks/10.txt',
+  './chunks/11.txt',
+  './chunks/12.txt',
+  './chunks/13.txt',
+  './chunks/14.txt',
+  './chunks/15.txt',
+  './chunks/16.txt',
+  './chunks/17.txt',
+  './chunks/18.txt',
+  './chunks/19.txt',
+  './chunks/20.txt'
 ];
 
 try {
