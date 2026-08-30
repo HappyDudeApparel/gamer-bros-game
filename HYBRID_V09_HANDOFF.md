@@ -1,89 +1,106 @@
 # Hybrid v0.9 Handoff
 
-## Current status
+## Current status — 2026-08-30
 
-Phase 1 is deployed to the isolated public preview and code-level testing is complete. Do **not** begin Phase 2 until the remaining rendered-device feel check is accepted.
+Hybrid v0.9 is the active experimental line. **Do not alter the live v0.8.7 root game yet.**
 
-### Preserved
-- `main` root still serves the existing v0.8.7 game at `game.happydude.ca`.
-- Root `index.html` remains the v0.8.7 entrypoint (blob `9f22093aa75c7ddd4a8259618e7e299f0a71ad43`).
-- The high-quality v0.5 portal/tube runtime remains the visual baseline.
-- Existing old arena repository remains untouched.
+- Development branch: `hybrid-v0.9`
+- Isolated public preview: `https://game.happydude.ca/hybrid-v09/`
+- Public preview files live under `main/hybrid-v09/` only.
+- Root `index.html` / live v0.8.7 remain outside this workstream.
 
-### New development branch
-- Branch: `hybrid-v0.9`
-- Preview path: `/hybrid-v09/`
-- Public preview: `https://game.happydude.ca/hybrid-v09/`
+## Phase 1.3 — movement, controller action, portal cleanup
 
-### Phase 1 implementation
-- New analog thumb-stick control shell.
-- Conventional third-person camera-relative movement patch based on the older arena relationship: input -> camera heading -> velocity -> facing.
-- Farther/higher follow camera by default.
-- Drag-look independent from movement with soft recenter behind hero.
-- Pinch/scroll persistent follow zoom.
-- Portal enclosure walls/ceiling/arches hidden while preserving portal/tube/floor/crystal foundation.
-- New open landscaped world prototype using plateaus, stone bridges, ramps, trees, rocks and distant mountain silhouettes.
-- Developer UI hidden in the Phase 1 preview.
-- Safer press-and-hold ZAP path retained for Phase 1.
-- Automatic portal entry: entering the portal trigger loads the hero into the tube and then automatically starts the preserved portal sequence.
+Device feedback exposed three remaining foundation defects after Phase 1.2:
 
-## Phase 1 deployment/test result — 2026-08-30
+1. Analog movement did not behave like a normal clock-face stick.
+2. Controller ZAP still read as one-handed because the source character has asymmetric base arm geometry.
+3. Portal disappearance still appeared to freeze and the later v0.8.7 polish hair/gear could remain visible after the dissolve.
 
-### Deployment
-- Latest development helper fix committed on `hybrid-v0.9`.
-- Latest isolated preview synced to `main/hybrid-v09/` only.
-- Preview cache key bumped to `090p1c` so devices do not retain the earlier broken helper.
-- GitHub Pages build/deploy for main commit `c3d85cf879377274ee70fd9244006ebad7fa968c` completed successfully (run `33332146619`).
-- No root v0.8.7 game file was changed.
+### Phase 1.3 fixes
 
-### Portal helper defect found and fixed during testing
-The first `phase1b.js` used an automatic-entry insertion target from a different runtime shape:
-- `gamerRoot.position.set(player.x,player.y,player.z)` / `speed01...`
+- Corrected camera-relative movement basis so:
+  - 12 o'clock = camera-forward;
+  - 3 o'clock = screen-right;
+  - 9 o'clock = screen-left;
+  - all intermediate angles blend continuously.
+- Follow camera heading no longer drifts underneath the player while the analog stick is actively held; recenter resumes after release.
+- Re-staged both arm pivots for the controller action so each fist moves toward its own controller grip instead of only rotating both shoulders with the asymmetric base pose.
+- Controller beam continues to originate from `bro.controllerEmitter`, never the forehead.
+- Portal conversion now hides the later `v087CharacterPolish` group before dissolve so non-dissolve hair/gear cannot float after the rest of the hero vanishes.
+- Post-disappearance dissipate/afterglow delay is reduced to essentially immediate completion.
+- Hero still respawns on the far plateau around `(0, 75)` and the portal remains disarmed until the player has left its trigger radius.
 
-That target does not exist in the current v0.5-based playable runtime, so public auto-entry would have silently failed.
+## Phase 2A — first enemy foundation
 
-The helper now patches the current `updatePlayer()` loop immediately after:
-- `if(player.y<-6.25)resetPlayerToPavement();`
+Phase 2A has now started rather than holding the project at another micro-gate.
 
-When the playable hero reaches the portal centre (`Math.hypot(player.x,player.z) < 2.15`, below `y < 1.35`), it calls `loadHero()` automatically.
+Recovered source used as architectural reference:
+- `sprite-3d-arena/bootstrap/performance-baseline/src/entities/EnemySystem.ts`
+- Existing old enemy assets preserved in that repository include `stump.glb`, `ghost.glb`, `mushroom.glb`, `cactus.glb`, `cthulhu.glb`, `demon.glb`, `skull.glb`, and `yeti.glb`.
 
-The existing load-complete target was verified against the current portal state machine and remains valid. It now schedules `activatePortal()` automatically after the hero finishes entering the tube.
+The old binary GLBs are preserved but are **not fetched at runtime from the private repo**. The Phase 2A preview is self-contained.
 
-### Code-level Phase 1 checks passed
-- `hybrid-v09/index.html` loads `phase1b.js` before `main.js`.
-- `phase1b.js` parses successfully.
-- Automatic-entry insertion target matches the current playable runtime.
-- Automatic-activation insertion target matches the current portal state machine.
-- Portal camera handoff target matches the current runtime.
-- Analog joystick binding exists and feeds camera-relative movement.
-- Drag-look and soft recenter patch exists.
-- Persistent wheel/pinch follow zoom patch exists.
-- Open-world landscape insertion exists.
-- Room boundary removal exists while portal foundation code is preserved.
-- `.devOnly` is hidden in Phase 1 CSS.
-- Public GitHub Pages build/deploy succeeded.
-- Root `index.html` is still titled `Gamer Bros Portal World v0.8.7`.
+### Current Phase 2A implementation
 
-### Remaining Phase 1 gate — rendered-device feel
-Before Phase 2, visually/play-test the public preview on the target devices for:
-1. joystick feel and dead-zone;
-2. camera-relative direction/facing;
-3. drag-look sensitivity and recenter speed;
-4. pinch/scroll zoom range and persistence;
-5. landscape readability, traversal and obvious bad gaps/falls;
-6. portal/tube/crystal landmark visual preservation;
-7. walking into the portal automatically loads and activates the full sequence;
-8. no obvious freezes or catastrophic frame-time spikes.
+- Three lightweight local/procedural stand-ins: stump, ghost, mushroom.
+- Each has its own patrol route on a known safe Hybrid plateau.
+- Local same-tier detection and chase behavior derived from the recovered EnemySystem architecture.
+- Two HP per enemy.
+- Controller ZAP ray can hit the enemy colliders.
+- Hit pulse feedback and small defeat burst.
+- Only three enemies are active in this first slice to protect performance and make behavior easy to judge.
+- No Maple Leafs yet.
+- No enemy ranged attacks or player health loop yet.
 
-Do not start Phase 2 until these are accepted or any Phase 1 defects are corrected.
+## Uploaded/source salvage notes
 
-## Next actions
-1. Complete the rendered-device Phase 1 feel check at `https://game.happydude.ca/hybrid-v09/`.
-2. Fix any Phase 1 interaction/rendering defects found there.
-3. Only after Phase 1 acceptance: Phase 2 — import/restore the visually stronger old enemy set and its patrol/chase architecture.
-4. Phase 3: convert Happy Dude Leafs into hovering collectibles/power-up rewards and add score/session state.
-5. Phase 4: reward boxes / jump-hit boxes that release Leafs.
-6. Later: replace procedural Gamer Bro with a proper authored/rigged GLB using the older Citrus character pipeline.
+Useful uploaded files reviewed and preserved as reference:
+- `Gamer-Bros-Portal-World-Slice-v0.8.2-Character-Action.html`: best source for controller model/emitter and action pose.
+- `Gamer-Bros-Portal-World-Slice-v0.8.1-Quality-Preserved.html`: quality-preserved character/world baseline.
+- `Gamer-Bros-Portal-Room-Visual-Test-v0.7-FINAL.html`: portal/character visual baseline.
+- `Sprite-3D-Arena-Standalone-Proof-v0.1.html` and `Sprite-3D-Arena-Visual-Upgrade-v0.2.html`: old arena combat/enemy/power behavior references.
+- `v10_citrus_reconstruction_lock.py`: Citrus visual reconstruction source; its body is explicitly a temporary high-poly visual source, not final game topology.
+
+The old `sprite-3d-arena` repository also preserves authored enemy GLBs and the TypeScript enemy controller. Those should be selectively migrated in a later visual upgrade rather than linked as external runtime dependencies.
+
+## Test focus for the current public preview
+
+Test one combined slice:
+
+1. Analog stick feels conventional and predictable over the full 360° circle.
+2. Holding 12 moves camera-forward; 9–12 moves forward-left; 12–3 moves forward-right.
+3. Both hands visibly move to opposite sides of the controller during ZAP.
+4. Beam starts at the controller.
+5. Portal finishes without a static pause or floating hair/glasses residue.
+6. Portal completion respawns the hero across the map.
+7. Stump / ghost / mushroom appear, patrol, detect nearby hero, and chase locally.
+8. Controller ZAP can defeat them without a major frame-time regression.
+
+## Next phases
+
+### Phase 2B — combat + world integration
+After Phase 2A behavior is acceptable:
+- improve enemy visual fidelity, ideally migrating selected preserved GLBs locally;
+- add enemy contact/ranged attacks, player hit response/health and clearer combat feedback;
+- selectively replace primitive vegetation with preserved authored nature assets while measuring performance.
+
+### Phase 3 — Happy Dude Maple Leafs
+- enemy/box rewards;
+- hovering/collection animation;
+- score/session state;
+- do not add until enemy/combat foundation is stable.
+
+### Phase 4 — ZAP/power polish
+- animated controller charge;
+- richer beam core/trail;
+- impact flare and particles;
+- hit reactions/knockback;
+- later power variants.
+
+### Separate art track — Citrus/Dash
+Do not place the high-poly Citrus reconstruction directly in the browser game. Continue the proper retopology/rigging/export pipeline separately, then integrate a game-ready GLB when it is actually ready.
 
 ## Design rule
-Do not continue patching v0.8.x as the main direction. Hybrid v0.9 is the new experimental line: old arena game architecture + landscaped world + old enemies, combined with the better v0.5 portal/tube and Gamer Bros concept.
+
+Hybrid v0.9 remains: stronger old arena gameplay architecture + landscaped world + recovered enemies/assets, combined with the better portal/tube and Gamer Bros presentation. Preserve good prior work, migrate selectively, keep runtime assets local/self-contained, and avoid regressing the live v0.8.7 root until Hybrid is clearly superior.
