@@ -1,0 +1,36 @@
+name: Materialize Hybrid Source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/materialize-hybrid.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hybrid-v0.9
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Materialize patched runtime into real source
+        run: node tools/materialize-hybrid.mjs
+      - name: Commit generated source to Hybrid branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hybrid-v09/src/game.js
+          if git diff --cached --quiet; then
+            echo "No generated source changes."
+          else
+            git commit -m "Materialize Hybrid v0.9 runtime source"
+            git push origin HEAD:hybrid-v0.9
+          fi
