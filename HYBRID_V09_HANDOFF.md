@@ -1,6 +1,6 @@
 # Hybrid v0.9 Handoff
 
-## Current status — Phase 2B clean runtime
+## Current status — Phase 2C
 
 Hybrid v0.9 is the active experimental line. **Do not alter the live v0.8.7 root game yet.**
 
@@ -8,162 +8,124 @@ Hybrid v0.9 is the active experimental line. **Do not alter the live v0.8.7 root
 - Isolated public preview: `https://game.happydude.ca/hybrid-v09/`
 - Public preview files live under `main/hybrid-v09/` only.
 - Root `main/index.html` remains `Gamer Bros Portal World v0.8.7`, blob `9f22093aa75c7ddd4a8259618e7e299f0a71ad43`.
-- GitHub Pages run `33337421986` completed successfully for the Phase 2B cleanup deployment.
+- Phase 2C public commit: `10c0d51104d9d271c85ccd618d37ae9a7f5ab057`.
+- GitHub Pages run `33338358604` completed successfully.
 
-## Architecture rule going forward
+## Architecture rule
 
-Do **not** return to the Phase 1 helper-stack approach.
+Do not return to the Phase-1 helper-stack approach. `phase1b.js`, `phase1c.js`, `phase1d.js`, the old preview `main.js`, and `phase2a.js` have been removed from the active public Hybrid folder.
 
-The previous preview layered behavior through:
-- `phase1b.js`
-- `phase1c.js`
-- `phase1d.js`
+Hybrid now loads:
+1. `hybrid-v09/runtime/main.js`
+2. `hybrid-v09/phase2c.js`
 
-Those files were physically deleted from both `hybrid-v0.9/hybrid-v09/` and `main/hybrid-v09/`. Their required behavior was consolidated into the single Hybrid runtime patch in `hybrid-v09/main.js`.
+The runtime now executes isolated Hybrid copies of the ten source chunks under:
+- `hybrid-v09/src/chunks/01.txt` ... `10.txt`
 
-Current preview loads only:
-1. `hybrid-v09/main.js`
-2. `hybrid-v09/phase2a.js`
+This is important: Hybrid no longer has to fetch the live v0.8.7 root chunks at runtime. Future runtime edits should be made against these isolated Hybrid copies and obsolete behavior should be deleted/rebuilt rather than stacked through more helper files.
 
-When replacing obsolete behavior, delete/rebuild the old path rather than stacking another post-load overlay.
+## Movement / camera / traversal retained from Phase 2B
 
-## Character — one native Gamer Bro
+- Circular analog stick.
+- Stick up = forward in the current camera view.
+- Right/left/diagonal input remains camera-relative.
+- Camera can be dragged while the joystick is held.
+- Soft follow recenter only resumes after input/drag stops.
+- Connected route from portal to central/side enemy areas.
+- Step allowance increased to avoid small stair barriers.
+- Portal auto-entry, auto-activation, distant respawn and re-arm logic retained.
 
-The portal regression came from the separate `v087CharacterPolish` overlay disappearing during conversion, exposing the older base character underneath.
+## Phase 2C hero presentation
 
-Phase 2B removes that overlay architecture entirely.
+Rendered-device feedback after Phase 2B said the playable hero still read as the older glasses/sprite version and the off-hand controller pose was not naturally mirrored.
 
-The real base Gamer Bro already contains:
-- distinct left/right glasses frames and lenses;
-- native hair cap and hair-lock geometry;
-- multi-part headphones;
-- controller model and controller emitter;
-- left/right arm pivots and action blend;
-- materials already wired into the portal dissolve.
+Phase 2C therefore consolidates presentation changes inside the single active `phase2c.js` module:
 
-Phase 2B styles those native meshes directly:
-- navy glasses frames instead of an all-black slab;
-- bright magenta lenses;
-- teal/orange/navy/magenta headphone treatment;
-- extra hair-lock geometry added into the native hair definition;
-- no post-load character shell or duplicate avatar.
+- Finds and hides the old visible native lens group once.
+- Builds one replacement face-gear treatment using the hero's **existing dissolve-compatible materials**, so the new glasses participate in portal conversion instead of remaining behind.
+- New glasses use navy frame + cyan/pink lens treatment + orange hinge/bridge accents rather than an all-black slab.
+- Adds a stronger cowlick/hair silhouette using the hero's existing hair materials.
+- Uses the left authored arm as the action master and mirrors it for the right side during ZAP, because the source left/right arms are asymmetrical.
+- Original right arm returns outside the action state.
+- Controller is slightly enlarged/repositioned for a clearer two-hand grip.
 
-The intended result is the same character before, during and after portal conversion.
+## Phase 2C prism attack
 
-## Movement and camera
+The old thin laser look was rejected.
 
-Phase 2B control semantics:
-- circular analog stick;
-- stick up = **forward in the current camera view**;
-- stick right = screen/camera right;
-- diagonals blend continuously;
-- movement reads current camera yaw every frame;
-- dragging the world directly rotates camera yaw/pitch even while the joystick is held;
-- after both camera drag and analog input stop, follow recenter may softly resume;
-- persistent pinch/wheel zoom remains;
-- player step allowance increased from `0.52` to `0.90` so small stairs/height transitions do not act like invisible walls.
+Phase 2C disables rendering of the old thin beam materials and replaces the visible attack with a controller-fired prism stream:
 
-Do not reintroduce the Phase 1.3 workaround that prevented camera heading changes while analog input was active.
+- five luminous crystal/shard projectiles per burst;
+- cyan, magenta, gold and violet additive colours;
+- small spread/fan instead of a rigid straight beam;
+- emitter particles at the controller;
+- projectile collision against enemies;
+- impact sparkle/shard bursts.
 
-## World traversal
+The controller remains the attack source.
 
-The earlier landscape had disconnected/awkward sections that could prevent reaching the enemies.
+## Phase 2C enemies
 
-Phase 2B rebuilds the main traversal route with:
-- a long gradual connection from the portal toward the first gameplay meadow;
-- a much larger central meadow;
-- connected left/right enemy plateaus;
-- connected forward plateaus/ramps;
-- decorative route-blocking boxes removed;
-- slightly fewer trees/rocks for clearer paths and safer performance.
+The old `phase2a.js` module was deleted and replaced by the consolidated Phase 2C encounter.
 
-If rendered-device testing finds another blockage, fix the actual walk surface/geometry rather than adding teleport workarounds.
-
-## Portal
-
-Portal behavior is now folded directly into the clean runtime:
-- automatic entry with arm/re-arm state;
-- automatic activation once the hero reaches the tube;
-- the same native Gamer Bro enters and converts;
-- no separate visual layer that can expose an older avatar;
-- completion exits immediately at the end of conversion instead of holding through the old long dissipate/afterglow stall;
-- hero respawns on a distant connected plateau around `z=57`;
-- camera returns to follow mode;
-- portal does not re-arm until the player leaves its trigger radius.
-
-Rendered-device validation is still required for exact timing and appearance.
-
-## Controller ZAP
-
-Controller ZAP is also part of the clean runtime:
-- press-and-hold `ZAP`;
-- native `bro.setAction(actionActive)` action state;
-- controller belongs to the character rig;
-- left and right arms are separately restaged toward opposite controller grips;
-- beam origin and direction come from `bro.controllerEmitter`;
-- broad environment raycasting is disabled in the core beam path for safety/performance;
-- Phase 2A separately raycasts enemies for combat hits.
-
-## Phase 2A enemies retained
-
-`hybrid-v09/phase2a.js` remains active with three lightweight local enemies:
+Current enemies:
 - Stump
 - Ghost
 - Mushroom
 
 Current behavior:
-- patrol routes;
-- local detection/chase;
-- 2 HP;
-- controller-ZAP hits;
-- hit pulse;
-- defeat burst.
+- patrol;
+- detection/chase;
+- 3 HP;
+- hit pulse/recoil and knockback;
+- visible shatter/defeat animation instead of instant disappearance;
+- delayed respawn after defeat.
 
-These are self-contained procedural stand-ins. Do not load their models at runtime from the old private repository.
+The procedural enemies remain temporary stand-ins. Preserved authored enemy GLBs and `EnemySystem.ts` remain available in `HappyDudeApparel/sprite-3d-arena`, branch `bootstrap/performance-baseline`, for a later visual upgrade.
 
-Preserved upgrade source remains in:
-- repo: `HappyDudeApparel/sprite-3d-arena`
-- branch: `bootstrap/performance-baseline`
+## Arena presentation
 
-Useful preserved assets/source include `src/entities/EnemySystem.ts` and the authored `stump.glb`, `ghost.glb`, `mushroom.glb`, `cactus.glb`, `cthulhu.glb`, `demon.glb`, `skull.glb`, and `yeti.glb`.
+Phase 2C adds non-blocking combat dressing inspired by the supplied concept image:
 
-## Current rendered-device priorities
+- larger circular combat pads;
+- glowing rune rings;
+- purple/cyan/magenta crystal clusters around arena edges;
+- no new collision barriers on the main traversal route.
 
-Validate the cleaned public preview for these foundation points:
-1. character no longer changes to the old all-black-glasses version in the tube;
-2. joystick up consistently means camera-forward and diagonals feel natural;
-3. camera can be dragged freely while the joystick remains held;
-4. player can walk from portal to enemy areas without stairs/gaps blocking progress;
-5. portal does not visibly hang at disappearance;
-6. both hands convincingly hold the controller during ZAP.
+The target direction is a compact, layered crystal/portal arena rather than a flat stitched test field.
 
-Small corrections to these are allowed, but keep them inside the clean runtime rather than restoring helper overlays.
+## Immediate rendered-device test
 
-## Next phases
+At `https://game.happydude.ca/hybrid-v09/`, verify:
+1. Phase badge says `HYBRID v0.9 · PHASE 2C`.
+2. New two-tone glasses/hair treatment reads as a meaningful hero upgrade.
+3. Both hands appear to hold opposite controller sides during ZAP.
+4. Old thin laser is no longer visibly dominating the attack.
+5. Prism shard stream is clearly visible from the controller.
+6. Enemies visibly react to hits and shatter/animate before disappearing/respawning.
+7. Portal still uses the same visible hero treatment and does not leave face/hair residue.
+8. Movement/camera/traversal remain intact.
 
-### Phase 2C — combat/presentation
-- improve enemy visuals using preserved authored sources where worthwhile;
-- enemy attacks/contact behavior;
-- player hit response, knockback and temporary invulnerability;
-- clearer enemy hit/defeat feedback;
-- continue watching phone/PC performance.
+## Next phase — Phase 3 Happy Dude Maple Leafs
 
-### Phase 3 — Happy Dude Maple Leafs
-- hovering/collectible Leafs;
-- enemy defeat rewards;
-- score/session state;
-- later connect boxes and other rewards to Leafs.
+If Phase 2C has no serious foundation regression, move next to the Happy Dude Maple Leaf reward loop.
 
-### Phase 4 — reward boxes + richer ZAP FX
-- jump-hit/reward boxes;
-- Leafs released from rewards;
-- more animated controller beam, charge/motion/impact effects.
+Planned Phase 3:
+- large high-readability maple-leaf creatures/collectibles inspired by the supplied concept;
+- BASE / GOLD / GALAXY / GUMMY / HOLOFOIL / GEM visual variants;
+- enemy defeat can release Leafs;
+- hovering/bobbing collectible behavior;
+- session score / collection state;
+- later use Leafs for charge/power progression and reward boxes.
 
-### Later character track
-Use recovered Citrus/Dash Blender/GLB material as an authored character-pipeline reference. Do not put heavy high-poly Blender source directly into the browser build; retopology/rigging/optimized GLB is a separate art track.
+The existing v0.8.7 `src/v087.js` contains useful prior Maple Leaf silhouette/variant work that can be selectively reused as source reference, but Phase 3 should be integrated into the isolated Hybrid runtime rather than reactivating v0.8.7 as another overlay.
+
+## Later
+
+- Enemy attacks/player damage, hit response and temporary invulnerability can be layered into the consolidated Phase-2C combat system after basic presentation is accepted.
+- Reward boxes / jump-hit boxes after Leafs.
+- Authored Citrus/Dash character pipeline remains a separate retopology/rigging/optimized-GLB art track; do not ship the heavy Blender sculpt directly in-browser.
 
 ## Design direction
 
-Hybrid v0.9 combines the stronger v0.5 portal/tube foundation, a clean landscaped third-person world, recovered arena gameplay architecture/enemy ideas, the Gamer Bros controller/ZAP identity, and later the Happy Dude Leaf reward loop.
-
-The priority is now a clean, maintainable playable game rather than accumulating compatibility patches from older builds.
+Hybrid v0.9 should continue toward the supplied crystal-arena concept: large readable platforms, glowing portal/crystal landmarks, expressive enemies, controller-powered prism combat, and large stylized Happy Dude Maple Leafs. Keep the codebase self-contained and remove obsolete paths instead of accumulating compatibility layers.
