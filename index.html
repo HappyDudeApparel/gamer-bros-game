@@ -4,20 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#090712">
-<title>Sprite — Gamer Bros Portal World Slice v0.8.2</title>
+<title>Gamer Bros Portal World v0.8.3</title>
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./menu.css">
 </head>
 <body>
 <div id="app"><div id="stage"></div></div>
-<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Stone Portal Room</strong><p>Loading the quality-preserved world slice with the v0.5 stone/tube baseline, upgraded Gamer Bro hair and glasses, stronger locomotion, repeated-jump prototype controls, wider camera zoom, and a controller-powered action laser.</p></div></div>
+<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Gamer Bros Portal World</strong><p>Loading the quality-preserved v0.5 stone/tube world with GB1 / GB2 hero select, faster locomotion, automatic portal entry and a phone-safe press-and-hold glasses beam.</p></div></div>
 <div id="fatal"><div class="bootCard"><strong>Preview could not start</strong><p id="fatalText"></p></div></div>
 <div id="ui">
   <div class="top">
     <div class="panel stats"><div class="eyebrow">RENDER TEST</div><div id="statsLine">— FPS</div><div id="qualityLine">AUTO</div><div id="phaseLine">IDLE · EMPTY</div></div>
     <div class="actions"><button id="qualityBtn">QUALITY: AUTO</button><button id="orbitBtn">CAM: FOLLOW</button><button id="followLockBtn" class="active">FOLLOW LOCK: ON</button></div>
   </div>
-  <div id="hint">Move · Run · hold Jump for repeated air boosts · F/Action = controller laser</div>
-  <div class="panel playBadge">V0.5 VISUAL BASELINE · CHARACTER ACTION PASS</div>
+  <div id="hint">Move · Run · hold Jump for repeated air boosts · tap/hold ZAP to fire from the glasses</div>
+  <div class="panel playBadge">V0.5 VISUAL BASELINE · V0.8.3 GAMEPLAY PASS</div>
   <div id="lightingPanel" class="panel lightingPanel">
     <div class="eyebrow">ROOM LIGHTING</div>
     <div class="lightingRow"><span id="lightingValue">100%</span></div>
@@ -25,18 +26,19 @@
   </div>
   <div id="characterPanel" class="panel characterPanel">
     <div class="eyebrow">GAMER BRO TEST</div>
-    <div id="characterStatus" class="characterStatus">TEAL · IDLE</div>
+    <div id="characterStatus" class="characterStatus">GB2 · TEAL · IDLE</div>
     <div class="characterRow"><button id="motionBtn">MOTION: IDLE</button><button id="characterBtn" class="active">HERO: ON</button></div>
   </div>
   <div class="movePad" id="movePad"><button class="moveBtn" data-move="up">▲</button><button class="moveBtn" data-move="down">▼</button><button class="moveBtn" data-move="left">◀</button><button class="moveBtn" data-move="right">▶</button></div>
-  <div class="moveActions"><button id="actionTouchBtn">ACTION</button><button id="runTouchBtn">RUN</button><button id="jumpTouchBtn">JUMP</button></div>
+  <div class="moveActions"><button id="actionTouchBtn">ZAP</button><button id="runTouchBtn">RUN</button><button id="jumpTouchBtn">JUMP</button></div>
   <div class="portalControls">
     <button id="activateBtn" disabled>ACTIVATE PORTAL</button>
     <button id="dropBtn">LOAD HERO</button>
-    <div class="minorRow"><button id="resetBtn">RESET TEST</button><button id="viewBtn">CAMERA: HERO</button></div>
+    <div class="minorRow"><button id="resetBtn">MENU / RESET</button><button id="viewBtn">CAMERA: HERO</button></div>
   </div>
 </div>
 
 <script type="module" src="./src/main.js"></script>
+<script type="module" src="./src/overlay.js"></script>
 </body>
 </html>
