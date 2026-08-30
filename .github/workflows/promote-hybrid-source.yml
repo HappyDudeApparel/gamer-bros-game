@@ -24,6 +24,14 @@ jobs:
           node-version: '22'
       - name: Generate clean Hybrid source
         run: node tools/promote-hybrid-source.mjs
+      - name: Syntax-check promoted source
+        run: node --check hybrid-v09/src/game.js
+      - name: Validate M2 portal states
+        run: |
+          grep -q "phase==='sustain'" hybrid-v09/src/game.js
+          grep -q "phase==='complete'" hybrid-v09/src/game.js
+          grep -q "setPhase('dissipate')" hybrid-v09/src/game.js
+          grep -q "PLAY AGAIN" hybrid-v09/src/game.js
       - name: Commit promoted source
         run: |
           git config user.name "github-actions[bot]"
