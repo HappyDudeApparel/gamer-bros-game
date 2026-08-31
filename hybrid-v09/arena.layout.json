@@ -1,5 +1,5 @@
 {
-  "version": "crystal-library-v2.2",
+  "version": "crystal-library-v2.3",
   "heroHeight": 2.62,
   "worldSize": 66,
   "zones": [
@@ -58,5 +58,5 @@
     "bookshelfBays":26,
     "overheadCrystalCount":{"performance":84,"balanced":132,"high":180}
   },
-  "spawn": {"x":0,"z":27,"yaw":3.14159}
+  "spawn": {"x":0,"z":27,"yaw":0}
 }
