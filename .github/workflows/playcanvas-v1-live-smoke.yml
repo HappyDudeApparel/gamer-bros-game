@@ -1,0 +1,67 @@
+name: PlayCanvas v1 live site smoke
+
+on:
+  push:
+    branches: [playcanvas-v1]
+    paths:
+      - '.github/workflows/playcanvas-v1-live-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify live isolated preview
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const live='https://game.happydude.ca/playcanvas-v1/';
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844},userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36'});
+            const errors=[]; page.on('pageerror',e=>errors.push(String(e)));
+            let ok=false,last='';
+            for(let attempt=1;attempt<=8;attempt++){
+              try{
+                const r=await page.goto(live,{waitUntil:'domcontentloaded',timeout:30000});
+                last='HTTP '+r?.status()+' title '+await page.title();
+                if(r?.ok() && (await page.title()).includes('Crystal Library Vertical Slice')){ok=true;break;}
+              }catch(e){last=String(e);}
+              console.log('Live not ready, attempt',attempt,last);
+              await page.waitForTimeout(15000);
+            }
+            if(!ok)throw new Error('Live preview did not propagate: '+last);
+            await page.waitForFunction(()=>!document.getElementById('boot'),null,{timeout:30000});
+            await page.waitForFunction(()=>window.__spriteGame?.state,null,{timeout:15000});
+            const canvas=await page.$eval('#game',c=>({w:c.width,h:c.height}));
+            if(canvas.w<100||canvas.h<100)throw new Error('Live canvas not initialized '+JSON.stringify(canvas));
+            await page.keyboard.down('w'); await page.waitForTimeout(650); await page.keyboard.up('w');
+            await page.keyboard.press('f');
+            await page.evaluate(()=>window.__spriteGame.collectAllCrests());
+            const start=Date.now();
+            await page.evaluate(()=>{window.__spriteGame.teleportToPortal();window.__spriteGame.completeGame();});
+            await page.waitForFunction(()=>{const e=document.getElementById('results');return e&&!e.hidden&&e.classList.contains('show')&&document.getElementById('resultsStats')?.textContent?.trim();},null,{timeout:4500});
+            console.log('Live portal transition DOM ready in',Date.now()-start,'ms');
+            if(errors.length)throw new Error('Live page errors: '+errors.join(' | '));
+            await page.screenshot({path:'playcanvas-v1-live.png',fullPage:true});
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload live screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playcanvas-v1-live
+          path: playcanvas-v1-live.png
+          if-no-files-found: ignore
