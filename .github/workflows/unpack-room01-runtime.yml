@@ -31,16 +31,29 @@ jobs:
           const m=packed.match(/const payload='([^']+)'/);
           if(!m) throw new Error('Packed Room 01 payload not found');
           let source=zlib.gunzipSync(Buffer.from(m[1],'base64')).toString('utf8');
+
+          // The packed source has used both relative and root-absolute imports.
+          // Always rewrite the actual import specifiers so mobile browsers cannot
+          // keep an older broken dependency module in their HTTP/module cache.
           source=source
-            .replaceAll('./portal-v2.js?v=102','./portal-v2.js?v=105')
-            .replaceAll('./v04-sprites.js?v=102','./v04-sprites.js?v=105');
+            .replace(/(['"])(?:\.\/|\/room01-v1\/)portal-v2\.js\?v=[^'"]+\1/g,"'/room01-v1/portal-v2.js?v=106'")
+            .replace(/(['"])(?:\.\/|\/room01-v1\/)v04-sprites\.js\?v=[^'"]+\1/g,"'/room01-v1/v04-sprites.js?v=106'")
+            .replace(/(['"])\/playground-v2\/gamer-bro\.js\?v=[^'"]+\1/g,"'/playground-v2/gamer-bro.js?v=106'");
+
           fs.writeFileSync('room01-v1/runtime.js',source);
           const indexPath='room01-v1/index.html';
           let html=fs.readFileSync(indexPath,'utf8');
-          html=html.replace(/<script type="module" src="\.\/launcher\.js\?v=\d+"><\/script>/,'<script type="module" src="./runtime.js?v=105"></script>');
-          html=html.replace(/styles\.css\?v=\d+/,'styles.css?v=105');
+          html=html
+            .replace(/<script type="module" src="\.\/(?:launcher|runtime)\.js\?v=[^"]+"><\/script>/,'<script type="module" src="./runtime.js?v=106"></script>')
+            .replace(/styles\.css\?v=[^"']+/,'styles.css?v=106');
           fs.writeFileSync(indexPath,html);
           NODE
+      - name: Verify rewritten imports
+        run: |
+          grep -F "/playground-v2/gamer-bro.js?v=106" room01-v1/runtime.js
+          grep -F "/room01-v1/portal-v2.js?v=106" room01-v1/runtime.js
+          grep -F "/room01-v1/v04-sprites.js?v=106" room01-v1/runtime.js
+          grep -F "runtime.js?v=106" room01-v1/index.html
       - name: Syntax checks
         run: |
           node --check room01-v1/runtime.js
@@ -53,5 +66,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add room01-v1/runtime.js room01-v1/index.html
           git diff --cached --quiet && exit 0
-          git commit -m 'Serve Room 01 as normal mobile-safe modules'
+          git commit -m 'Serve Room 01 with fresh dependency modules'
           git push origin HEAD:main
