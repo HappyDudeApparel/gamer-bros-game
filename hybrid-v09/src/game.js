@@ -47,7 +47,7 @@
     const scene=new THREE.Scene();
     scene.background=new THREE.Color(0x090812);
     scene.fog=new THREE.FogExp2(0x120d1b,0.0100);
-    const camera=new THREE.PerspectiveCamera(36,1,.15,125);
+    const camera=new THREE.PerspectiveCamera(36,1,.15,70);
     camera.layers.enable(1);
 
     const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -297,7 +297,7 @@
       for(let i=0;i<17;i++){const a=i/16*Math.PI,r=3.04;setNested(voussoir,vo++,pp,angle,new THREE.Vector3(Math.cos(a)*r,4.78+Math.sin(a)*r,0),new THREE.Euler(0,0,a-Math.PI/2),new THREE.Vector3(1.03,.98,1));}
       if(Math.abs(angle)<.001)setNested(alcoves,al++,pp,angle,new THREE.Vector3(0,-40,.33),new THREE.Euler(0,Math.PI,0));else setNested(alcoves,al++,pp,angle,new THREE.Vector3(0,2.72,.33),new THREE.Euler(0,Math.PI,0));
     }
-    [archFoot,archBlocks,archCaps,archTrim,reliefOuter,reliefInner,voussoir,alcoves].forEach(m=>{m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;});
+    [archFoot,archBlocks,archCaps,archTrim,reliefOuter,reliefInner,voussoir,alcoves].forEach(m=>{m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;m.visible=false;});
 
     let bb=0,bbl=0,bc=0;
     for(const angle of [Math.PI/4,Math.PI*.75,Math.PI*1.25,Math.PI*1.75]){
@@ -305,7 +305,7 @@
       for(let i=0;i<8;i++)setNested(buttBlocks,bbl++,pp,angle,new THREE.Vector3(0,.58+i*.60,0),new THREE.Euler(0,(i%2?1:-1)*.025,0));
       setNested(buttCaps,bc++,pp,angle,new THREE.Vector3(0,5.32,0));
     }
-    [buttBase,buttBlocks,buttCaps].forEach(m=>{m.instanceMatrix.needsUpdate=true;});
+    [buttBase,buttBlocks,buttCaps].forEach(m=>{m.instanceMatrix.needsUpdate=true;m.visible=false;});
 
     envMesh(new THREE.CylinderGeometry(3.58,3.80,.34,72),stoneDark,new THREE.Vector3(0,.10,0),true);
     envMesh(new THREE.CylinderGeometry(3.24,3.42,.24,72),floorMat,new THREE.Vector3(0,.32,0),false);
@@ -415,68 +415,19 @@
       const lg=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffb55e,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false}));lg.position.set(lx,1.32,lz);lg.scale.set(.75,.75,1);ext.add(lg);
     }
 
-    // ------------------------------------------------------------
-    // M4A DATA-DRIVEN VERTICAL ARENA BLOCKOUT
-    // This replaces the old z=0→90 corridor. Visual modules are intentionally
-    // replaceable placeholders; layout + collision data are now authoritative.
-    // ------------------------------------------------------------
-    ext.clear();
-    walkSurfaces.length=0;
-    const arenaLayout=await fetch(new URL('../arena.layout.json',import.meta.url),{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('Arena layout '+r.status);return r.json();});
-    const arenaRoot=new THREE.Group();arenaRoot.name='HybridM4AArena';ext.add(arenaRoot);
-    const arenaStone=new THREE.MeshStandardMaterial({map:stoneMap,normalMap:stoneNormal,color:0x62556f,roughness:.82,metalness:.04,envMapIntensity:.70});
-    const arenaStoneDark=new THREE.MeshStandardMaterial({map:stoneMap,normalMap:stoneNormal,color:0x332941,roughness:.90,metalness:.02,envMapIntensity:.52});
-    const arenaEdge=new THREE.MeshStandardMaterial({color:0x8b6db0,roughness:.62,metalness:.12,emissive:0x28123f,emissiveIntensity:.20});
-    const arenaTop=new THREE.MeshStandardMaterial({map:floorMap,roughnessMap:floorRough,color:0x776780,roughness:.70,metalness:.03,envMapIntensity:.72});
-    const runeArena=new THREE.MeshBasicMaterial({map:runeMap,color:0xc58cff,transparent:true,opacity:.34,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
-    const crystalM4A={
-      violet:new THREE.MeshStandardMaterial({color:0x9d6cff,emissive:0x5a20c8,emissiveIntensity:2.1,roughness:.18,metalness:.04}),
-      cyan:new THREE.MeshStandardMaterial({color:0x65e5ff,emissive:0x167da6,emissiveIntensity:1.9,roughness:.16,metalness:.04}),
-      pink:new THREE.MeshStandardMaterial({color:0xff69ce,emissive:0x9e175e,emissiveIntensity:1.8,roughness:.16,metalness:.04})
-    };
-    const platformMap=new Map(arenaLayout.platforms.map(p=>[p.id,p]));
-    function arenaMesh(geo,mat,x,y,z,ry=0,cast=true){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.y=ry;m.castShadow=cast;m.receiveShadow=true;arenaRoot.add(m);return m;}
-    function buildPlatform(p){
-      arenaMesh(new THREE.CylinderGeometry(p.r*.86,p.r,2.15,48),arenaStoneDark,p.x,p.y-.98,p.z,0,true);
-      arenaMesh(new THREE.CylinderGeometry(p.r*.94,p.r*.96,.30,48),arenaTop,p.x,p.y,p.z,0,false);
-      const rim=arenaMesh(new THREE.TorusGeometry(p.r*.87,.12,8,48),arenaEdge,p.x,p.y+.16,p.z,0,false);rim.rotation.x=Math.PI/2;
-      const rune=arenaMesh(new THREE.CircleGeometry(p.r*.48,40),runeArena,p.x,p.y+.175,p.z,0,false);rune.rotation.x=-Math.PI/2;
-      for(let i=0;i<8;i++){const a=i*Math.PI/4,r=p.r*.88,x=p.x+Math.cos(a)*r,z=p.z+Math.sin(a)*r;const b=arenaMesh(new THREE.BoxGeometry(.60,1.65,1.15),arenaStone,x,p.y-.62,z,-a,false);b.scale.y=.82;}
-      addDiscSurface(p.x,p.z,p.r*.91,p.y+.16);
-    }
-    function buildStraight(a,b,w,kind='bridge'){
-      const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz),ry=Math.atan2(dx,dz),y=(a.y+b.y)/2;
-      const deck=arenaMesh(new THREE.BoxGeometry(w,.42,d),arenaStoneDark,(a.x+b.x)/2,y-.12,(a.z+b.z)/2,ry,true);
-      arenaMesh(new THREE.BoxGeometry(w-.18,.16,d-.12),arenaTop,(a.x+b.x)/2,y+.10,(a.z+b.z)/2,ry,false);
-      if(kind==='bridge'){
-        const rx=Math.cos(ry),rz=-Math.sin(ry);for(const side of[-1,1]){const off=side*(w/2-.18);arenaMesh(new THREE.BoxGeometry(.18,.34,d-.35),arenaEdge,(a.x+b.x)/2+rx*off,y+.28,(a.z+b.z)/2+rz*off,ry,false);}
-      }
-      addRectSurface((a.x+b.x)/2,(a.z+b.z)/2,w-.22,d-.18,y+.18,ry);
-      return deck;
-    }
-    function buildRamp(r){
-      const dx=r.x2-r.x1,dz=r.z2-r.z1,d=Math.hypot(dx,dz),ry=Math.atan2(dx,dz),midX=(r.x1+r.x2)/2,midZ=(r.z1+r.z2)/2,midY=(r.y1+r.y2)/2;
-      const m=arenaMesh(new THREE.BoxGeometry(r.w,.30,d),arenaTop,midX,midY,midZ,ry,true);m.rotation.x=Math.atan2(r.y1-r.y2,d);
-      const under=arenaMesh(new THREE.BoxGeometry(r.w+.30,.48,d),arenaStoneDark,midX,midY-.25,midZ,ry,true);under.rotation.x=m.rotation.x;
-      addRampSurface(midX,midZ,r.w-.25,d-.18,r.y1+.16,r.y2+.16,ry);
-    }
-    arenaLayout.platforms.forEach(buildPlatform);
-    arenaLayout.ramps.forEach(buildRamp);
-    arenaLayout.bridges.forEach(b=>{const a=platformMap.get(b.a),c=platformMap.get(b.b);if(a&&c)buildStraight(a,c,b.w,'bridge');});
-    arenaLayout.floaters.forEach(f=>{arenaMesh(new THREE.CylinderGeometry(f.r*.82,f.r,.55,28),arenaStoneDark,f.x,f.y-.18,f.z);arenaMesh(new THREE.CylinderGeometry(f.r*.90,f.r*.92,.16,28),arenaTop,f.x,f.y+.08,f.z,0,false);const rr=arenaMesh(new THREE.TorusGeometry(f.r*.72,.07,7,28),arenaEdge,f.x,f.y+.18,f.z,0,false);rr.rotation.x=Math.PI/2;addDiscSurface(f.x,f.z,f.r*.86,f.y+.18);});
-    const crystalGeo=new THREE.OctahedronGeometry(.52,0);
-    arenaLayout.crystals.forEach((c,i)=>{const g=new THREE.Group();g.position.set(c.x,c.y,c.z);g.rotation.y=i*.71;arenaRoot.add(g);for(let k=0;k<4;k++){const m=new THREE.Mesh(crystalGeo,crystalM4A[c.color]||crystalM4A.violet);m.position.set((k-1.5)*.31,k*.27,(k%2?-.12:.12));const sc=c.scale*(.58+k*.13);m.scale.set(sc,sc*(1.28+k*.15),sc);m.rotation.z=(k-1.5)*.13;m.castShadow=true;g.add(m);}const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:c.color==='cyan'?0x67e7ff:c.color==='pink'?0xff68cf:0xa16cff,transparent:true,opacity:.24,blending:THREE.AdditiveBlending,depthWrite:false}));glow.position.y=1.05*c.scale;glow.scale.setScalar(2.7*c.scale);g.add(glow);});
-    const towerMat=new THREE.MeshStandardMaterial({map:stoneMap,normalMap:stoneNormal,color:0x30263d,roughness:.94,metalness:.02});
-    const towerTrim=new THREE.MeshStandardMaterial({color:0x5a4070,roughness:.82,metalness:.05,emissive:0x180b29,emissiveIntensity:.16});
-    arenaLayout.backdrop.forEach((q,qi)=>{const g=new THREE.Group();g.position.set(q.x,q.y,q.z);g.rotation.y=q.rot||0;arenaRoot.add(g);const shaft=new THREE.Mesh(new THREE.BoxGeometry(q.w,q.h,q.w*.72),towerMat);shaft.position.y=q.h/2;g.add(shaft);for(let k=0;k<4;k++){const ledge=new THREE.Mesh(new THREE.BoxGeometry(q.w*1.10,.34,q.w*.82),towerTrim);ledge.position.y=q.h*(.18+k*.22);g.add(ledge);}for(let k=-1;k<=1;k+=2){const fin=new THREE.Mesh(new THREE.BoxGeometry(q.w*.22,q.h*.42,q.w*.22),towerMat);fin.position.set(k*q.w*.54,q.h*.79,0);g.add(fin);}const crown=new THREE.Mesh(new THREE.CylinderGeometry(q.w*.44,q.w*.54,1.3,8),towerTrim);crown.position.y=q.h+.45;g.add(crown);});
-    const archMat=arenaStone;
-    function gateway(x,z,ry,y=0){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;arenaRoot.add(g);for(const side of[-1,1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.72,4.8,.95),archMat);p.position.set(side*2.45,2.35,0);g.add(p);}const top=new THREE.Mesh(new THREE.TorusGeometry(2.45,.48,10,32,Math.PI),archMat);top.position.y=4.65;top.rotation.z=Math.PI;g.add(top);}
-    gateway(0,7.7,0);gateway(7.7,0,Math.PI/2);gateway(-7.7,0,Math.PI/2);gateway(0,-7.7,0);
-    const skySpireMat=new THREE.MeshBasicMaterial({color:0x251631,transparent:true,opacity:.82});
-    for(let i=0;i<14;i++){const a=i/14*Math.PI*2,r=68+(i%3)*4,h=12+(i%5)*3;const m=arenaMesh(new THREE.ConeGeometry(5+(i%3),h,7),skySpireMat,Math.cos(a)*r,h/2-7,Math.sin(a)*r,a,false);m.castShadow=false;}
+    function terrainTex90(grass){const c=document.createElement('canvas');c.width=c.height=384;const g=c.getContext('2d');g.fillStyle=grass?'#3f772c':'#67503a';g.fillRect(0,0,384,384);for(let i=0;i<2200;i++){const x=Math.random()*384,y=Math.random()*384,a=.025+Math.random()*.075;g.fillStyle=grass?(Math.random()<.55?'rgba(143,180,76,'+a+')':'rgba(23,70,29,'+a+')'):(Math.random()<.5?'rgba(185,145,88,'+a+')':'rgba(50,38,28,'+a+')');g.fillRect(x,y,1+Math.random()*3,1+Math.random()*3);}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,5);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;}
+    const grass90=new THREE.MeshPhysicalMaterial({map:terrainTex90(true),roughness:.94,metalness:0,envMapIntensity:.5}),dirt90=new THREE.MeshStandardMaterial({map:terrainTex90(false),roughness:.96}),bark90=new THREE.MeshStandardMaterial({color:0x5a3723,roughness:.92}),leaf90=new THREE.MeshPhysicalMaterial({color:0x3f903a,roughness:.78,sheen:.2,sheenColor:new THREE.Color(0x8edb66)}),leafDark90=new THREE.MeshStandardMaterial({color:0x276d2f,roughness:.9}),mount90=new THREE.MeshStandardMaterial({color:0x4f5963,roughness:.96,flatShading:true}),snow90=new THREE.MeshStandardMaterial({color:0xa8bac4,roughness:.92,flatShading:true});
+    function plateau90(x,z,r,y=0,grass=true){extMesh(new THREE.CylinderGeometry(r*.96,r,1.7,48),dirt90,new THREE.Vector3(x,y-.78,z),0,true);extMesh(new THREE.CylinderGeometry(r*.96,r*.97,.20,48),grass?grass90:floorMat,new THREE.Vector3(x,y+.03,z),0,false);addDiscSurface(x,z,r*.92,y+.14);}
+    function bridge90(x1,z1,x2,z2,w,y){const dx=x2-x1,dz=z2-z1,d=Math.hypot(dx,dz),rot=Math.atan2(dx,dz);extMesh(new THREE.BoxGeometry(w+.28,.42,d),stoneDark,new THREE.Vector3((x1+x2)/2,y-.18,(z1+z2)/2),rot,true);extMesh(new THREE.BoxGeometry(w,.14,d-.05),floorMat,new THREE.Vector3((x1+x2)/2,y+.07,(z1+z2)/2),rot,false);addRectSurface((x1+x2)/2,(z1+z2)/2,w-.14,d-.10,y+.15,rot);}
+    function ramp90(x,z,w,d,y0,y1){const m=extMesh(new THREE.BoxGeometry(w,.20,d),floorMat,new THREE.Vector3(x,(y0+y1)/2-.04,z),0,true);m.rotation.x=Math.atan2(y1-y0,d);addRampSurface(x,z,w-.12,d-.08,y0,y1,0);}
+    ramp90(0,17.7,5.8,22.0,.02,.39);plateau90(0,34,16.5,.25,true);plateau90(-18,33,8.4,.72,true);plateau90(18,33,8.4,.72,true);bridge90(-12.0,33,-14.0,33,4.4,.64);bridge90(12.0,33,14.0,33,4.4,.64);bridge90(0,47,0,49.0,5.0,.60);plateau90(0,57,11.8,1.15,true);ramp90(0,68,5.0,12,1.29,2.10);plateau90(0,78,10.2,2.0,true);bridge90(-8.0,58,-15.0,63,3.5,1.35);bridge90(8.0,58,15.0,63,3.5,1.35);plateau90(-21,67,7.5,1.75,true);plateau90(21,67,7.5,1.75,true);
+    const treeN=44,trunk90=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.28,2.3,8),bark90,treeN),crown90=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,2),leaf90,treeN),crownB90=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),leafDark90,treeN);trunk90.castShadow=crown90.castShadow=true;ext.add(trunk90,crown90,crownB90);const zones90=[[0,34,15.0,.25],[-18,33,7.5,.72],[18,33,7.5,.72],[0,57,10.6,1.15],[-21,67,6.6,1.75],[21,67,6.6,1.75],[0,78,9.0,2.0]];let ti90=0;outer90:for(let zi=0;zi<zones90.length;zi++){const[cx,cz,rr,yy]=zones90[zi];for(let k=0;k<8;k++){if(ti90>=treeN)break outer90;const a=k/8*Math.PI*2+zi*.73,r=rr*(.68+.22*((k*7%10)/10)),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,sc=.82+((k+zi)%5)*.1;dummy.rotation.set(0,a*.37,0);dummy.position.set(x,yy+1.15*sc,z);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();trunk90.setMatrixAt(ti90,dummy.matrix);dummy.position.set(x,yy+2.55*sc,z);dummy.scale.set(1.15*sc,1.42*sc,1.12*sc);dummy.updateMatrix();crown90.setMatrixAt(ti90,dummy.matrix);dummy.position.set(x+.35*sc,yy+3.25*sc,z-.1*sc);dummy.scale.set(.72*sc,.88*sc,.72*sc);dummy.updateMatrix();crownB90.setMatrixAt(ti90,dummy.matrix);ti90++;}}for(;ti90<treeN;ti90++){dummy.position.set(0,-30,0);dummy.scale.set(.001,.001,.001);dummy.updateMatrix();trunk90.setMatrixAt(ti90,dummy.matrix);crown90.setMatrixAt(ti90,dummy.matrix);crownB90.setMatrixAt(ti90,dummy.matrix);}trunk90.instanceMatrix.needsUpdate=crown90.instanceMatrix.needsUpdate=crownB90.instanceMatrix.needsUpdate=true;
+    const rockN=28,rock90=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(.62,1),stoneDark,rockN);rock90.castShadow=true;rock90.receiveShadow=true;ext.add(rock90);for(let i=0;i<rockN;i++){const z=24+(i*13%58),side=i%2?-1:1,x=side*(13+(i*7%16)),y=z>72?2:z>48?1.15:.4;dummy.position.set(x,y+.28,z);dummy.rotation.set(i*.43,i*.77,i*.21);const sc=.55+(i%6)*.16;dummy.scale.set(sc,sc*(.55+(i%3)*.15),sc*.8);dummy.updateMatrix();rock90.setMatrixAt(i,dummy.matrix);}rock90.instanceMatrix.needsUpdate=true;
+    const mN=20,m90=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),mount90,mN),snowM90=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),snow90,mN);ext.add(m90,snowM90);for(let i=0;i<mN;i++){const a=i/mN*Math.PI*2,r=62+(i%5)*5,h=18+(i%7)*2.7,rad=7+(i%4)*1.8,x=Math.cos(a)*r,z=42+Math.sin(a)*r;dummy.position.set(x,h*.5-4,z);dummy.rotation.set(0,a+.2,0);dummy.scale.set(rad,h,rad);dummy.updateMatrix();m90.setMatrixAt(i,dummy.matrix);dummy.position.set(x,h-5,z);dummy.scale.set(rad*.42,h*.22,rad*.42);dummy.updateMatrix();snowM90.setMatrixAt(i,dummy.matrix);}m90.instanceMatrix.needsUpdate=snowM90.instanceMatrix.needsUpdate=true;
+  
     // Abyss cue only outside the room; quality stays in geometry/materials above it.
     const abyssMat=new THREE.MeshBasicMaterial({color:0x170c27,transparent:true,opacity:.78,side:THREE.DoubleSide});
-    const abyss=extMesh(new THREE.PlaneGeometry(118,118),abyssMat,new THREE.Vector3(0,-6.2,14),0,false);abyss.rotation.x=-Math.PI/2;
+    const abyss=extMesh(new THREE.PlaneGeometry(28,26),abyssMat,new THREE.Vector3(0,-5.0,17.2),0,false);abyss.rotation.x=-Math.PI/2;
 
     // One-time environment capture. NO periodic CubeCamera renders.
     let environmentTarget=null;
@@ -486,9 +437,7 @@
     }
     // Position the two real torch lights before the one-time room reflection bake.
     if(torches.length){torchLightA.position.copy(torches[0].worldPos);torchLightB.position.copy(torches[2%torches.length].worldPos);}
-    // M4A startup hotfix: skip the old six-face CubeCamera/PMREM bake.
-    // The expanded arena made this a blocking preloader workload on mobile.
-    scene.environment=null;environmentTarget=null;applyRoomLight();
+    bakeEnvironment();
 
     // ------------------------------------------------------------
     // PORTAL MACHINE — SAME SILHOUETTE, BETTER MATERIAL RESPONSE
@@ -1727,7 +1676,7 @@ if(uHeroDissolveActive>.5){
       }
       return best;
     }
-    function resetPlayerToPavement(){player.x=gamerBase.x;player.y=.02;player.z=gamerBase.z;player.yaw=arenaLayout.spawn.yaw;player.vy=0;player.speed=0;player.grounded=true;player.jumpCount=0;player.holdJumpTimer=0;moveKeys.jump=false;moveKeys.jumpQueued=false;bro.setMotion('idle');}
+    function resetPlayerToPavement(){player.x=gamerBase.x;player.y=.02;player.z=gamerBase.z;player.yaw=Math.PI;player.vy=0;player.speed=0;player.grounded=true;player.jumpCount=0;player.holdJumpTimer=0;moveKeys.jump=false;moveKeys.jumpQueued=false;bro.setMotion('idle');}
     function canLeaveRoom(nx,nz){return true;}
     function updatePlayer(dt){
       if(heroPortalState!=='outside'||phase!=='idle'||!gamerVisible)return;
@@ -1818,7 +1767,7 @@ if(uHeroDissolveActive>.5){
     function resetTest(){
       actionActive=false;bro.setAction(false);actionTouchBtn.classList.remove('active');actionTouchBtn.textContent='ZAP';phase='idle';phaseT=0;resetVisualState();gamerMotion='idle';bro.setMotion('idle');restoreHeroOutside();activateBtn.textContent='ACTIVATE PORTAL';activateBtn.disabled=true;dropBtn.disabled=!gamerVisible;dropBtn.textContent='LOAD HERO';phaseLine.textContent='1 · IDLE · PLAYABLE';requestShadowUpdate(2);syncPortalCharacterUI();
     }
-    function playAgainFromPortal(){resetTest();const safeX=arenaLayout.spawn.x,safeZ=arenaLayout.spawn.z,safeSurface=surfaceHeight(safeX,safeZ);player.x=safeX;player.z=safeZ;player.y=safeSurface===null?1.29:safeSurface;player.yaw=Math.PI;player.vy=0;player.speed=0;player.grounded=true;bro.setHome(player.x,player.z,player.yaw);gamerRoot.position.y=player.y;gamerRoot.visible=gamerVisible;portalEntryArmed=false;cameraMode='follow';followLock=true;recenterClock=0;yaw=player.yaw+Math.PI;targetYaw=yaw;pitch=.34;targetPitch=.34;distance=followDistance;targetDistance=followDistance;targetLook.set(player.x,player.y+1.45,player.z);target.copy(targetLook);orbitBtn.textContent='CAM: FOLLOW';orbitBtn.classList.add('active');followLockBtn.textContent='FOLLOW LOCK: ON';followLockBtn.classList.add('active');resetBtn.textContent='RESET';actionTouchBtn.textContent='ZAP';requestShadowUpdate(2);}
+    function playAgainFromPortal(){resetTest();const safeX=0,safeZ=57,safeSurface=surfaceHeight(safeX,safeZ);player.x=safeX;player.z=safeZ;player.y=safeSurface===null?1.29:safeSurface;player.yaw=Math.PI;player.vy=0;player.speed=0;player.grounded=true;bro.setHome(player.x,player.z,player.yaw);gamerRoot.position.y=player.y;gamerRoot.visible=gamerVisible;portalEntryArmed=false;cameraMode='follow';followLock=true;recenterClock=0;yaw=player.yaw+Math.PI;targetYaw=yaw;pitch=.34;targetPitch=.34;distance=followDistance;targetDistance=followDistance;targetLook.set(player.x,player.y+1.45,player.z);target.copy(targetLook);orbitBtn.textContent='CAM: FOLLOW';orbitBtn.classList.add('active');followLockBtn.textContent='FOLLOW LOCK: ON';followLockBtn.classList.add('active');resetBtn.textContent='RESET';actionTouchBtn.textContent='ZAP';requestShadowUpdate(2);}
     function loadHero(){
       if(heroPortalState!=='outside'||phase!=='idle'||!gamerVisible)return;actionActive=false;bro.setAction(false);actionTouchBtn.classList.remove('active');actionTouchBtn.textContent='ZAP';HERO_OUT={x:player.x,y:player.y,z:player.z,ry:player.yaw};hint.classList.add('fade');gamerMotion='idle';bro.setMotion('idle');heroPortalState='loading';heroLoadT=0;dropBtn.disabled=true;dropBtn.textContent='LOADING HERO…';phaseLine.textContent='1 · IDLE · HERO ENTERING';syncPortalCharacterUI();requestShadowUpdate(2);
       // Make the portal camera the immediate inspection view.
