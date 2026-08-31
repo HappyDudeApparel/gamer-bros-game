@@ -1,0 +1,35 @@
+name: Refine PlayCanvas v1 opening
+
+on:
+  push:
+    branches: [playcanvas-v1]
+    paths:
+      - 'tools/refine-playcanvas-v1.mjs'
+      - '.github/workflows/refine-playcanvas-v1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: playcanvas-v1
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply visual refinement
+        run: node tools/refine-playcanvas-v1.mjs
+      - name: Syntax check
+        run: node --check playcanvas-v1/main.js
+      - name: Commit refinement
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add playcanvas-v1/main.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Refine PlayCanvas v1 opening composition'
+          git push origin HEAD:playcanvas-v1
