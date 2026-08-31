@@ -6,6 +6,7 @@ on:
     paths:
       - tools/build-crystal-library-v1.mjs
       - tools/run-crystal-library-v1.mjs
+      - tools/smoke-crystal-library-v1.mjs
       - .github/workflows/build-crystal-library-v1.yml
 
 permissions:
@@ -33,19 +34,14 @@ jobs:
           ! grep -q 'arena.layout.json' hybrid-v09/src/game.js
       - name: Browser startup smoke test
         run: |
+          npm install --no-save puppeteer-core@24.16.0
           python3 -m http.server 8000 >/tmp/crystal-library-server.log 2>&1 &
           sleep 2
           CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
-          if [ -z "$CHROME" ]; then
-            echo 'No Chrome binary on runner; static checks passed but browser smoke test unavailable.'
-            exit 0
-          fi
-          timeout 45s "$CHROME" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=12000 --dump-dom http://127.0.0.1:8000/hybrid-v09/ >/tmp/crystal-library-dom.html
-          grep -q 'id="boot" class="hidden"' /tmp/crystal-library-dom.html
-          grep -q 'id="ui" class="show"' /tmp/crystal-library-dom.html
-          ! grep -q 'id="fatal" style="display: grid' /tmp/crystal-library-dom.html
+          test -n "$CHROME"
+          CHROME="$CHROME" node tools/smoke-crystal-library-v1.mjs
       - name: Remove one-time build helpers
-        run: rm -f tools/build-crystal-library-v1.mjs tools/run-crystal-library-v1.mjs .github/workflows/build-crystal-library-v1.yml
+        run: rm -f tools/build-crystal-library-v1.mjs tools/run-crystal-library-v1.mjs tools/smoke-crystal-library-v1.mjs .github/workflows/build-crystal-library-v1.yml package-lock.json package.json
       - name: Commit validated build
         run: |
           git config user.name "github-actions[bot]"
