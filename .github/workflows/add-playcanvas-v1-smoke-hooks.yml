@@ -1,0 +1,33 @@
+name: Add PlayCanvas v1 portal smoke hooks
+
+on:
+  push:
+    branches: [playcanvas-v1]
+    paths:
+      - 'tools/add-playcanvas-v1-smoke-hooks.mjs'
+      - '.github/workflows/add-playcanvas-v1-smoke-hooks.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: playcanvas-v1
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tools/add-playcanvas-v1-smoke-hooks.mjs
+      - run: node --check playcanvas-v1/main.js
+      - name: Commit smoke hooks
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add playcanvas-v1/main.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Expose PlayCanvas portal completion smoke hooks'
+          git push origin HEAD:playcanvas-v1
