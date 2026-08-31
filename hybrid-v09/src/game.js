@@ -195,7 +195,7 @@
     const portalHigh=new THREE.PointLight(0x53ddff,6,16,2);portalHigh.position.set(0,5.75,0);scene.add(portalHigh);
     const portalWash=new THREE.PointLight(0xa04dff,0,0,1);portalWash.position.set(0,3.46,0);scene.add(portalWash);
 
-    let roomLightMult=2.20,roomTrim=1,baseEnvIntensity=.87,baseFogDensity=.0100;
+    let roomLightMult=.92,roomTrim=1,baseEnvIntensity=.87,baseFogDensity=.0100;
     const baseRoomLight={ambient:.42,hemi:.52,key:1.55,rim:.72};
     function applyRoomLight(){
       roomTrim=.84+.16*roomLightMult;
@@ -210,7 +210,7 @@
       scene.fog.density=baseFogDensity;
     }
     function updateLightingUI(){lightingValue.textContent=Math.round(roomLightMult*100)+'%';}
-    lightingSlider.min='35';lightingSlider.max='220';lightingSlider.value='220';
+    lightingSlider.min='35';lightingSlider.max='220';lightingSlider.value='92';
     lightingSlider.addEventListener('input',()=>{roomLightMult=Number(lightingSlider.value)/100;updateLightingUI();applyRoomLight();});
     updateLightingUI();applyRoomLight();
 
@@ -1524,7 +1524,7 @@ function createGamerBro(THREE, renderer, options) {
     // ------------------------------------------------------------
     // GAMER BRO — INSTANCE + WIRING
     // ------------------------------------------------------------
-    const gamerBase=new THREE.Vector3(0,.02,5.25);
+    const gamerBase=new THREE.Vector3(arenaLayout.spawn.x,.02,arenaLayout.spawn.z);
     const bro=createGamerBro(THREE,renderer,{
       colorway:'teal',
       detail:resolvedQuality==='performance'?'low':'high',
