@@ -1,20 +1,19 @@
-# Crystal Library v2 — implementation notes
+# Crystal Library v2
 
-The previous Hybrid M4A radial arena is rejected. This pass treats the supplied Crystal Library reference as a hard composition target.
+The rejected M4A radial arena is replaced by a compact, enclosed library complex based on the supplied Crystal Library reference images.
 
-## Useful material incorporated from the Claude review
+## Hard visual rules
+- Read immediately as an interior library, not an open arena.
+- Dense arched bookcase bays and tall perimeter masonry.
+- Vault ribs and a suspended purple/cyan/pink crystal field overhead.
+- Central stasis chamber as the focal space.
+- Authored entrance, atrium, west puzzle, east observatory, sanctuary, archive, overlook and summit spaces.
+- Bridges and stairs use the same exact endpoints as their analytic collision surfaces.
+- Primary visible architectural dressing uses Kenney CC0 GLB assets loaded asynchronously; fallback geometry exists only so startup never blocks if an asset request fails.
+- No runtime string patching is used by the shipped page. The one-shot repository build tool is development-only.
 
-- Cruciform authored room layout instead of the former 86-unit radial ring network.
-- Bridges are trimmed to actual platform/room edges rather than drawn centre-to-centre.
-- Three major walkable elevation bands, with explicit stair routes between them.
-- Dense vaulted shell, repeated arched bookshelf bays, overhead crystal field, warm sconces, central stasis chamber and deep violet void as the dominant visual read.
-- Mobile budgets: DPR cap, one shadow-casting light, instancing/batching for repeated architecture and crystals.
-- Portal animation should remain prewarmed and `dt`-driven; no new runtime compilation/disposal during activation.
-
-## Deliberately NOT adopted from the Claude draft
-
-The supplied `room.js` still builds its primary walkable spaces as circular `CylinderGeometry` platforms and bridges as plain `BoxGeometry`. That directly conflicts with the user's rejected-build feedback. Those pieces are reference logic only, not the final visible architecture.
-
-## v2 visual rule
-
-Visible walkable areas must read as rooms, galleries, balconies and catwalks inside an enclosed library—not freestanding circles in a void. Simple geometry may remain only for collision and hidden support.
+## Performance rules
+- Asset loading does not block the initial canvas/UI.
+- Overhead crystals are instanced and scaled by mobile/quality tier.
+- Only two additional non-shadow fill lights are introduced by the library module.
+- Existing PMREM/CubeCamera startup bake remains disabled.
