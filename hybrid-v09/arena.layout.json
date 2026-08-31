@@ -1,9 +1,9 @@
 {
-  "version": "crystal-library-v2.4",
+  "version": "crystal-library-v2.5",
   "heroHeight": 2.62,
-  "worldSize": 66,
+  "worldSize": 70,
   "zones": [
-    {"id":"entrance","label":"Grand Entrance","x":0,"z":27,"y":0,"shape":"oct","r":6.0},
+    {"id":"entrance","label":"Grand Entrance","x":0,"z":32,"y":0,"shape":"oct","r":6.0},
     {"id":"atrium","label":"Main Atrium","x":0,"z":14,"y":0,"shape":"oct","r":6.5},
     {"id":"stasis","label":"Central Stasis Chamber","x":0,"z":0,"y":0,"shape":"oct","r":6.8},
     {"id":"west","label":"Western Bridge Puzzle","x":-15.5,"z":0,"y":2.4,"shape":"rect","w":9,"d":12},
@@ -16,7 +16,7 @@
   "platforms": [
     {"id":"hub","kind":"stasis","x":0,"z":0,"r":6.8,"y":0},
     {"id":"atrium","kind":"atrium","x":0,"z":14,"r":6.5,"y":0},
-    {"id":"entrance","kind":"entrance","x":0,"z":27,"r":6,"y":0},
+    {"id":"entrance","kind":"entrance","x":0,"z":32,"r":6,"y":0},
     {"id":"west","kind":"puzzle","x":-15.5,"z":0,"r":5.2,"y":2.4},
     {"id":"east","kind":"observatory","x":15.5,"z":0,"r":5.2,"y":2.4},
     {"id":"sanctuary","kind":"sanctuary","x":0,"z":-15,"r":6.5,"y":-1.4},
@@ -34,10 +34,10 @@
     {"id":"overlook_to_summit","x1":6.39,"z1":-24.61,"y1":5.2,"x2":3.47,"z2":-27.53,"y2":8.2,"w":3.8,"style":"stairs"}
   ],
   "bridges": [
-    {"id":"entrance_atrium","a":"entrance","b":"atrium","w":5.2,"trimToEdges":true},
-    {"id":"atrium_stasis","a":"atrium","b":"stasis","w":5.4,"trimToEdges":true},
-    {"id":"west_stasis","a":"west","b":"stasis","w":4.6,"trimToEdges":true},
-    {"id":"east_stasis","a":"east","b":"stasis","w":4.6,"trimToEdges":true},
+    {"id":"entrance_atrium","a":"entrance","b":"atrium","w":4.8,"trimToEdges":true},
+    {"id":"atrium_stasis","a":"atrium","b":"stasis","w":5.0,"trimToEdges":true},
+    {"id":"west_stasis","a":"west","b":"stasis","w":4.4,"trimToEdges":true},
+    {"id":"east_stasis","a":"east","b":"stasis","w":4.4,"trimToEdges":true},
     {"id":"archive_overlook","a":"archive","b":"overlook","w":3.8,"trimToEdges":true}
   ],
   "floaters": [],
@@ -58,5 +58,5 @@
     "bookshelfBays":24,
     "overheadCrystalCount":{"performance":104,"balanced":168,"high":220}
   },
-  "spawn": {"x":0,"z":27,"yaw":0}
+  "spawn": {"x":0,"z":32,"yaw":0}
 }
