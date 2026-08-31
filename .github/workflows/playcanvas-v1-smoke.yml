@@ -28,7 +28,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Mobile browser gameplay smoke
+      - name: Mobile browser gameplay and portal smoke
         run: |
           python3 -m http.server 8080 >/tmp/pc-server.log 2>&1 &
           sleep 2
@@ -43,25 +43,47 @@ jobs:
             await page.goto('http://127.0.0.1:8080/playcanvas-v1/',{waitUntil:'domcontentloaded',timeout:45000});
             await page.waitForSelector('#game',{state:'visible',timeout:30000});
             await page.waitForFunction(()=>!document.getElementById('boot'),null,{timeout:30000});
-            await page.waitForTimeout(2500);
+            await page.waitForFunction(()=>window.__spriteGame?.state,null,{timeout:15000});
+            await page.waitForTimeout(1800);
             const size=await page.$eval('#game',c=>({w:c.width,h:c.height}));
             if(size.w<100||size.h<100)throw new Error('Canvas not initialized '+JSON.stringify(size));
+
             await page.keyboard.down('w'); await page.waitForTimeout(800); await page.keyboard.up('w');
             await page.keyboard.press('Space'); await page.waitForTimeout(300);
             await page.keyboard.press('f'); await page.waitForTimeout(600);
+            await page.screenshot({path:'playcanvas-v1-gameplay.png',fullPage:true});
+
+            // End-to-end proof for the bug reported in Hybrid: after the hero reaches the
+            // unlocked portal, the result UI must appear promptly instead of leaving an
+            // empty chamber on screen for ~6 seconds.
+            await page.evaluate(()=>window.__spriteGame.collectAllCrests());
+            const crests=await page.textContent('#crestCount');
+            if(!crests?.includes('3 / 3'))throw new Error('Portal did not unlock: '+crests);
+            const portalStart=Date.now();
+            await page.evaluate(()=>window.__spriteGame.teleportToPortal());
+            await page.waitForSelector('#results.show',{state:'visible',timeout:2000});
+            const portalMs=Date.now()-portalStart;
+            const stats=(await page.textContent('#resultsStats'))?.trim();
+            if(!stats)throw new Error('Portal result stats are empty');
+            if(portalMs>2000)throw new Error('Portal transition too slow: '+portalMs+'ms');
+            await page.screenshot({path:'playcanvas-v1-portal-result.png',fullPage:true});
+
             if(errors.length)throw new Error('Page errors: '+errors.join(' | '));
             const critical=failed.filter(x=>x.includes('/playcanvas-v1/')||x.includes('playcanvas.mjs'));
             if(critical.length)throw new Error('Critical failed requests: '+critical.join(' | '));
-            await page.screenshot({path:'playcanvas-v1-smoke.png',fullPage:true});
             console.log('Canvas',size);
+            console.log('Portal result appeared in',portalMs+'ms');
+            console.log('Portal result stats',stats);
             console.log('Failed requests',failed.length);
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
-      - name: Upload screenshot
+      - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playcanvas-v1-smoke
-          path: playcanvas-v1-smoke.png
+          path: |
+            playcanvas-v1-gameplay.png
+            playcanvas-v1-portal-result.png
           if-no-files-found: ignore
