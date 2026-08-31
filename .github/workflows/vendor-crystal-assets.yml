@@ -1,0 +1,77 @@
+name: Vendor Crystal Library Kenney assets
+
+on:
+  push:
+    branches: [hybrid-v0.9]
+    paths:
+      - '.github/workflows/vendor-crystal-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: hybrid-v0.9
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download Kenney CC0 modules into the preview
+        run: |
+          set -euxo pipefail
+          mkdir -p hybrid-v09/assets/kenney/dungeon hybrid-v09/assets/kenney/furniture
+          D='https://raw.githubusercontent.com/eturner58/game-assets/main/kenney/3D%20assets/Modular%20Dungeon%20Kit/Models/GLB%20format'
+          F='https://raw.githubusercontent.com/eturner58/game-assets/main/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format'
+          curl -L --fail --retry 3 "$D/gate.glb" -o hybrid-v09/assets/kenney/dungeon/gate.glb
+          curl -L --fail --retry 3 "$D/stairs.glb" -o hybrid-v09/assets/kenney/dungeon/stairs.glb
+          curl -L --fail --retry 3 "$F/bookcaseOpen.glb" -o hybrid-v09/assets/kenney/furniture/bookcaseOpen.glb
+          curl -L --fail --retry 3 "$F/bookcaseClosedWide.glb" -o hybrid-v09/assets/kenney/furniture/bookcaseClosedWide.glb
+          curl -L --fail --retry 3 "$F/lampWall.glb" -o hybrid-v09/assets/kenney/furniture/lampWall.glb
+          test $(stat -c%s hybrid-v09/assets/kenney/dungeon/gate.glb) -gt 10000
+          test $(stat -c%s hybrid-v09/assets/kenney/dungeon/stairs.glb) -gt 10000
+          test $(stat -c%s hybrid-v09/assets/kenney/furniture/bookcaseOpen.glb) -gt 1000
+          test $(stat -c%s hybrid-v09/assets/kenney/furniture/bookcaseClosedWide.glb) -gt 1000
+          test $(stat -c%s hybrid-v09/assets/kenney/furniture/lampWall.glb) -gt 1000
+      - name: Point renderer at vendored files
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const p='hybrid-v09/src/crystal-library-v2.js';
+          let s=fs.readFileSync(p,'utf8');
+          s=s.replace("const ASSET_BASE_FURN='https://raw.githubusercontent.com/eturner58/game-assets/main/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format/';","const ASSET_BASE_FURN=new URL('../assets/kenney/furniture/',import.meta.url).href;");
+          s=s.replace("const ASSET_BASE_DUNGEON='https://raw.githubusercontent.com/eturner58/game-assets/main/kenney/3D%20assets/Modular%20Dungeon%20Kit/Models/GLB%20format/';","const ASSET_BASE_DUNGEON=new URL('../assets/kenney/dungeon/',import.meta.url).href;");
+          s=s.replace("const assetState={started:false,loaded:0,failed:0,total:6};","const assetState={started:false,loaded:0,failed:0,total:5};");
+          s=s.replace(",['column',ASSET_BASE_DUNGEON+'column.glb']",'');
+          fs.writeFileSync(p,s);
+          NODE
+          cat > hybrid-v09/assets/ENV_ASSETS.md <<'EOF'
+          # Crystal Library environment assets
+
+          The Hybrid v0.9 Crystal Library preview vendors the visible modular GLB assets below directly in this folder so runtime rendering does not depend on a third-party asset server.
+
+          ## Kenney — Modular Dungeon Kit (CC0)
+          - `kenney/dungeon/gate.glb` — repeated stone gateway/arch modules around the library bays.
+          - `kenney/dungeon/stairs.glb` — visible stair modules fitted to the analytic stair routes.
+
+          ## Kenney — Furniture Kit (CC0)
+          - `kenney/furniture/bookcaseOpen.glb` — library shelving bays.
+          - `kenney/furniture/bookcaseClosedWide.glb` — alternate wide bookcase bays.
+          - `kenney/furniture/lampWall.glb` — wall lamps/sconces.
+
+          Source mirror used for the vendored files: `eturner58/game-assets`, preserving the original Kenney pack structure. Kenney asset packs are released under CC0. The game keeps its own simple analytic collision surfaces; these GLBs are render meshes only.
+          EOF
+          node --check hybrid-v09/src/game.js
+          node --check hybrid-v09/src/crystal-library-v2.js
+      - name: Commit vendored assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add hybrid-v09/assets hybrid-v09/src/crystal-library-v2.js
+          git diff --cached --quiet && exit 0
+          git commit -m 'Vendor Kenney CC0 Crystal Library assets locally'
+          git push origin HEAD:hybrid-v0.9
