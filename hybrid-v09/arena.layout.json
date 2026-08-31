@@ -1,5 +1,5 @@
 {
-  "version": "crystal-library-v2.1",
+  "version": "crystal-library-v2.2",
   "heroHeight": 2.62,
   "worldSize": 66,
   "zones": [
@@ -25,13 +25,13 @@
     {"id":"summit","kind":"summit","x":0,"z":-31,"r":5.8,"y":8.2}
   ],
   "ramps": [
-    {"id":"atrium_to_west","x1":-5.8,"z1":8.1,"y1":0,"x2":-11.2,"z2":4.7,"y2":2.4,"w":4.4,"style":"stairs"},
-    {"id":"atrium_to_east","x1":5.8,"z1":8.1,"y1":0,"x2":11.2,"z2":4.7,"y2":2.4,"w":4.4,"style":"stairs"},
-    {"id":"stasis_to_sanctuary","x1":0,"z1":-6.6,"y1":0,"x2":0,"z2":-8.7,"y2":-1.4,"w":4.8,"style":"stairs"},
-    {"id":"west_to_archive","x1":-15.0,"z1":-5.7,"y1":2.4,"x2":-11.8,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
-    {"id":"east_to_overlook","x1":15.0,"z1":-5.7,"y1":2.4,"x2":11.8,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
-    {"id":"archive_to_summit","x1":-6.4,"z1":-23.4,"y1":5.2,"x2":-4.4,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"},
-    {"id":"overlook_to_summit","x1":6.4,"z1":-23.4,"y1":5.2,"x2":4.4,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"}
+    {"id":"atrium_to_west","x1":-4.10,"z1":10.30,"y1":0,"x2":-11.39,"z2":3.71,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"atrium_to_east","x1":4.10,"z1":10.30,"y1":0,"x2":11.39,"z2":3.71,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"stasis_to_sanctuary","x1":0,"z1":-5.78,"y1":0,"x2":0,"z2":-9.48,"y2":-1.4,"w":4.8,"style":"stairs"},
+    {"id":"west_to_archive","x1":-14.13,"z1":-5.61,"y1":2.4,"x2":-11.50,"z2":-16.39,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"east_to_overlook","x1":14.13,"z1":-5.61,"y1":2.4,"x2":11.50,"z2":-16.39,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"archive_to_summit","x1":-6.39,"z1":-24.61,"y1":5.2,"x2":-3.47,"z2":-27.53,"y2":8.2,"w":3.8,"style":"stairs"},
+    {"id":"overlook_to_summit","x1":6.39,"z1":-24.61,"y1":5.2,"x2":3.47,"z2":-27.53,"y2":8.2,"w":3.8,"style":"stairs"}
   ],
   "bridges": [
     {"id":"entrance_atrium","a":"entrance","b":"atrium","w":5.2,"trimToEdges":true},
