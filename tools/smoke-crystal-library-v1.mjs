@@ -1,0 +1,16 @@
+import puppeteer from 'puppeteer-core';
+const executablePath=process.env.CHROME;
+if(!executablePath) throw new Error('CHROME path missing');
+const browser=await puppeteer.launch({headless:true,executablePath,args:['--no-sandbox','--disable-dev-shm-usage','--use-gl=swiftshader','--enable-unsafe-swiftshader']});
+const page=await browser.newPage();
+const errors=[];
+page.on('pageerror',err=>errors.push('PAGE: '+err.message));
+page.on('console',msg=>{if(msg.type()==='error')errors.push('CONSOLE: '+msg.text());});
+await page.goto('http://127.0.0.1:8000/hybrid-v09/',{waitUntil:'domcontentloaded',timeout:30000});
+await page.waitForFunction(()=>document.getElementById('boot')?.classList.contains('hidden')&&document.getElementById('ui')?.classList.contains('show'),{timeout:30000});
+const state=await page.evaluate(()=>({boot:document.getElementById('boot')?.className,ui:document.getElementById('ui')?.className,fatal:getComputedStyle(document.getElementById('fatal')).display,canvas:document.querySelectorAll('canvas').length,title:document.title}));
+console.log(JSON.stringify(state));
+if(state.fatal!=='none') throw new Error('Fatal panel visible: '+JSON.stringify(state));
+if(state.canvas<1) throw new Error('No renderer canvas created');
+if(errors.length) throw new Error(errors.join('\n'));
+await browser.close();
