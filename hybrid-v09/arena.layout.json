@@ -1,0 +1,62 @@
+{
+  "version": "crystal-library-v2.3",
+  "heroHeight": 2.62,
+  "worldSize": 66,
+  "zones": [
+    {"id":"entrance","label":"Grand Entrance","x":0,"z":27,"y":0,"shape":"rect","w":12,"d":10},
+    {"id":"atrium","label":"Main Atrium","x":0,"z":14,"y":0,"shape":"oct","r":6.5},
+    {"id":"stasis","label":"Central Stasis Chamber","x":0,"z":0,"y":0,"shape":"oct","r":6.8},
+    {"id":"west","label":"Western Bridge Puzzle","x":-15.5,"z":0,"y":2.4,"shape":"rect","w":9,"d":12},
+    {"id":"east","label":"Eastern Observatory","x":15.5,"z":0,"y":2.4,"shape":"rect","w":9,"d":12},
+    {"id":"sanctuary","label":"Lower Sanctuary","x":0,"z":-15,"y":-1.4,"shape":"oct","r":6.5},
+    {"id":"archive","label":"Upper Archive","x":-10.5,"z":-20.5,"y":5.2,"shape":"rect","w":9,"d":9},
+    {"id":"overlook","label":"Upper Overlook","x":10.5,"z":-20.5,"y":5.2,"shape":"rect","w":9,"d":9},
+    {"id":"summit","label":"Crystal Summit","x":0,"z":-31,"y":8.2,"shape":"oct","r":5.8}
+  ],
+  "platforms": [
+    {"id":"hub","kind":"stasis","x":0,"z":0,"r":6.8,"y":0},
+    {"id":"atrium","kind":"atrium","x":0,"z":14,"r":6.5,"y":0},
+    {"id":"entrance","kind":"entrance","x":0,"z":27,"r":6,"y":0},
+    {"id":"west","kind":"puzzle","x":-15.5,"z":0,"r":5.2,"y":2.4},
+    {"id":"east","kind":"observatory","x":15.5,"z":0,"r":5.2,"y":2.4},
+    {"id":"sanctuary","kind":"sanctuary","x":0,"z":-15,"r":6.5,"y":-1.4},
+    {"id":"archive","kind":"archive","x":-10.5,"z":-20.5,"r":4.8,"y":5.2},
+    {"id":"overlook","kind":"overlook","x":10.5,"z":-20.5,"r":4.8,"y":5.2},
+    {"id":"summit","kind":"summit","x":0,"z":-31,"r":5.8,"y":8.2}
+  ],
+  "ramps": [
+    {"id":"atrium_to_west","x1":-4.10,"z1":10.30,"y1":0,"x2":-11.39,"z2":3.71,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"atrium_to_east","x1":4.10,"z1":10.30,"y1":0,"x2":11.39,"z2":3.71,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"stasis_to_sanctuary","x1":0,"z1":-5.78,"y1":0,"x2":0,"z2":-9.48,"y2":-1.4,"w":4.8,"style":"stairs"},
+    {"id":"west_to_archive","x1":-14.13,"z1":-5.61,"y1":2.4,"x2":-11.50,"z2":-16.39,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"east_to_overlook","x1":14.13,"z1":-5.61,"y1":2.4,"x2":11.50,"z2":-16.39,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"archive_to_summit","x1":-6.39,"z1":-24.61,"y1":5.2,"x2":-3.47,"z2":-27.53,"y2":8.2,"w":3.8,"style":"stairs"},
+    {"id":"overlook_to_summit","x1":6.39,"z1":-24.61,"y1":5.2,"x2":3.47,"z2":-27.53,"y2":8.2,"w":3.8,"style":"stairs"}
+  ],
+  "bridges": [
+    {"id":"entrance_atrium","a":"entrance","b":"atrium","w":5.2,"trimToEdges":true},
+    {"id":"atrium_stasis","a":"atrium","b":"stasis","w":5.4,"trimToEdges":true},
+    {"id":"west_stasis","a":"west","b":"stasis","w":4.6,"trimToEdges":true},
+    {"id":"east_stasis","a":"east","b":"stasis","w":4.6,"trimToEdges":true},
+    {"id":"archive_overlook","a":"archive","b":"overlook","w":3.8,"trimToEdges":true}
+  ],
+  "floaters": [],
+  "crystals": [
+    {"x":-5.2,"z":11.4,"y":0.2,"scale":1.1,"color":"violet"},
+    {"x":5.0,"z":10.8,"y":0.2,"scale":1.0,"color":"cyan"},
+    {"x":-5.0,"z":-3.8,"y":0.2,"scale":1.25,"color":"pink"},
+    {"x":5.1,"z":-4.2,"y":0.2,"scale":1.15,"color":"violet"},
+    {"x":-17.5,"z":-2.6,"y":2.55,"scale":1.25,"color":"cyan"},
+    {"x":17.5,"z":-2.6,"y":2.55,"scale":1.2,"color":"pink"},
+    {"x":-10.8,"z":-21.2,"y":5.35,"scale":1.4,"color":"violet"},
+    {"x":10.8,"z":-21.2,"y":5.35,"scale":1.4,"color":"cyan"},
+    {"x":-3.0,"z":-31.5,"y":8.35,"scale":1.7,"color":"pink"},
+    {"x":3.0,"z":-31.5,"y":8.35,"scale":1.6,"color":"cyan"}
+  ],
+  "architecture": {
+    "hall":{"radius":31,"height":22,"bays":26},
+    "bookshelfBays":26,
+    "overheadCrystalCount":{"performance":84,"balanced":132,"high":180}
+  },
+  "spawn": {"x":0,"z":27,"yaw":0}
+}

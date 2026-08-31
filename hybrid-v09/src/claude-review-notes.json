@@ -1,0 +1,16 @@
+{
+  "source": "user-provided Claude review, 2026-08-30",
+  "adopt": [
+    "cruciform authored layout",
+    "bridges trimmed to room/platform edges",
+    "dense vaulted hall and bookshelf bays",
+    "overhead instanced crystal field",
+    "mobile DPR and lighting budgets",
+    "prewarmed dt-driven portal animation"
+  ],
+  "reject": [
+    "visible circular CylinderGeometry platforms as primary architecture",
+    "plain BoxGeometry bridges as final art",
+    "claim that primitive geometry alone can exactly match the supplied reference"
+  ]
+}
