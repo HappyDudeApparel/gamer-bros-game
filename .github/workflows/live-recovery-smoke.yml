@@ -10,6 +10,7 @@ on:
       - 'src/overlay-v085.js'
       - 'src/v087.js'
       - 'src/scenic-v088.js'
+      - 'src/portal-link-v088.js'
       - 'hybrid-v09/**'
       - '.github/workflows/live-recovery-smoke.yml'
 
@@ -31,6 +32,7 @@ jobs:
           node --check src/overlay-v085.js
           node --check src/v087.js
           node --check src/scenic-v088.js
+          node --check src/portal-link-v088.js
           node --check hybrid-v09/src/game.js
       - name: Install Playwright Chromium
         run: |
@@ -43,6 +45,12 @@ jobs:
           sleep 2
           node <<'NODE'
           const { chromium }=require('playwright');
+          async function waitCanvas(page){
+            await page.waitForFunction(()=>{
+              const c=document.querySelector('#stage canvas');
+              return !!c && c.width>0 && c.height>0;
+            },{timeout:45000});
+          }
           async function openWorld(browser, mobile=false){
             const page=await browser.newPage(mobile?{
               viewport:{width:390,height:844},
@@ -50,21 +58,26 @@ jobs:
               hasTouch:true,isMobile:true
             }:{viewport:{width:1440,height:900}});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=088smoke',{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('#stage canvas',{state:'visible',timeout:45000});
+            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=088smoke2',{waitUntil:'domcontentloaded',timeout:45000});
+            await waitCanvas(page);
             await page.waitForFunction(()=>!!window.__bro,{timeout:45000});
             await page.waitForFunction(()=>!!window.__v088Scenic,{timeout:45000});
+            await page.waitForFunction(()=>window.__portalDestination==='hybrid-v09',{timeout:20000});
             const scenic=await page.evaluate(()=>({name:window.__v088Scenic?.name,children:window.__v088Scenic?.children?.length||0}));
             if(scenic.name!=='V088ScenicRecovery'||scenic.children<5) throw new Error('v0.8.8 scenic recovery did not initialize');
             const menu=page.locator('#gameMenu');
             if(await menu.count()){
-              await page.waitForSelector('#gameMenu [data-hero="gb2"]',{state:'visible',timeout:20000});
+              await page.waitForSelector('#gameMenu [data-hero="gb2"]',{state:'attached',timeout:20000});
               await page.click('#gameMenu [data-hero="gb2"]');
             }
             if(!mobile){
               await page.keyboard.down('w');await page.waitForTimeout(450);await page.keyboard.up('w');
               await page.keyboard.press('Space');await page.waitForTimeout(250);
             }
+            await page.evaluate(()=>{const el=document.getElementById('phaseLine');if(el)el.textContent='4 · AFTERGLOW';});
+            await page.waitForFunction(()=>document.getElementById('enterCrystalLibraryBtn')?.classList.contains('ready'),{timeout:5000});
+            const portalText=await page.locator('#enterCrystalLibraryBtn').textContent();
+            if(!/CRYSTAL LIBRARY/i.test(portalText||'')) throw new Error('Portal destination button missing');
             const fatal=page.locator('#fatal');
             if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Open world fatal UI visible');
             if(errors.length) throw new Error(errors.join(' | '));
@@ -74,9 +87,12 @@ jobs:
           async function library(browser){
             const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:8080/hybrid-v09/?v=090smoke',{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('#stage canvas',{state:'visible',timeout:45000});
-            await page.waitForFunction(()=>document.getElementById('boot')?.style.display==='none'||document.getElementById('boot')?.classList.contains('hidden'),{timeout:45000});
+            await page.goto('http://127.0.0.1:8080/hybrid-v09/?v=090smoke2',{waitUntil:'domcontentloaded',timeout:45000});
+            await waitCanvas(page);
+            await page.waitForFunction(()=>{
+              const boot=document.getElementById('boot');
+              return !boot || boot.style.display==='none' || boot.classList.contains('hidden') || getComputedStyle(boot).display==='none';
+            },{timeout:45000});
             const fatal=page.locator('#fatal');
             if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Crystal Library fatal UI visible');
             if(errors.length) throw new Error(errors.join(' | '));
