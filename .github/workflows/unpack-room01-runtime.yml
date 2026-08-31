@@ -1,0 +1,57 @@
+name: Unpack Room 01 runtime
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/unpack-room01-runtime.yml'
+      - 'room01-v1/main.js'
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Expand packed Room 01 runtime into normal JavaScript
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const zlib=require('zlib');
+          const packed=fs.readFileSync('room01-v1/main.js','utf8');
+          const m=packed.match(/const payload='([^']+)'/);
+          if(!m) throw new Error('Packed Room 01 payload not found');
+          let source=zlib.gunzipSync(Buffer.from(m[1],'base64')).toString('utf8');
+          source=source
+            .replaceAll('./portal-v2.js?v=102','./portal-v2.js?v=105')
+            .replaceAll('./v04-sprites.js?v=102','./v04-sprites.js?v=105');
+          fs.writeFileSync('room01-v1/runtime.js',source);
+          const indexPath='room01-v1/index.html';
+          let html=fs.readFileSync(indexPath,'utf8');
+          html=html.replace(/<script type="module" src="\.\/launcher\.js\?v=\d+"><\/script>/,'<script type="module" src="./runtime.js?v=105"></script>');
+          html=html.replace(/styles\.css\?v=\d+/,'styles.css?v=105');
+          fs.writeFileSync(indexPath,html);
+          NODE
+      - name: Syntax checks
+        run: |
+          node --check room01-v1/runtime.js
+          node --check room01-v1/portal-v2.js
+          node --check room01-v1/v04-sprites.js
+          node --check playground-v2/gamer-bro.js
+      - name: Commit normal runtime
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add room01-v1/runtime.js room01-v1/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Serve Room 01 as normal mobile-safe modules'
+          git push origin HEAD:main
