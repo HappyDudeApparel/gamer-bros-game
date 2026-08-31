@@ -57,7 +57,10 @@ box('void floor',0,-8,0,64,1,82,MAT.void);
 for(const x of[-25,25]){box('side wall',x,8,0,1.4,22,76,MAT.stone);for(let z=-31;z<=32;z+=9){box('buttress',x-(x>0?.85:-.85),7,z,1.2,15,1.6,MAT.stone2);}}
 box('north wall',0,8,-38,50,22,1.4,MAT.stone);
 for(let x=-20;x<=20;x+=8)box('north pier',x,7,-37.1,1.4,15,1.3,MAT.stone2);
-for(let z=-30;z<=30;z+=10){const arch=torus('vault rib',0,18,z,24,12,24,MAT.trim);arch.setEulerAngles(90,0,0);}
+for(let z=-30;z<=30;z+=10){
+  const pts=[];for(let i=0;i<=12;i++){const x=-23+i*(46/12),y=10.4+9.2*(1-Math.pow(x/23,2));pts.push({x,y});}
+  for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),q=box('vault rib',(a.x+b.x)/2,(a.y+b.y)/2,z,len,.24,.28,MAT.trim);q.setEulerAngles(0,0,Math.atan2(dy,dx)*180/Math.PI);}
+}
 for(let i=0;i<70;i++){const x=(Math.random()-.5)*44,z=-34+Math.random()*68,y=13+Math.random()*8,q=primitive('ceiling crystal',i%3===0?'cone':'cylinder',new pc.Vec3(x,y,z),new pc.Vec3(.25+Math.random()*.3,.8+Math.random()*1.4,.25+Math.random()*.3),[MAT.purple,MAT.cyan,MAT.pink][i%3]);q.setEulerAngles(Math.random()*35,Math.random()*360,Math.random()*30);}
 
 const surfaces=[];
@@ -72,7 +75,7 @@ function bridge(id,x1,z1,y1,x2,z2,y2,w=3.1,material=MAT.stone2){const dx=x2-x1,d
 function steps(id,x1,z1,y1,x2,z2,y2,w=3.2,count=8){const dx=x2-x1,dz=z2-z1,ry=Math.atan2(dx,dz),len=Math.hypot(dx,dz);for(let i=0;i<count;i++){const t=(i+.5)/count,yy=y1+(y2-y1)*(i+1)/count,e=box(id+' '+i,x1+dx*t,yy-.18,z1+dz*t,w,.36,len/count*1.06,i%2?MAT.stone2:MAT.trim);e.setEulerAngles(0,ry*180/Math.PI,0);addRectSurface(id+'-'+i,x1+dx*t,z1+dz*t,w-.08,len/count*1.08,yy+.02,ry);} }
 
 // Entry: high balcony -> broken descent -> atrium. Portal is visible but unreachable until 3 crests.
-island('entry',0,4,32,11,8,MAT.stone2);
+island('entry',0,4,32,9,6.5,MAT.stone2);
 steps('entry descent',0,28.5,4,0,20.5,.8,3.8,10);
 island('atrium',0,.7,13,13,11,MAT.stone2);
 const portalIsland=island('portal island',0,1.1,-4,8.4,8.4,MAT.trim);
@@ -120,7 +123,7 @@ const unlockSurface=addRectSurface('unlock bridge',0,4.1,4.0,8.0,1.12);unlockSur
 for(const x of[-21,21])for(let z=-30;z<=30;z+=10){box('library pier',x,4.7,z,1.3,10,1.5,MAT.stone2);box('shelf recess',x+(x<0?.7:-.7),3.7,z,1,6.8,5.8,MAT.bronze);}
 
 // Hero: preserve the orange + blue masked/caped read, but use a lightweight PlayCanvas proxy for the first gameplay slice.
-const hero=new pc.Entity('Gamer Bro proxy');app.root.addChild(hero);
+const hero=new pc.Entity('Gamer Bro proxy');hero.setLocalScale(.72,.72,.72);app.root.addChild(hero);
 sphere('body',0,1.2,0,1.7,1.9,1.55,MAT.orange,hero);
 const mask=sphere('mask',0,1.55,-1.22,1.18,.48,.34,MAT.blue,hero);
 sphere('eyeL',-.38,1.64,-1.47,.22,.28,.13,MAT.white,hero);sphere('eyeR',.38,1.64,-1.47,.22,.28,.13,MAT.white,hero);
@@ -128,7 +131,7 @@ box('cape',0,1.2,.95,1.25,1.6,.16,MAT.blue,hero);sphere('footL',-.58,.16,-.25,.5
 hero.setPosition(0,4.15,32);
 
 const camera=new pc.Entity('Camera');camera.addComponent('camera',{clearColor:new pc.Color(.018,.008,.04),fov:58,nearClip:.15,farClip:120});app.root.addChild(camera);
-let camYaw=0,camPitch=.19,camDist=11.5,drag=false,lastPX=0,lastPY=0;
+let camYaw=0,camPitch=.24,camDist=12.8,drag=false,lastPX=0,lastPY=0;
 canvas.addEventListener('pointerdown',e=>{if(e.target!==canvas)return;drag=true;lastPX=e.clientX;lastPY=e.clientY;canvas.setPointerCapture?.(e.pointerId);});
 canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lastPX,dy=e.clientY-lastPY;lastPX=e.clientX;lastPY=e.clientY;camYaw-=dx*.0046;camPitch=Math.max(.05,Math.min(.48,camPitch+dy*.0032));});
 canvas.addEventListener('pointerup',()=>drag=false);canvas.addEventListener('pointercancel',()=>drag=false);
