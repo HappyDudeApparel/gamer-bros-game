@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<meta name="theme-color" content="#6fb8e8" />
+<title>Gamer Bros — Sprite Training Grounds</title>
+<link rel="stylesheet" href="./styles.css?v=1" />
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="stage"></div>
+<div id="boot"><div class="bootCard"><strong>SPRITE TRAINING GROUNDS</strong><span>Loading the recovered character lineup…</span></div></div>
+<div id="fatal"><strong>STARTUP ERROR</strong><span id="fatalText"></span></div>
+<div id="hud" class="hidden">
+  <div id="mission"></div>
+  <div id="stats"></div>
+  <div id="cooldowns"></div>
+</div>
+<div id="select" class="show">
+  <div class="selectPanel">
+    <div class="eyebrow">GAME ASSETS V1 · PLAYABLE TEST GROUND</div>
+    <h1>CHOOSE YOUR CHARACTER</h1>
+    <p>Every character has its own attack and special. Break the brick barriers, defeat the hostile Sprites, collect all three Maple Crests, then reach the shrine.</p>
+    <div id="characterGrid"></div>
+    <div class="keys">WASD move · SPACE jump · SHIFT dash · F attack · Q special · drag to rotate camera · C character select · R restart</div>
+  </div>
+</div>
+<div id="result"><div class="resultCard"><strong>TRAINING GROUND CLEARED</strong><span id="resultText"></span><button id="replayBtn">PLAY AGAIN</button></div></div>
+<div id="touchUI">
+  <div id="stick"><div id="stickKnob"></div></div>
+  <div class="touchButtons">
+    <button id="attackBtn">ATTACK</button>
+    <button id="specialBtn">POWER</button>
+    <button id="jumpBtn">JUMP</button>
+    <button id="dashBtn">DASH</button>
+  </div>
+</div>
+<script type="module" src="./main.js?v=1"></script>
+</body>
+</html>
