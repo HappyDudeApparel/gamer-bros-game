@@ -17,7 +17,6 @@
     const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
     const root=new THREE.Group();root.name='V088ScenicRecovery';scene.add(root);window.__v088Scenic=root;
 
-    // Deterministic dressing keeps every reload visually stable.
     let seed=0xC17A5EED;
     const rnd=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
 
@@ -54,7 +53,7 @@
       for(let b=0;b<2;b++){
         const a=ry+(b?2.35:-1.05)+(rnd()-.5)*.45;
         const base=new THREE.Vector3(x,y+(2.75+b*.42)*s,z);
-        dir.set(Math.cos(a)*1.35,.76+randRange(.05,.32),Math.sin(a)*1.35).normalize();
+        dir.set(Math.cos(a)*1.35,.81+rnd()*.27,Math.sin(a)*1.35).normalize();
         dummy.position.copy(base).addScaledVector(dir,.88*s);
         dummy.quaternion.setFromUnitVectors(up,dir);dummy.scale.set(s*(.82+rnd()*.18),s*(.82+rnd()*.20),s*(.82+rnd()*.18));dummy.updateMatrix();branches.setMatrixAt(bi++,dummy.matrix);
       }
@@ -72,7 +71,6 @@
     });
     trunks.instanceMatrix.needsUpdate=true;branches.instanceMatrix.needsUpdate=true;leaves.instanceMatrix.needsUpdate=true;if(leaves.instanceColor)leaves.instanceColor.needsUpdate=true;
 
-    // Low-cost bushes and ground clumps concentrated around platforms, never across bridges.
     const bushCount=mobile?38:68;
     const bushGeo=new THREE.IcosahedronGeometry(.48,1);
     const bushMat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.9,clearcoat:.03,vertexColors:true});
@@ -84,7 +82,6 @@
     }
     bushes.instanceMatrix.needsUpdate=true;if(bushes.instanceColor)bushes.instanceColor.needsUpdate=true;
 
-    // Stone scatter gives the floating/platform world more authored edge detail.
     const rockCount=mobile?28:48;
     const rockGeo=new THREE.DodecahedronGeometry(.58,0);
     const rockMat=new THREE.MeshPhysicalMaterial({color:0x777783,roughness:.95,metalness:.01,clearcoat:.02});
@@ -95,18 +92,16 @@
     }
     rocks.instanceMatrix.needsUpdate=true;
 
-    // Small magical motes around the final route make the destination read from a distance.
     const moteCount=mobile?34:72;
-    const motePos=new Float32Array(moteCount*3),moteSeed=[];
+    const motePos=new Float32Array(moteCount*3);
     for(let i=0;i<moteCount;i++){
       const zone=i<moteCount*.45?[0,72,4.1]:i<moteCount*.72?[0,55,3.8]:[0,38,2.3];
-      const a=rnd()*Math.PI*2,r=1.8+rnd()*8;motePos[i*3]=zone[0]+Math.cos(a)*r;motePos[i*3+1]=zone[2]+.7+rnd()*4.6;motePos[i*3+2]=zone[1]+Math.sin(a)*r;moteSeed.push(rnd()*Math.PI*2);
+      const a=rnd()*Math.PI*2,r=1.8+rnd()*8;motePos[i*3]=zone[0]+Math.cos(a)*r;motePos[i*3+1]=zone[2]+.7+rnd()*4.6;motePos[i*3+2]=zone[1]+Math.sin(a)*r;
     }
     const moteGeo=new THREE.BufferGeometry();moteGeo.setAttribute('position',new THREE.BufferAttribute(motePos,3));
     const moteMat=new THREE.PointsMaterial({color:0xcba2ff,size:mobile?.055:.07,transparent:true,opacity:.48,depthWrite:false,blending:THREE.AdditiveBlending});
     const motes=new THREE.Points(moteGeo,moteMat);motes.name='V088MagicMotes';root.add(motes);
 
-    // A few restrained non-shadow accent lights; no extra shadow maps.
     const accents=[[0,4.8,72,0x8d5cff,4.4,16],[-10,3.7,55,0xff9a4a,2.6,10],[10,3.7,55,0x51d8ff,2.7,10]];
     accents.forEach(([x,y,z,c,intensity,distance])=>{const l=new THREE.PointLight(c,intensity,distance,2);l.position.set(x,y,z);root.add(l);});
 
@@ -120,6 +115,4 @@
     document.body.classList.add('v088ScenicReady');
     console.info('[v0.8.8] Scenic recovery pass ready:',treeSites.length,'trees,',bushCount,'bushes,',rockCount,'rocks.');
   }catch(err){console.error('[v0.8.8 scenic recovery]',err);}
-
-  function randRange(a,b){return a+(b-a)*rnd();}
 })();
