@@ -1,64 +1,62 @@
 {
-  "version": "crystal-library-v2",
+  "version": "crystal-library-v2.1",
   "heroHeight": 2.62,
-  "worldSize": 72,
+  "worldSize": 66,
   "zones": [
-    {"id":"entrance","label":"Grand Entrance","x":0,"z":25,"y":0,"shape":"rect","w":12,"d":10},
-    {"id":"atrium","label":"Main Atrium","x":0,"z":11,"y":0,"shape":"oct","r":8.5},
-    {"id":"stasis","label":"Central Stasis Chamber","x":0,"z":-3,"y":0,"shape":"oct","r":8.2},
-    {"id":"west","label":"Western Bridge Puzzle","x":-16,"z":-4,"y":2.4,"shape":"rect","w":11,"d":12},
-    {"id":"east","label":"Eastern Observatory","x":16,"z":-4,"y":2.4,"shape":"rect","w":11,"d":12},
-    {"id":"sanctuary","label":"Lower Sanctuary","x":0,"z":-18,"y":-1.4,"shape":"oct","r":7.4},
-    {"id":"archive","label":"Upper Archive","x":-11,"z":-20,"y":5.2,"shape":"rect","w":10,"d":9},
-    {"id":"overlook","label":"Upper Overlook","x":11,"z":-20,"y":5.2,"shape":"rect","w":10,"d":9},
-    {"id":"summit","label":"Crystal Summit","x":0,"z":-31,"y":8.2,"shape":"oct","r":6.2}
+    {"id":"entrance","label":"Grand Entrance","x":0,"z":27,"y":0,"shape":"rect","w":12,"d":10},
+    {"id":"atrium","label":"Main Atrium","x":0,"z":14,"y":0,"shape":"oct","r":6.5},
+    {"id":"stasis","label":"Central Stasis Chamber","x":0,"z":0,"y":0,"shape":"oct","r":6.8},
+    {"id":"west","label":"Western Bridge Puzzle","x":-15.5,"z":0,"y":2.4,"shape":"rect","w":9,"d":12},
+    {"id":"east","label":"Eastern Observatory","x":15.5,"z":0,"y":2.4,"shape":"rect","w":9,"d":12},
+    {"id":"sanctuary","label":"Lower Sanctuary","x":0,"z":-15,"y":-1.4,"shape":"oct","r":6.5},
+    {"id":"archive","label":"Upper Archive","x":-10.5,"z":-20.5,"y":5.2,"shape":"rect","w":9,"d":9},
+    {"id":"overlook","label":"Upper Overlook","x":10.5,"z":-20.5,"y":5.2,"shape":"rect","w":9,"d":9},
+    {"id":"summit","label":"Crystal Summit","x":0,"z":-31,"y":8.2,"shape":"oct","r":5.8}
   ],
   "platforms": [
-    {"id":"hub","kind":"stasis","x":0,"z":-3,"r":8.2,"y":0},
-    {"id":"atrium","kind":"atrium","x":0,"z":11,"r":8.5,"y":0},
-    {"id":"entrance","kind":"entrance","x":0,"z":25,"r":6.0,"y":0},
-    {"id":"west","kind":"puzzle","x":-16,"z":-4,"r":6.2,"y":2.4},
-    {"id":"east","kind":"observatory","x":16,"z":-4,"r":6.2,"y":2.4},
-    {"id":"sanctuary","kind":"sanctuary","x":0,"z":-18,"r":7.4,"y":-1.4},
-    {"id":"archive","kind":"archive","x":-11,"z":-20,"r":5.3,"y":5.2},
-    {"id":"overlook","kind":"overlook","x":11,"z":-20,"r":5.3,"y":5.2},
-    {"id":"summit","kind":"summit","x":0,"z":-31,"r":6.2,"y":8.2}
+    {"id":"hub","kind":"stasis","x":0,"z":0,"r":6.8,"y":0},
+    {"id":"atrium","kind":"atrium","x":0,"z":14,"r":6.5,"y":0},
+    {"id":"entrance","kind":"entrance","x":0,"z":27,"r":6,"y":0},
+    {"id":"west","kind":"puzzle","x":-15.5,"z":0,"r":5.2,"y":2.4},
+    {"id":"east","kind":"observatory","x":15.5,"z":0,"r":5.2,"y":2.4},
+    {"id":"sanctuary","kind":"sanctuary","x":0,"z":-15,"r":6.5,"y":-1.4},
+    {"id":"archive","kind":"archive","x":-10.5,"z":-20.5,"r":4.8,"y":5.2},
+    {"id":"overlook","kind":"overlook","x":10.5,"z":-20.5,"r":4.8,"y":5.2},
+    {"id":"summit","kind":"summit","x":0,"z":-31,"r":5.8,"y":8.2}
   ],
   "ramps": [
-    {"id":"atrium_to_west","x1":-6.8,"z1":3.8,"y1":0,"x2":-11.4,"z2":-0.9,"y2":2.4,"w":4.6,"style":"stairs"},
-    {"id":"atrium_to_east","x1":6.8,"z1":3.8,"y1":0,"x2":11.4,"z2":-0.9,"y2":2.4,"w":4.6,"style":"stairs"},
-    {"id":"stasis_to_sanctuary","x1":0,"z1":-10.1,"y1":0,"x2":0,"z2":-11.4,"y2":-1.4,"w":4.8,"style":"stairs"},
-    {"id":"west_to_archive","x1":-15.0,"z1":-9.0,"y1":2.4,"x2":-12.7,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
-    {"id":"east_to_overlook","x1":15.0,"z1":-9.0,"y1":2.4,"x2":12.7,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
-    {"id":"archive_to_summit","x1":-7.2,"z1":-23.3,"y1":5.2,"x2":-3.6,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"},
-    {"id":"overlook_to_summit","x1":7.2,"z1":-23.3,"y1":5.2,"x2":3.6,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"}
+    {"id":"atrium_to_west","x1":-5.8,"z1":8.1,"y1":0,"x2":-11.2,"z2":4.7,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"atrium_to_east","x1":5.8,"z1":8.1,"y1":0,"x2":11.2,"z2":4.7,"y2":2.4,"w":4.4,"style":"stairs"},
+    {"id":"stasis_to_sanctuary","x1":0,"z1":-6.6,"y1":0,"x2":0,"z2":-8.7,"y2":-1.4,"w":4.8,"style":"stairs"},
+    {"id":"west_to_archive","x1":-15.0,"z1":-5.7,"y1":2.4,"x2":-11.8,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"east_to_overlook","x1":15.0,"z1":-5.7,"y1":2.4,"x2":11.8,"z2":-15.8,"y2":5.2,"w":4.2,"style":"stairs"},
+    {"id":"archive_to_summit","x1":-6.4,"z1":-23.4,"y1":5.2,"x2":-4.4,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"},
+    {"id":"overlook_to_summit","x1":6.4,"z1":-23.4,"y1":5.2,"x2":4.4,"z2":-27.4,"y2":8.2,"w":3.8,"style":"stairs"}
   ],
   "bridges": [
     {"id":"entrance_atrium","a":"entrance","b":"atrium","w":5.2,"trimToEdges":true},
-    {"id":"atrium_stasis","a":"atrium","b":"hub","w":5.4,"trimToEdges":true},
-    {"id":"west_stasis","a":"west","b":"hub","w":4.6,"trimToEdges":true},
-    {"id":"east_stasis","a":"east","b":"hub","w":4.6,"trimToEdges":true},
+    {"id":"atrium_stasis","a":"atrium","b":"stasis","w":5.4,"trimToEdges":true},
+    {"id":"west_stasis","a":"west","b":"stasis","w":4.6,"trimToEdges":true},
+    {"id":"east_stasis","a":"east","b":"stasis","w":4.6,"trimToEdges":true},
     {"id":"archive_overlook","a":"archive","b":"overlook","w":3.8,"trimToEdges":true}
   ],
   "floaters": [],
   "crystals": [
-    {"x":-6.2,"z":7.0,"y":0.2,"scale":1.1,"color":"violet"},
-    {"x":6.0,"z":6.5,"y":0.2,"scale":1.0,"color":"cyan"},
-    {"x":-5.8,"z":-5.8,"y":0.2,"scale":1.25,"color":"pink"},
-    {"x":5.9,"z":-6.2,"y":0.2,"scale":1.15,"color":"violet"},
-    {"x":-18.4,"z":-5.4,"y":2.55,"scale":1.25,"color":"cyan"},
-    {"x":18.4,"z":-5.4,"y":2.55,"scale":1.2,"color":"pink"},
-    {"x":-11.6,"z":-21.0,"y":5.35,"scale":1.4,"color":"violet"},
-    {"x":11.6,"z":-21.0,"y":5.35,"scale":1.4,"color":"cyan"},
-    {"x":-3.2,"z":-31.5,"y":8.35,"scale":1.7,"color":"pink"},
-    {"x":3.2,"z":-31.5,"y":8.35,"scale":1.6,"color":"cyan"}
+    {"x":-5.2,"z":11.4,"y":0.2,"scale":1.1,"color":"violet"},
+    {"x":5.0,"z":10.8,"y":0.2,"scale":1.0,"color":"cyan"},
+    {"x":-5.0,"z":-3.8,"y":0.2,"scale":1.25,"color":"pink"},
+    {"x":5.1,"z":-4.2,"y":0.2,"scale":1.15,"color":"violet"},
+    {"x":-17.5,"z":-2.6,"y":2.55,"scale":1.25,"color":"cyan"},
+    {"x":17.5,"z":-2.6,"y":2.55,"scale":1.2,"color":"pink"},
+    {"x":-10.8,"z":-21.2,"y":5.35,"scale":1.4,"color":"violet"},
+    {"x":10.8,"z":-21.2,"y":5.35,"scale":1.4,"color":"cyan"},
+    {"x":-3.0,"z":-31.5,"y":8.35,"scale":1.7,"color":"pink"},
+    {"x":3.0,"z":-31.5,"y":8.35,"scale":1.6,"color":"cyan"}
   ],
   "architecture": {
-    "hall":{"radius":34,"height":22,"bays":12},
-    "bookshelfBays":18,
-    "overheadCrystalCount":{"performance":90,"balanced":150,"high":220},
-    "wallArcStart":-2.72,
-    "wallArcEnd":2.72
+    "hall":{"radius":31,"height":22,"bays":26},
+    "bookshelfBays":26,
+    "overheadCrystalCount":{"performance":84,"balanced":132,"high":180}
   },
-  "spawn": {"x":0,"z":25,"yaw":3.14159}
+  "spawn": {"x":0,"z":27,"yaw":3.14159}
 }
