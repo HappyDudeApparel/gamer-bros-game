@@ -44,17 +44,11 @@ jobs:
           }
           if(end<0) throw new Error('createGamerBro end missing');
           fs.writeFileSync('playground-v2/gamer-bro.js',src.slice(start,end)+'\n\nexport { createGamerBro };\n');
-
-          const p='playground-v2/main.js';
-          let game=fs.readFileSync(p,'utf8');
-          game=game.replace("const grassMat=new THREE.MeshStandardMaterial({color:0x72bc58,roughness:.82,metalness:0});","const grassMat=new THREE.MeshStandardMaterial({color:0x72bc58,roughness:.82,metalness:0,side:THREE.DoubleSide});");
-          game=game.replace("const grassLight=new THREE.MeshStandardMaterial({color:0x88cf69,roughness:.82});","const grassLight=new THREE.MeshStandardMaterial({color:0x88cf69,roughness:.82,side:THREE.DoubleSide});");
-          game=game.replace('topGeo.rotateX(-Math.PI/2);','topGeo.rotateX(Math.PI/2);');
+          const p='playground-v2/main.js'; let game=fs.readFileSync(p,'utf8');
           game=game.replace('debris(hitPos||b.mesh.position,0xa96f35,7);','debris(hitPos||b.mesh.position,0xa96f35,3);');
-          const oldIsland="function makeIrregularIsland(points,y,depth,grass=grassMat){const shape=new THREE.Shape();points.forEach(([x,z],i)=>i?shape.lineTo(x,z):shape.moveTo(x,z));shape.closePath();const sideGeo=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:2,bevelSize:.42,bevelThickness:.28});sideGeo.rotateX(Math.PI/2);const side=new THREE.Mesh(sideGeo,stoneMat);side.position.y=y;side.castShadow=true;side.receiveShadow=true;world.add(side);const topGeo=new THREE.ShapeGeometry(shape);topGeo.rotateX(Math.PI/2);const top=new THREE.Mesh(topGeo,grass);top.position.y=y+.04;top.receiveShadow=true;world.add(top);return{side,top};}";
-          const newIsland="function makeIrregularIsland(points,y,depth,grass=grassMat){const shape=new THREE.Shape();points.forEach(([x,z],i)=>i?shape.lineTo(x,z):shape.moveTo(x,z));shape.closePath();const sideGeo=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:2,bevelSize:.42,bevelThickness:.28});sideGeo.rotateX(Math.PI/2);const side=new THREE.Mesh(sideGeo,stoneMat);side.position.y=y;side.castShadow=true;side.receiveShadow=true;world.add(side);const cx=points.reduce((s,p)=>s+p[0],0)/points.length,cz=points.reduce((s,p)=>s+p[1],0)/points.length,pos=[];for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];pos.push(cx,0,cz,a[0],0,a[1],b[0],0,b[1]);}const topGeo=new THREE.BufferGeometry();topGeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));topGeo.computeVertexNormals();const top=new THREE.Mesh(topGeo,grass);top.position.y=y+.12;top.renderOrder=2;top.receiveShadow=true;world.add(top);return{side,top};}";
-          if(game.includes(oldIsland)) game=game.replace(oldIsland,newIsland);
-          else if(!game.includes("const cx=points.reduce((s,p)=>s+p[0],0)/points.length")) throw new Error('Island grass-top patch target missing');
+          const manual=/function makeIrregularIsland\(points,y,depth,grass=grassMat\)\{const shape=new THREE\.Shape\(\);points\.forEach\(\(\[x,z\],i\)=>i\?shape\.lineTo\(x,z\):shape\.moveTo\(x,z\)\);shape\.closePath\(\);const sideGeo=new THREE\.ExtrudeGeometry\(shape,\{depth,bevelEnabled:true,bevelSegments:2,bevelSize:\.42,bevelThickness:\.28\}\);sideGeo\.rotateX\(Math\.PI\/2\);const side=new THREE\.Mesh\(sideGeo,stoneMat\);side\.position\.y=y;side\.castShadow=true;side\.receiveShadow=true;world\.add\(side\);const cx=.*?return\{side,top\};\}/;
+          const robust="function makeIrregularIsland(points,y,depth,grass=grassMat){const shape=new THREE.Shape();points.forEach(([x,z],i)=>i?shape.lineTo(x,z):shape.moveTo(x,z));shape.closePath();const sideGeo=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:2,bevelSize:.42,bevelThickness:.28});sideGeo.rotateX(Math.PI/2);const side=new THREE.Mesh(sideGeo,stoneMat);side.position.y=y;side.castShadow=true;side.receiveShadow=true;world.add(side);const grassGeo=new THREE.ExtrudeGeometry(shape,{depth:.18,bevelEnabled:true,bevelSegments:1,bevelSize:.12,bevelThickness:.08});grassGeo.rotateX(Math.PI/2);const top=new THREE.Mesh(grassGeo,grass);top.position.y=y+.22;top.castShadow=false;top.receiveShadow=true;world.add(top);return{side,top};}";
+          if(manual.test(game)) game=game.replace(manual,robust); else if(!game.includes('const grassGeo=new THREE.ExtrudeGeometry(shape,{depth:.18')) throw new Error('Island cap patch target missing');
           fs.writeFileSync(p,game);
           NODE
           node --check playground-v2/gamer-bro.js
@@ -65,7 +59,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add playground-v2/gamer-bro.js playground-v2/main.js
           if ! git diff --cached --quiet; then
-            git commit -m 'Restore green authored island tops in Training Grounds'
+            git commit -m 'Use robust green grass caps in Training Grounds'
             git push origin HEAD:playground-v2
           fi
       - name: Install Playwright Chromium
@@ -90,7 +84,7 @@ jobs:
             await page.waitForSelector('canvas',{state:'visible',timeout:30000});
             const selectVisible=await page.locator('#select').evaluate(el=>getComputedStyle(el).display!=='none');
             if(selectVisible) throw new Error('Character-select overlay did not close');
-            await page.waitForTimeout(1200);
+            await page.waitForTimeout(1000);
             await page.keyboard.down('w'); await page.waitForTimeout(700); await page.keyboard.up('w');
             await page.keyboard.press('f'); await page.waitForTimeout(250);
             await page.keyboard.press('q'); await page.waitForTimeout(350);
