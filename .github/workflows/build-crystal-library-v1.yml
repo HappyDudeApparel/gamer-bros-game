@@ -5,6 +5,7 @@ on:
     branches: [crystal-library-v1-build]
     paths:
       - tools/build-crystal-library-v1.mjs
+      - tools/run-crystal-library-v1.mjs
       - .github/workflows/build-crystal-library-v1.yml
 
 permissions:
@@ -22,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Build arena into clean source
-        run: node tools/build-crystal-library-v1.mjs
+        run: node tools/run-crystal-library-v1.mjs
       - name: Syntax and architecture checks
         run: |
           node --check hybrid-v09/src/game.js
@@ -44,7 +45,7 @@ jobs:
           grep -q 'id="ui" class="show"' /tmp/crystal-library-dom.html
           ! grep -q 'id="fatal" style="display: grid' /tmp/crystal-library-dom.html
       - name: Remove one-time build helpers
-        run: rm -f tools/build-crystal-library-v1.mjs .github/workflows/build-crystal-library-v1.yml
+        run: rm -f tools/build-crystal-library-v1.mjs tools/run-crystal-library-v1.mjs .github/workflows/build-crystal-library-v1.yml
       - name: Commit validated build
         run: |
           git config user.name "github-actions[bot]"
