@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <meta name="theme-color" content="#6fb8e8" />
 <title>Gamer Bros — Sprite Training Grounds</title>
-<link rel="stylesheet" href="./styles.css?v=1" />
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+<link rel="stylesheet" href="./styles.css?v=2" />
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/","/playground-v2/gamer-bro.js?v=1":"/playground-v2/gamer-bro.js?v=2"}}</script>
 </head>
 <body>
 <div id="stage"></div>
@@ -36,6 +36,6 @@
     <button id="dashBtn">DASH</button>
   </div>
 </div>
-<script type="module" src="./main.js?v=1"></script>
+<script type="module" src="./main.js?v=2" onerror="document.getElementById('boot')?.classList.add('hidden');document.getElementById('fatal').style.display='flex';document.getElementById('fatalText').textContent='Game module failed to load. Refresh once; if this remains, send this error screen.';"></script>
 </body>
 </html>
