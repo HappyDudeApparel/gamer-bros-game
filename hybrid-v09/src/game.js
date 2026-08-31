@@ -423,7 +423,7 @@
     walkSurfaces.length=0;
     const arenaLayout=await fetch(new URL('../arena.layout.json',import.meta.url),{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('Crystal Library layout '+r.status);return r.json();});
     const {buildCrystalLibraryV2}=await import('./crystal-library-v2.js?v=clv21');
-    const crystalLibrary=buildCrystalLibraryV2({THREE,scene,parent:ext,layout:arenaLayout,mobile,resolvedQuality,addRectSurface,addDiscSurface,addRampSurface,glowTex});
+    const crystalLibrary=buildCrystalLibraryV2({THREE,scene,parent:ext,layout:arenaLayout,mobile,resolvedQuality,addRectSurface,addDiscSurface,addRampSurface,glowTex,stoneMap,stoneNormal,floorMap,floorRough});
     const arenaRoot=crystalLibrary.root;
 
     // One-time environment capture. NO periodic CubeCamera renders.
@@ -1778,7 +1778,7 @@ if(uHeroDissolveActive>.5){
     // ------------------------------------------------------------
     // CAMERA + INPUT
     // ------------------------------------------------------------
-    const target=new THREE.Vector3(0,2.9,0),targetLook=target.clone();
+    const target=new THREE.Vector3(gamerBase.x,gamerBase.y+1.45,gamerBase.z),targetLook=target.clone();
     const views={
       hero:{yaw:.06,pitch:.03,distance:7.60,target:new THREE.Vector3(0,2.95,0)},
       gamer:{yaw:.58,pitch:.055,distance:4.75,target:new THREE.Vector3(HERO_OUT.x,1.48,HERO_OUT.z)},
@@ -1789,8 +1789,8 @@ if(uHeroDissolveActive>.5){
       portal:{yaw:.06,pitch:.10,distance:12.20,target:new THREE.Vector3(0,2.48,0)},
       room:{yaw:.68,pitch:.14,distance:8.95,target:new THREE.Vector3(0,2.70,0)}
     };
-    const viewOrder=['hero','gamer','front','profile','back','face','portal','room'];let viewIndex=0,yaw=views.hero.yaw,pitch=.34,distance=13.4,targetYaw=yaw,targetPitch=pitch,targetDistance=distance,autoOrbit=false,dragging=false,lastX=0,lastY=0,pinchDist=0,followDistance=13.4,recenterClock=0;
-    function applyCamera(dt=.016){if(cameraMode==='orbit'||heroPortalState!=='outside'){yaw+=(targetYaw-yaw)*.085;pitch+=(targetPitch-pitch)*.085;distance+=(targetDistance-distance)*.09;target.lerp(targetLook,.085);}else{targetLook.set(player.x,player.y+1.45,player.z);target.lerp(targetLook,1-Math.exp(-8*dt));if(dragging||analogMove.active)recenterClock=0;else recenterClock+=dt;if(!dragging&&!analogMove.active&&recenterClock>.85&&followLock){const behind=player.yaw+Math.PI,dy=Math.atan2(Math.sin(behind-yaw),Math.cos(behind-yaw));yaw+=dy*(1-Math.exp(-1.75*dt));pitch=THREE.MathUtils.damp(pitch,cameraMode==='tight'?.24:.34,2.5,dt);}distance=THREE.MathUtils.damp(distance,cameraMode==='tight'?7.6:followDistance,3.8,dt);}const cp=Math.cos(pitch);camera.position.set(target.x+Math.sin(yaw)*cp*distance,target.y+Math.sin(pitch)*distance+(cameraMode==='tight'?.55:1.05),target.z+Math.cos(yaw)*cp*distance);camera.lookAt(target);}
+    const viewOrder=['hero','gamer','front','profile','back','face','portal','room'];let viewIndex=0,yaw=views.hero.yaw,pitch=.41,distance=15.8,targetYaw=yaw,targetPitch=pitch,targetDistance=distance,autoOrbit=false,dragging=false,lastX=0,lastY=0,pinchDist=0,followDistance=15.8,recenterClock=0;
+    function applyCamera(dt=.016){if(cameraMode==='orbit'||heroPortalState!=='outside'){yaw+=(targetYaw-yaw)*.085;pitch+=(targetPitch-pitch)*.085;distance+=(targetDistance-distance)*.09;target.lerp(targetLook,.085);}else{targetLook.set(player.x,player.y+1.45,player.z);target.lerp(targetLook,1-Math.exp(-8*dt));if(dragging||analogMove.active)recenterClock=0;else recenterClock+=dt;if(!dragging&&!analogMove.active&&recenterClock>.85&&followLock){const behind=player.yaw+Math.PI,dy=Math.atan2(Math.sin(behind-yaw),Math.cos(behind-yaw));yaw+=dy*(1-Math.exp(-1.75*dt));pitch=THREE.MathUtils.damp(pitch,cameraMode==='tight'?.28:.41,2.5,dt);}distance=THREE.MathUtils.damp(distance,cameraMode==='tight'?7.6:followDistance,3.8,dt);}const cp=Math.cos(pitch);camera.position.set(target.x+Math.sin(yaw)*cp*distance,target.y+Math.sin(pitch)*distance+(cameraMode==='tight'?.55:1.05),target.z+Math.cos(yaw)*cp*distance);camera.lookAt(target);}
     function selectView(name){cameraMode='orbit';const v=views[name];targetYaw=v.yaw;targetPitch=v.pitch;targetDistance=v.distance;targetLook.copy(v.target);autoOrbit=false;orbitBtn.textContent='CAM: ORBIT';orbitBtn.classList.remove('active');viewBtn.textContent='CAMERA: '+name.toUpperCase();}
     viewBtn.addEventListener('click',()=>{viewIndex=(viewIndex+1)%viewOrder.length;selectView(viewOrder[viewIndex]);});orbitBtn.addEventListener('click',()=>{cameraMode=cameraMode==='orbit'?'follow':cameraMode==='follow'?'tight':'orbit';orbitBtn.textContent='CAM: '+cameraMode.toUpperCase();orbitBtn.classList.toggle('active',cameraMode!=='orbit');if(cameraMode!=='orbit'){targetLook.set(player.x,player.y+1.35,player.z);}});followLockBtn.addEventListener('click',()=>{followLock=!followLock;followLockBtn.textContent='FOLLOW LOCK: '+(followLock?'ON':'OFF');followLockBtn.classList.toggle('active',followLock);});
     renderer.domElement.style.touchAction='none';renderer.domElement.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;autoOrbit=false;renderer.domElement.setPointerCapture?.(e.pointerId);recenterClock=0;hint.classList.add('fade');});
