@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#090712">
-<title>Gamer Bros Portal World v0.8.7</title>
-<link rel="stylesheet" href="./styles.css?v=087">
-<link rel="stylesheet" href="./menu.css?v=087">
-<link rel="stylesheet" href="./v085.css?v=087">
+<title>Gamer Bros Portal World v0.8.8</title>
+<link rel="stylesheet" href="./styles.css?v=088">
+<link rel="stylesheet" href="./menu.css?v=088">
+<link rel="stylesheet" href="./v085.css?v=088">
 </head>
 <body>
 <div id="app"><div id="stage"></div></div>
-<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Gamer Bros Portal World</strong><p>Loading the open portal world, natural third-person controls, bridge network and Happy Dude Leafs.</p></div></div>
+<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Gamer Bros Portal World</strong><p>Loading the open portal world, natural third-person controls, bridge network, Happy Dude Leafs and recovered scenic detail.</p></div></div>
 <div id="fatal"><div class="bootCard"><strong>Preview could not start</strong><p id="fatalText"></p></div></div>
 <div id="ui">
   <div class="top">
@@ -19,7 +19,7 @@
     <div class="actions"><button id="qualityBtn">QUALITY: AUTO</button><button id="orbitBtn">CAM: FOLLOW</button><button id="followLockBtn" class="active">FOLLOW LOCK: ON</button></div>
   </div>
   <div id="hint">Thumb stick to move · drag world to look · pinch to zoom · tap/hold ZAP</div>
-  <div class="panel playBadge">V0.5 VISUAL BASELINE · V0.8.7 OPEN WORLD</div>
+  <div class="panel playBadge">V0.5 PORTAL · V0.8.7 CONTROLS · V0.8.8 SCENIC RECOVERY</div>
   <div id="lightingPanel" class="panel lightingPanel"><div class="eyebrow">ROOM LIGHTING</div><div class="lightingRow"><span id="lightingValue">100%</span></div><input id="lightingSlider" type="range" min="35" max="220" value="100" step="1" aria-label="Room lighting" /></div>
   <div id="characterPanel" class="panel characterPanel"><div class="eyebrow">GAMER BRO TEST</div><div id="characterStatus" class="characterStatus">GB2 · TEAL · IDLE</div><div class="characterRow"><button id="motionBtn">MOTION: IDLE</button><button id="characterBtn" class="active">HERO: ON</button></div></div>
   <div class="movePad" id="movePad"></div>
@@ -27,8 +27,9 @@
   <div class="portalControls"><button id="activateBtn" disabled>ACTIVATE PORTAL</button><button id="dropBtn">LOAD HERO</button><div class="minorRow"><button id="resetBtn">MENU / RESET</button><button id="viewBtn">CAMERA: HERO</button></div></div>
 </div>
 <script>var t=0;</script>
-<script type="module" src="./src/main-v087.js?v=087"></script>
-<script type="module" src="./src/overlay-v085.js?v=087"></script>
-<script type="module" src="./src/v087.js?v=087"></script>
+<script type="module" src="./src/main-v087.js?v=088"></script>
+<script type="module" src="./src/overlay-v085.js?v=088"></script>
+<script type="module" src="./src/v087.js?v=088"></script>
+<script type="module" src="./src/scenic-v088.js?v=088"></script>
 </body>
 </html>
