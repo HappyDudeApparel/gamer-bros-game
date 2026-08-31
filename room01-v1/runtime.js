@@ -4,9 +4,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { createGamerBro } from '/playground-v2/gamer-bro.js?v=room01';
-import { createPortalV2 } from '/room01-v1/portal-v2.js?v=102';
-import { createV04Sprite } from '/room01-v1/v04-sprites.js?v=102';
+import { createGamerBro } from '/playground-v2/gamer-bro.js?v=106';
+import { createPortalV2 } from '/room01-v1/portal-v2.js?v=106';
+import { createV04Sprite } from '/room01-v1/v04-sprites.js?v=106';
 
 const $=id=>document.getElementById(id);
 const stage=$('stage'),boot=$('boot'),fatal=$('fatal'),fatalText=$('fatalText'),hud=$('hud'),missionEl=$('mission'),statsEl=$('stats'),cooldownEl=$('cooldowns'),selectEl=$('select'),gridEl=$('characterGrid'),resultEl=$('result'),resultText=$('resultText'),replayBtn=$('replayBtn'),attackBtn=$('attackBtn'),specialBtn=$('specialBtn'),jumpBtn=$('jumpBtn'),dashBtn=$('dashBtn'),stick=$('stick'),stickKnob=$('stickKnob'),changeBtn=$('changeBtn');
