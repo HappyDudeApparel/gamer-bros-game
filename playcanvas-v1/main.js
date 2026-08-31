@@ -207,6 +207,15 @@ async function loadContainer(url,name){return new Promise((resolve,reject)=>app.
   for(const z of[-25,-5,15,25])for(const x of[-22.8,22.8]){const l=lamp.clone();l.setPosition(x,5.3,z);l.setLocalScale(2.4,2.4,2.4);l.setEulerAngles(0,x<0?90:-90,0);app.root.addChild(l);}
 }catch(err){console.warn('Optional library dressing failed',err);}})();
 
+window.__spriteGame={
+  state,
+  collectAllCrests(){state.crests=3;unlockPortal();hud();},
+  teleportToPortal(){hero.setPosition(0,1.35,-4);state.vy=0;state.grounded=false;},
+  completeGame,
+  hero,
+  enemies
+};
+
 hud();
 setTimeout(()=>{boot.style.opacity='0';setTimeout(()=>boot.remove(),380);message('THE PORTAL IS LOCKED · EXPLORE THE THREE WINGS',2.6);},650);
 let time=0;app.on('update',dt=>{dt=Math.min(dt,.05);time+=dt;if(msgTimer>0){msgTimer-=dt;if(msgTimer<=0)messageEl.classList.remove('show');}updateMoving(time);updateCrumble(dt);movement(dt);collectUpdate(dt,time);updateEnemies(dt,time);updateEffects(dt);updateCamera(dt);portalRoot.rotate(0,dt*10,0);if(lockCrystal.enabled)lockCrystal.rotate(0,dt*34,0);});
