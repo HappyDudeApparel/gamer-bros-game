@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#080512">
+<title>Gamer Bros · Crystal Library Vertical Slice</title>
+<link rel="stylesheet" href="./styles.css?v=3">
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="boot"><div class="boot-card"><div class="spinner"></div><strong>CRYSTAL LIBRARY · VERTICAL SLICE</strong><span>Loading combat, rewards and traversal…</span></div></div>
+<div id="hud">
+  <div class="topbar">
+    <div class="crest"><span>MAPLE CRESTS</span><b id="crestCount">0 / 3</b></div>
+    <div class="leaves"><span>MAPLE LEAVES</span><b id="leafCount">0</b></div>
+    <div class="health"><span>HEALTH</span><b id="healthCount">♥ ♥ ♥</b></div>
+  </div>
+  <div id="objective">Find the three Maple Crests. The portal is locked.</div>
+  <div id="power" hidden>OVERCHARGE <b id="powerTime">12.0</b></div>
+  <div id="bossBar" hidden><span id="bossName">CRYSTAL GUARDIAN</span><div><i id="bossFill"></i></div></div>
+  <div id="message"></div>
+  <div id="touch" aria-hidden="false">
+    <div id="stick"><i id="knob"></i></div>
+    <div class="actions"><button id="zapBtn">ZAP</button><button id="jumpBtn">JUMP</button><button id="dashBtn">DASH</button></div>
+  </div>
+</div>
+<div id="results" hidden>
+  <div class="results-card">
+    <div class="eyebrow">PORTAL COMPLETE</div>
+    <h1>CRYSTAL LIBRARY CLEARED</h1>
+    <p id="resultsStats"></p>
+    <button id="againBtn">PLAY AGAIN</button>
+  </div>
+</div>
+<script type="module" src="./main.js?v=3"></script>
+</body>
+</html>
