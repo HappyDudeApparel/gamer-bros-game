@@ -1,0 +1,108 @@
+name: Gamer Bros live recovery smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'legacy-main-v087.html'
+      - 'src/main-v087.js'
+      - 'src/overlay-v085.js'
+      - 'src/v087.js'
+      - 'src/scenic-v088.js'
+      - 'hybrid-v09/**'
+      - '.github/workflows/live-recovery-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax checks
+        run: |
+          node --check src/main-v087.js
+          node --check src/overlay-v085.js
+          node --check src/v087.js
+          node --check src/scenic-v088.js
+          node --check hybrid-v09/src/game.js
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Browser smoke desktop and mobile
+        run: |
+          python3 -m http.server 8080 >/tmp/server.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const { chromium }=require('playwright');
+          async function openWorld(browser, mobile=false){
+            const page=await browser.newPage(mobile?{
+              viewport:{width:390,height:844},
+              userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',
+              hasTouch:true,isMobile:true
+            }:{viewport:{width:1440,height:900}});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=088smoke',{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('#stage canvas',{state:'visible',timeout:45000});
+            await page.waitForFunction(()=>!!window.__bro,{timeout:45000});
+            await page.waitForFunction(()=>!!window.__v088Scenic,{timeout:45000});
+            const scenic=await page.evaluate(()=>({name:window.__v088Scenic?.name,children:window.__v088Scenic?.children?.length||0}));
+            if(scenic.name!=='V088ScenicRecovery'||scenic.children<5) throw new Error('v0.8.8 scenic recovery did not initialize');
+            const menu=page.locator('#gameMenu');
+            if(await menu.count()){
+              await page.waitForSelector('#gameMenu [data-hero="gb2"]',{state:'visible',timeout:20000});
+              await page.click('#gameMenu [data-hero="gb2"]');
+            }
+            if(!mobile){
+              await page.keyboard.down('w');await page.waitForTimeout(450);await page.keyboard.up('w');
+              await page.keyboard.press('Space');await page.waitForTimeout(250);
+            }
+            const fatal=page.locator('#fatal');
+            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Open world fatal UI visible');
+            if(errors.length) throw new Error(errors.join(' | '));
+            await page.screenshot({path:mobile?'open-world-mobile.png':'open-world-desktop.png',fullPage:true});
+            await page.close();
+          }
+          async function library(browser){
+            const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:8080/hybrid-v09/?v=090smoke',{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('#stage canvas',{state:'visible',timeout:45000});
+            await page.waitForFunction(()=>document.getElementById('boot')?.style.display==='none'||document.getElementById('boot')?.classList.contains('hidden'),{timeout:45000});
+            const fatal=page.locator('#fatal');
+            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Crystal Library fatal UI visible');
+            if(errors.length) throw new Error(errors.join(' | '));
+            await page.screenshot({path:'crystal-library-mobile.png',fullPage:true});
+            await page.close();
+          }
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const hub=await browser.newPage({viewport:{width:390,height:844}});
+            await hub.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
+            if(await hub.locator('a[href*="legacy-main-v087"]').count()!==1) throw new Error('Open World hub link missing');
+            if(await hub.locator('a[href*="hybrid-v09"]').count()!==1) throw new Error('Crystal Library hub link missing');
+            await hub.close();
+            await openWorld(browser,false);
+            await openWorld(browser,true);
+            await library(browser);
+            await browser.close();
+            console.log('Gamer Bros live recovery smoke passed');
+          })().catch(e=>{console.error(e);process.exit(1);});
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gamer-bros-live-recovery-smoke
+          path: |
+            open-world-desktop.png
+            open-world-mobile.png
+            crystal-library-mobile.png
+          if-no-files-found: ignore
