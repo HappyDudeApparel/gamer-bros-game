@@ -46,8 +46,8 @@
 
     const scene=new THREE.Scene();
     scene.background=new THREE.Color(0x090812);
-    scene.fog=new THREE.FogExp2(0x120d1b,0.0100);
-    const camera=new THREE.PerspectiveCamera(36,1,.15,70);
+    scene.fog=new THREE.FogExp2(0x120d1b,0.0072);
+    const camera=new THREE.PerspectiveCamera(36,1,.15,150);
     camera.layers.enable(1);
 
     const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -415,19 +415,173 @@
       const lg=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffb55e,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false}));lg.position.set(lx,1.32,lz);lg.scale.set(.75,.75,1);ext.add(lg);
     }
 
-    function terrainTex90(grass){const c=document.createElement('canvas');c.width=c.height=384;const g=c.getContext('2d');g.fillStyle=grass?'#3f772c':'#67503a';g.fillRect(0,0,384,384);for(let i=0;i<2200;i++){const x=Math.random()*384,y=Math.random()*384,a=.025+Math.random()*.075;g.fillStyle=grass?(Math.random()<.55?'rgba(143,180,76,'+a+')':'rgba(23,70,29,'+a+')'):(Math.random()<.5?'rgba(185,145,88,'+a+')':'rgba(50,38,28,'+a+')');g.fillRect(x,y,1+Math.random()*3,1+Math.random()*3);}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,5);t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());return t;}
-    const grass90=new THREE.MeshPhysicalMaterial({map:terrainTex90(true),roughness:.94,metalness:0,envMapIntensity:.5}),dirt90=new THREE.MeshStandardMaterial({map:terrainTex90(false),roughness:.96}),bark90=new THREE.MeshStandardMaterial({color:0x5a3723,roughness:.92}),leaf90=new THREE.MeshPhysicalMaterial({color:0x3f903a,roughness:.78,sheen:.2,sheenColor:new THREE.Color(0x8edb66)}),leafDark90=new THREE.MeshStandardMaterial({color:0x276d2f,roughness:.9}),mount90=new THREE.MeshStandardMaterial({color:0x4f5963,roughness:.96,flatShading:true}),snow90=new THREE.MeshStandardMaterial({color:0xa8bac4,roughness:.92,flatShading:true});
-    function plateau90(x,z,r,y=0,grass=true){extMesh(new THREE.CylinderGeometry(r*.96,r,1.7,48),dirt90,new THREE.Vector3(x,y-.78,z),0,true);extMesh(new THREE.CylinderGeometry(r*.96,r*.97,.20,48),grass?grass90:floorMat,new THREE.Vector3(x,y+.03,z),0,false);addDiscSurface(x,z,r*.92,y+.14);}
-    function bridge90(x1,z1,x2,z2,w,y){const dx=x2-x1,dz=z2-z1,d=Math.hypot(dx,dz),rot=Math.atan2(dx,dz);extMesh(new THREE.BoxGeometry(w+.28,.42,d),stoneDark,new THREE.Vector3((x1+x2)/2,y-.18,(z1+z2)/2),rot,true);extMesh(new THREE.BoxGeometry(w,.14,d-.05),floorMat,new THREE.Vector3((x1+x2)/2,y+.07,(z1+z2)/2),rot,false);addRectSurface((x1+x2)/2,(z1+z2)/2,w-.14,d-.10,y+.15,rot);}
-    function ramp90(x,z,w,d,y0,y1){const m=extMesh(new THREE.BoxGeometry(w,.20,d),floorMat,new THREE.Vector3(x,(y0+y1)/2-.04,z),0,true);m.rotation.x=Math.atan2(y1-y0,d);addRampSurface(x,z,w-.12,d-.08,y0,y1,0);}
-    ramp90(0,17.7,5.8,22.0,.02,.39);plateau90(0,34,16.5,.25,true);plateau90(-18,33,8.4,.72,true);plateau90(18,33,8.4,.72,true);bridge90(-12.0,33,-14.0,33,4.4,.64);bridge90(12.0,33,14.0,33,4.4,.64);bridge90(0,47,0,49.0,5.0,.60);plateau90(0,57,11.8,1.15,true);ramp90(0,68,5.0,12,1.29,2.10);plateau90(0,78,10.2,2.0,true);bridge90(-8.0,58,-15.0,63,3.5,1.35);bridge90(8.0,58,15.0,63,3.5,1.35);plateau90(-21,67,7.5,1.75,true);plateau90(21,67,7.5,1.75,true);
-    const treeN=44,trunk90=new THREE.InstancedMesh(new THREE.CylinderGeometry(.18,.28,2.3,8),bark90,treeN),crown90=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,2),leaf90,treeN),crownB90=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),leafDark90,treeN);trunk90.castShadow=crown90.castShadow=true;ext.add(trunk90,crown90,crownB90);const zones90=[[0,34,15.0,.25],[-18,33,7.5,.72],[18,33,7.5,.72],[0,57,10.6,1.15],[-21,67,6.6,1.75],[21,67,6.6,1.75],[0,78,9.0,2.0]];let ti90=0;outer90:for(let zi=0;zi<zones90.length;zi++){const[cx,cz,rr,yy]=zones90[zi];for(let k=0;k<8;k++){if(ti90>=treeN)break outer90;const a=k/8*Math.PI*2+zi*.73,r=rr*(.68+.22*((k*7%10)/10)),x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r,sc=.82+((k+zi)%5)*.1;dummy.rotation.set(0,a*.37,0);dummy.position.set(x,yy+1.15*sc,z);dummy.scale.set(sc,sc,sc);dummy.updateMatrix();trunk90.setMatrixAt(ti90,dummy.matrix);dummy.position.set(x,yy+2.55*sc,z);dummy.scale.set(1.15*sc,1.42*sc,1.12*sc);dummy.updateMatrix();crown90.setMatrixAt(ti90,dummy.matrix);dummy.position.set(x+.35*sc,yy+3.25*sc,z-.1*sc);dummy.scale.set(.72*sc,.88*sc,.72*sc);dummy.updateMatrix();crownB90.setMatrixAt(ti90,dummy.matrix);ti90++;}}for(;ti90<treeN;ti90++){dummy.position.set(0,-30,0);dummy.scale.set(.001,.001,.001);dummy.updateMatrix();trunk90.setMatrixAt(ti90,dummy.matrix);crown90.setMatrixAt(ti90,dummy.matrix);crownB90.setMatrixAt(ti90,dummy.matrix);}trunk90.instanceMatrix.needsUpdate=crown90.instanceMatrix.needsUpdate=crownB90.instanceMatrix.needsUpdate=true;
-    const rockN=28,rock90=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(.62,1),stoneDark,rockN);rock90.castShadow=true;rock90.receiveShadow=true;ext.add(rock90);for(let i=0;i<rockN;i++){const z=24+(i*13%58),side=i%2?-1:1,x=side*(13+(i*7%16)),y=z>72?2:z>48?1.15:.4;dummy.position.set(x,y+.28,z);dummy.rotation.set(i*.43,i*.77,i*.21);const sc=.55+(i%6)*.16;dummy.scale.set(sc,sc*(.55+(i%3)*.15),sc*.8);dummy.updateMatrix();rock90.setMatrixAt(i,dummy.matrix);}rock90.instanceMatrix.needsUpdate=true;
-    const mN=20,m90=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),mount90,mN),snowM90=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,7),snow90,mN);ext.add(m90,snowM90);for(let i=0;i<mN;i++){const a=i/mN*Math.PI*2,r=62+(i%5)*5,h=18+(i%7)*2.7,rad=7+(i%4)*1.8,x=Math.cos(a)*r,z=42+Math.sin(a)*r;dummy.position.set(x,h*.5-4,z);dummy.rotation.set(0,a+.2,0);dummy.scale.set(rad,h,rad);dummy.updateMatrix();m90.setMatrixAt(i,dummy.matrix);dummy.position.set(x,h-5,z);dummy.scale.set(rad*.42,h*.22,rad*.42);dummy.updateMatrix();snowM90.setMatrixAt(i,dummy.matrix);}m90.instanceMatrix.needsUpdate=snowM90.instanceMatrix.needsUpdate=true;
-  
-    // Abyss cue only outside the room; quality stays in geometry/materials above it.
-    const abyssMat=new THREE.MeshBasicMaterial({color:0x170c27,transparent:true,opacity:.78,side:THREE.DoubleSide});
-    const abyss=extMesh(new THREE.PlaneGeometry(28,26),abyssMat,new THREE.Vector3(0,-5.0,17.2),0,false);abyss.rotation.x=-Math.PI/2;
+
+    // ------------------------------------------------------------
+    // CRYSTAL LIBRARY V1 — authored-by-layout procedural foundation
+    // Reference direction: radial library complex, layered catwalks,
+    // central stasis chamber, observatory, lower sanctuary and crystal void.
+    // ------------------------------------------------------------
+    const clPurpleStone=stoneMat.clone();clPurpleStone.color.setHex(0x75607f);clPurpleStone.roughness=.78;
+    const clDarkStone=stoneDark.clone();clDarkStone.color.setHex(0x34273f);clDarkStone.roughness=.88;
+    const clFloor=floorMat.clone();clFloor.color.setHex(0x6f5b79);clFloor.roughness=.74;
+    const clTrim=new THREE.MeshStandardMaterial({color:0x4a315d,roughness:.62,metalness:.12});
+    const clBookA=new THREE.MeshStandardMaterial({color:0x38243d,roughness:.88});
+    const clBookB=new THREE.MeshStandardMaterial({color:0x5b3b58,roughness:.86});
+    const clWood=new THREE.MeshStandardMaterial({color:0x6d412e,roughness:.88});
+    const clRune=new THREE.MeshStandardMaterial({color:0xd9b8ff,emissive:0x7b24d8,emissiveIntensity:2.8,roughness:.26});
+    const clVoid=new THREE.MeshBasicMaterial({color:0x080612,transparent:true,opacity:.96,side:THREE.DoubleSide});
+    const clGlass=glassMat.clone();clGlass.transmission=.72;clGlass.opacity=.88;clGlass.transparent=true;
+    const clDummy=new THREE.Object3D();
+    const clColumnData=[],clCrystalData=[];
+
+    function clDisc(x,z,r,y,h=.86,top=clFloor){
+      extMesh(new THREE.CylinderGeometry(r*.97,r,h,48),clDarkStone,new THREE.Vector3(x,y-h*.5,z),0,true);
+      extMesh(new THREE.CylinderGeometry(r*.95,r*.96,.16,48),top,new THREE.Vector3(x,y+.04,z),0,false);
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(r*.72,.07,10,72),clRune);ring.rotation.x=Math.PI/2;ring.position.set(x,y+.15,z);ring.castShadow=false;ext.add(ring);
+      addDiscSurface(x,z,r*.90,y+.14);
+    }
+    function clBridge(x1,z1,y1,x2,z2,y2,w=3.6){
+      const dx=x2-x1,dz=z2-z1,d=Math.hypot(dx,dz),rot=Math.atan2(dx,dz),mx=(x1+x2)/2,mz=(z1+z2)/2,my=(y1+y2)/2;
+      const base=extMesh(new THREE.BoxGeometry(w+.34,.40,d),clDarkStone,new THREE.Vector3(mx,my-.16,mz),rot,true);
+      base.rotation.x=Math.atan2(y1-y2,d);
+      const top=extMesh(new THREE.BoxGeometry(w,.14,d-.06),clFloor,new THREE.Vector3(mx,my+.06,mz),rot,false);
+      top.rotation.x=Math.atan2(y1-y2,d);
+      addRampSurface(mx,mz,w-.16,d-.10,y1+.14,y2+.14,rot);
+    }
+    function clRect(x,z,w,d,y,rot=0){
+      extMesh(new THREE.BoxGeometry(w+.28,.58,d+.28),clDarkStone,new THREE.Vector3(x,y-.25,z),rot,true);
+      extMesh(new THREE.BoxGeometry(w,.14,d),clFloor,new THREE.Vector3(x,y+.06,z),rot,false);
+      addRectSurface(x,z,w-.16,d-.16,y+.14,rot);
+    }
+    function clCrystalCluster(x,y,z,scale=1){clCrystalData.push({x,y,z,scale});}
+    function clColumn(x,z,y,h=7.8,scale=1){clColumnData.push({x,z,y,h,scale});}
+
+    // The entrance remains directly connected to the existing portal causeway.
+    clRect(0,19.2,5.4,7.2,.18,0);
+    clBridge(0,22.6,.18,0,25.0,.80,5.2);
+
+    // Main atrium — the primary readable hub.
+    clDisc(0,31.5,10.8,.80,1.08);
+    clDisc(-20.0,32.0,7.2,3.00,.88);
+    clDisc(20.0,32.0,7.8,3.00,.88);
+    clDisc(0,50.5,8.9,5.50,1.10);
+    clDisc(-18.5,54.5,6.3,.40,.96);
+    clDisc(20.5,53.5,6.4,6.45,.94);
+    clDisc(0,68.0,7.2,9.45,1.16);
+
+    // Hub spokes / puzzle routes.
+    clBridge(-8.0,31.5,.80,-14.0,32.0,3.00,4.0);
+    clBridge(8.0,31.5,.80,14.0,32.0,3.00,4.0);
+    clBridge(0,39.0,.80,0,42.2,5.50,5.2);
+    clBridge(-20.0,38.2,3.00,-18.5,48.1,.40,3.4);
+    clBridge(20.0,38.8,3.00,20.5,47.2,6.45,3.4);
+    clBridge(0,57.8,5.50,0,61.0,9.45,4.3);
+
+    // Upper catwalk nodes around the stasis chamber.
+    clRect(-11.8,48.5,5.8,3.3,7.95,.10);
+    clRect(11.8,48.5,5.8,3.3,7.95,-.10);
+    clBridge(-8.8,48.8,7.95,-5.6,50.0,5.50,2.6);
+    clBridge(8.8,48.8,7.95,5.6,50.0,5.50,2.6);
+
+    // Main atrium architectural ring: columns and scenic mezzanine fragments.
+    for(let i=0;i<12;i++){
+      const a=i/12*Math.PI*2+.16,r=13.2,x=Math.sin(a)*r,z=31.5+Math.cos(a)*r;
+      clColumn(x,z,.18,7.2,.92);
+    }
+    for(const side of [-1,1]){
+      clRect(side*12.9,35.8,4.0,10.0,4.55,0);
+      clColumn(side*11.2,31.3,.18,8.0,.92);
+      clColumn(side*14.6,31.3,.18,8.0,.92);
+    }
+
+    // Central stasis chamber: scenic pod, floor halos and suspended core.
+    extMesh(new THREE.CylinderGeometry(2.25,2.55,.62,48),clTrim,new THREE.Vector3(0,5.92,50.5),0,true);
+    const stasisGlass=extMesh(new THREE.CylinderGeometry(1.72,1.72,4.45,40,1,true),clGlass,new THREE.Vector3(0,8.35,50.5),0,false);stasisGlass.castShadow=false;
+    extMesh(new THREE.CylinderGeometry(2.18,2.35,.42,48),metalDark,new THREE.Vector3(0,10.65,50.5),0,true);
+    const stasisCore=new THREE.Mesh(new THREE.OctahedronGeometry(.72,2),glowCyan);stasisCore.position.set(0,8.30,50.5);stasisCore.rotation.z=.55;ext.add(stasisCore);
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2,r=6.8;clCrystalCluster(Math.sin(a)*r,5.78,50.5+Math.cos(a)*r,.62);}
+
+    // Eastern observatory — broad glowing lens floor and open-star focal wall.
+    const obsRing=new THREE.Mesh(new THREE.TorusGeometry(4.7,.16,12,80),glowPurple);obsRing.rotation.x=Math.PI/2;obsRing.position.set(20,3.24,32);ext.add(obsRing);
+    const obsCore=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,.05,64),glowCyan);obsCore.position.set(20,3.16,32);ext.add(obsCore);
+    for(const x of [16.4,23.6])clColumn(x,37.2,2.45,6.8,.82);
+
+    // Western bridge puzzle staging / breakable blocks.
+    const blockGeo=new THREE.BoxGeometry(1.20,1.05,1.20);
+    const puzzleBlocks=new THREE.InstancedMesh(blockGeo,clWood,18);puzzleBlocks.castShadow=true;puzzleBlocks.receiveShadow=true;ext.add(puzzleBlocks);
+    let pbi=0;
+    for(let row=0;row<3;row++)for(let col=0;col<4;col++){
+      clDummy.position.set(-22.0+col*1.18,3.62+row*1.02,29.4+((row+col)%2)*.08);clDummy.rotation.set(0,(col%2)*.04,0);clDummy.scale.set(1,1,1);clDummy.updateMatrix();puzzleBlocks.setMatrixAt(pbi++,clDummy.matrix);
+    }
+    for(let i=0;i<6;i++){clDummy.position.set(-18.0+(i%3)*1.14,3.58+Math.floor(i/3)*1.03,35.4);clDummy.rotation.set(0,0,0);clDummy.updateMatrix();puzzleBlocks.setMatrixAt(pbi++,clDummy.matrix);}
+    puzzleBlocks.instanceMatrix.needsUpdate=true;
+
+    // Lower sanctuary: darker stone, greenish crystal pool and crypt columns.
+    const sanctuaryHalo=new THREE.Mesh(new THREE.TorusGeometry(4.5,.11,10,64),new THREE.MeshStandardMaterial({color:0x9fe6b5,emissive:0x1e8f62,emissiveIntensity:2.2,roughness:.3}));sanctuaryHalo.rotation.x=Math.PI/2;sanctuaryHalo.position.set(-18.5,.58,54.5);ext.add(sanctuaryHalo);
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2;clColumn(-18.5+Math.sin(a)*5.0,54.5+Math.cos(a)*5.0,.15,5.4,.70);}
+    clCrystalCluster(-18.5,.64,54.5,1.08);
+
+    // Upper archive/summit — smaller, high-value destination with crystal crown.
+    for(let i=0;i<8;i++){const a=i/8*Math.PI*2;clColumn(Math.sin(a)*6.2,68+Math.cos(a)*6.2,9.10,5.4,.68);}
+    clCrystalCluster(0,9.72,68,1.35);
+
+    // Crystal accents at route decisions.
+    const accentSpots=[[-8,31.5,1.2],[8,31.5,1.2],[-20,32,3.4],[20,32,3.4],[0,43.5,5.9],[-18.5,50,.8],[20.5,49,6.8],[0,62.2,9.8]];
+    accentSpots.forEach((q,i)=>clCrystalCluster(q[0],q[2],q[1],.48+(i%3)*.12));
+
+    // Build all repeated columns in three instanced draws.
+    const colBase=new THREE.InstancedMesh(new THREE.CylinderGeometry(.48,.62,.42,12),clPurpleStone,clColumnData.length);
+    const colShaft=new THREE.InstancedMesh(new THREE.CylinderGeometry(.34,.38,1,14),clPurpleStone,clColumnData.length);
+    const colCap=new THREE.InstancedMesh(new THREE.CylinderGeometry(.58,.46,.46,12),clTrim,clColumnData.length);
+    colBase.castShadow=colShaft.castShadow=colCap.castShadow=true;ext.add(colBase,colShaft,colCap);
+    clColumnData.forEach((q,i)=>{
+      clDummy.rotation.set(0,0,0);
+      clDummy.position.set(q.x,q.y+.21*q.scale,q.z);clDummy.scale.set(q.scale,q.scale,q.scale);clDummy.updateMatrix();colBase.setMatrixAt(i,clDummy.matrix);
+      clDummy.position.set(q.x,q.y+q.h*.5+.40*q.scale,q.z);clDummy.scale.set(q.scale,q.h,q.scale);clDummy.updateMatrix();colShaft.setMatrixAt(i,clDummy.matrix);
+      clDummy.position.set(q.x,q.y+q.h+.62*q.scale,q.z);clDummy.scale.set(q.scale,q.scale,q.scale);clDummy.updateMatrix();colCap.setMatrixAt(i,clDummy.matrix);
+    });
+    colBase.instanceMatrix.needsUpdate=colShaft.instanceMatrix.needsUpdate=colCap.instanceMatrix.needsUpdate=true;
+
+    // Route crystals are one instanced mesh plus one points glow field.
+    const crystalSpecs=[[-.24,.00,.24,1.15],[.10,.02,.32,1.48],[.28,.10,.19,.88],[-.04,-.18,.17,.68],[.03,.23,.14,.52]];
+    const routeCrystalInst=new THREE.InstancedMesh(crystalGeo,crystalMat,clCrystalData.length*crystalSpecs.length);routeCrystalInst.castShadow=false;ext.add(routeCrystalInst);
+    const glowPositions=new Float32Array(clCrystalData.length*3);let rci=0;
+    clCrystalData.forEach((q,qi)=>{
+      glowPositions[qi*3]=q.x;glowPositions[qi*3+1]=q.y+.8*q.scale;glowPositions[qi*3+2]=q.z;
+      crystalSpecs.forEach((s,j)=>{const ox=s[0],oz=s[1],w=s[2],h=s[3];clDummy.position.set(q.x+ox*q.scale,q.y,q.z+oz*q.scale);clDummy.rotation.set((j-2)*.055,(qi*.71+j*.84)%(Math.PI*2),(2-j)*.035);clDummy.scale.set(w*q.scale,h*q.scale,w*q.scale);clDummy.updateMatrix();routeCrystalInst.setMatrixAt(rci++,clDummy.matrix);});
+    });
+    routeCrystalInst.instanceMatrix.needsUpdate=true;
+    const clGlowGeo=new THREE.BufferGeometry();clGlowGeo.setAttribute('position',new THREE.BufferAttribute(glowPositions,3));
+    const clGlowPts=new THREE.Points(clGlowGeo,new THREE.PointsMaterial({map:glowTex,color:0xc179ff,size:2.0,transparent:true,opacity:.30,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));ext.add(clGlowPts);
+
+    // Tall library backdrop: a dense-looking shell made from a few instanced draws.
+    const shelfCount=28;
+    const shelfShell=new THREE.InstancedMesh(new THREE.BoxGeometry(4.2,10.5,1.05),clDarkStone,shelfCount);
+    const shelfInset=new THREE.InstancedMesh(new THREE.BoxGeometry(3.55,8.9,.20),clBookA,shelfCount);
+    const shelfBand=new THREE.InstancedMesh(new THREE.BoxGeometry(3.60,.16,.28),clBookB,shelfCount*5);
+    shelfShell.castShadow=true;shelfInset.castShadow=false;ext.add(shelfShell,shelfInset,shelfBand);
+    let sb=0;
+    for(let i=0;i<shelfCount;i++){
+      const a=i/shelfCount*Math.PI*2,r=43.5,x=Math.sin(a)*r,z=38+Math.cos(a)*r,ry=a+Math.PI;
+      clDummy.position.set(x,5.2,z);clDummy.rotation.set(0,ry,0);clDummy.scale.set(1,1,1);clDummy.updateMatrix();shelfShell.setMatrixAt(i,clDummy.matrix);
+      clDummy.position.set(x-Math.sin(a)*.56,5.4,z-Math.cos(a)*.56);clDummy.updateMatrix();shelfInset.setMatrixAt(i,clDummy.matrix);
+      for(let j=0;j<5;j++){clDummy.position.set(x-Math.sin(a)*.68,2.1+j*1.65,z-Math.cos(a)*.68);clDummy.rotation.set(0,ry,0);clDummy.scale.set(1,1,1);clDummy.updateMatrix();shelfBand.setMatrixAt(sb++,clDummy.matrix);}
+    }
+    shelfShell.instanceMatrix.needsUpdate=shelfInset.instanceMatrix.needsUpdate=shelfBand.instanceMatrix.needsUpdate=true;
+
+    // Outer tower silhouettes produce the cross-sectional height from the references.
+    const towerCount=16;
+    const towerInst=new THREE.InstancedMesh(new THREE.BoxGeometry(5.4,18,4.5),clDarkStone,towerCount);towerInst.castShadow=false;towerInst.receiveShadow=true;ext.add(towerInst);
+    for(let i=0;i<towerCount;i++){const a=i/towerCount*Math.PI*2,r=50+(i%3)*3.2,x=Math.sin(a)*r,z=38+Math.cos(a)*r;clDummy.position.set(x,7.0+(i%4)*1.2,z);clDummy.rotation.set(0,-a,0);clDummy.scale.set(1,1,1);clDummy.updateMatrix();towerInst.setMatrixAt(i,clDummy.matrix);}towerInst.instanceMatrix.needsUpdate=true;
+
+    // Floating crystal field over the void / background.
+    const floatCount=34,floatInst=new THREE.InstancedMesh(crystalGeo,crystalMat,floatCount);floatInst.castShadow=false;ext.add(floatInst);
+    for(let i=0;i<floatCount;i++){const a=i*2.399,r=18+(i%8)*3.2,x=Math.sin(a)*r,z=38+Math.cos(a)*r,y=5+(i%9)*1.35;clDummy.position.set(x,y,z);clDummy.rotation.set(i*.17,a,i*.09);const sc=.28+(i%5)*.08;clDummy.scale.set(sc,sc*(1.5+(i%3)*.3),sc);clDummy.updateMatrix();floatInst.setMatrixAt(i,clDummy.matrix);}floatInst.instanceMatrix.needsUpdate=true;
+
+    // Deep purple void beneath the complex; no collision.
+    const clAbyss=extMesh(new THREE.PlaneGeometry(150,150),clVoid,new THREE.Vector3(0,-5.8,38),0,false);clAbyss.rotation.x=-Math.PI/2;
+
+    // CRYSTAL_LIBRARY_V1
 
     // One-time environment capture. NO periodic CubeCamera renders.
     let environmentTarget=null;
@@ -437,7 +591,8 @@
     }
     // Position the two real torch lights before the one-time room reflection bake.
     if(torches.length){torchLightA.position.copy(torches[0].worldPos);torchLightB.position.copy(torches[2%torches.length].worldPos);}
-    bakeEnvironment();
+    // Crystal Library: do not block boot on a six-face environment capture.
+    scene.environment=null;environmentTarget=null;applyRoomLight();
 
     // ------------------------------------------------------------
     // PORTAL MACHINE — SAME SILHOUETTE, BETTER MATERIAL RESPONSE
