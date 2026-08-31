@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Extract canonical Gamer Bro
+      - name: Pin recovered visuals and canonical Gamer Bro
         run: |
           node <<'NODE'
           const fs=require('fs');
@@ -44,16 +44,24 @@ jobs:
           }
           if(end<0) throw new Error('createGamerBro end missing');
           fs.writeFileSync('playground-v2/gamer-bro.js',src.slice(start,end)+'\n\nexport { createGamerBro };\n');
+
+          const p='playground-v2/main.js';
+          let game=fs.readFileSync(p,'utf8');
+          game=game.replace("const grassMat=new THREE.MeshStandardMaterial({color:0x72bc58,roughness:.82,metalness:0});","const grassMat=new THREE.MeshStandardMaterial({color:0x72bc58,roughness:.82,metalness:0,side:THREE.DoubleSide});");
+          game=game.replace("const grassLight=new THREE.MeshStandardMaterial({color:0x88cf69,roughness:.82});","const grassLight=new THREE.MeshStandardMaterial({color:0x88cf69,roughness:.82,side:THREE.DoubleSide});");
+          game=game.replace('topGeo.rotateX(-Math.PI/2);','topGeo.rotateX(Math.PI/2);');
+          game=game.replace('debris(hitPos||b.mesh.position,0xa96f35,7);','debris(hitPos||b.mesh.position,0xa96f35,3);');
+          fs.writeFileSync(p,game);
           NODE
           node --check playground-v2/gamer-bro.js
           node --check playground-v2/main.js
-      - name: Commit extracted Gamer Bro if needed
+      - name: Commit pinned/refined game files if needed
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add playground-v2/gamer-bro.js
+          git add playground-v2/gamer-bro.js playground-v2/main.js
           if ! git diff --cached --quiet; then
-            git commit -m 'Pin canonical Gamer Bro in Sprite Training Grounds'
+            git commit -m 'Refine recovered Training Grounds visual alignment'
             git push origin HEAD:playground-v2
           fi
       - name: Install Playwright Chromium
@@ -76,10 +84,12 @@ jobs:
             if(await page.locator('#characterGrid .characterCard').count()!==5) throw new Error('Expected five playable characters');
             await page.click('[data-character="gamer"]');
             await page.waitForSelector('canvas',{state:'visible',timeout:30000});
+            const selectVisible=await page.locator('#select').evaluate(el=>getComputedStyle(el).display!=='none');
+            if(selectVisible) throw new Error('Character-select overlay did not close');
             await page.waitForTimeout(1200);
-            await page.keyboard.down('w'); await page.waitForTimeout(800); await page.keyboard.up('w');
-            await page.keyboard.press('f'); await page.waitForTimeout(300);
-            await page.keyboard.press('q'); await page.waitForTimeout(500);
+            await page.keyboard.down('w'); await page.waitForTimeout(700); await page.keyboard.up('w');
+            await page.keyboard.press('f'); await page.waitForTimeout(250);
+            await page.keyboard.press('q'); await page.waitForTimeout(350);
             const fatal=await page.locator('#fatal').evaluate(el=>getComputedStyle(el).display!=='none');
             if(fatal) throw new Error('Fatal startup UI visible');
             if(errors.length) throw new Error(errors.join(' | '));
