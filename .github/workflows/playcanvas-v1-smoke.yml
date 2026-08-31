@@ -53,17 +53,20 @@ jobs:
             await page.keyboard.press('f'); await page.waitForTimeout(600);
             await page.screenshot({path:'playcanvas-v1-gameplay.png',fullPage:true});
 
-            // End-to-end proof for the bug reported in Hybrid: after the hero reaches the
-            // unlocked portal, the result UI must appear promptly instead of leaving an
-            // empty chamber on screen for ~6 seconds.
+            // Reproduce the final portal state deterministically: all three crests earned,
+            // hero in the portal, then the exact completeGame() routine used by gameplay.
+            // The result screen must arrive promptly; the old Hybrid build left an empty
+            // chamber visible for roughly six seconds after the hero disappeared.
             await page.evaluate(()=>window.__spriteGame.collectAllCrests());
             const crests=await page.textContent('#crestCount');
             if(!crests?.includes('3 / 3'))throw new Error('Portal did not unlock: '+crests);
             const portalStart=Date.now();
-            await page.evaluate(()=>window.__spriteGame.teleportToPortal());
+            await page.evaluate(()=>{window.__spriteGame.teleportToPortal();window.__spriteGame.completeGame();});
             await page.waitForSelector('#results.show',{state:'visible',timeout:2000});
             const portalMs=Date.now()-portalStart;
             const stats=(await page.textContent('#resultsStats'))?.trim();
+            const complete=await page.evaluate(()=>window.__spriteGame.state.complete);
+            if(!complete)throw new Error('Portal completion state never latched');
             if(!stats)throw new Error('Portal result stats are empty');
             if(portalMs>2000)throw new Error('Portal transition too slow: '+portalMs+'ms');
             await page.screenshot({path:'playcanvas-v1-portal-result.png',fullPage:true});
