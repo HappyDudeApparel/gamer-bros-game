@@ -2,33 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#090712">
-<title>Gamer Bros Portal World v0.8.7</title>
-<link rel="stylesheet" href="./styles.css?v=087">
-<link rel="stylesheet" href="./menu.css?v=087">
-<link rel="stylesheet" href="./v085.css?v=087">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080611">
+<title>Gamer Bros — Portal Worlds</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#fff;background:#080611}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#080611}body{min-height:100vh;background:radial-gradient(circle at 50% 0%,#372260 0,#151020 36%,#080611 75%);overflow-x:hidden}.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:max(22px,env(safe-area-inset-top)) 18px max(26px,env(safe-area-inset-bottom));position:relative}.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,5,13,.12),rgba(7,5,13,.78)),url('./assets/gamer-bros-hero-menu.jpg') center 22%/cover no-repeat;opacity:.38;filter:saturate(1.15)}.wrap{position:relative;z-index:1;width:min(980px,100%)}.eyebrow{font-size:11px;font-weight:900;letter-spacing:.2em;color:#c9a7ff;text-transform:uppercase}.title{margin:8px 0 8px;font-size:clamp(36px,8vw,74px);line-height:.92;letter-spacing:-.045em;text-shadow:0 8px 34px #000}.sub{max-width:720px;margin:0 0 24px;color:#d7cde5;font-size:clamp(14px,2.5vw,18px);line-height:1.45}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{position:relative;display:flex;min-height:238px;flex-direction:column;justify-content:flex-end;padding:22px;border:1px solid rgba(255,255,255,.18);border-radius:22px;color:white;text-decoration:none;overflow:hidden;background:linear-gradient(145deg,rgba(34,22,54,.92),rgba(9,7,16,.96));box-shadow:0 18px 52px rgba(0,0,0,.42);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.card:before{content:"";position:absolute;inset:0;opacity:.35;background:radial-gradient(circle at 72% 22%,var(--glow),transparent 46%)}.card>*{position:relative;z-index:1}.card:hover,.card:focus-visible{transform:translateY(-3px);border-color:var(--glow);box-shadow:0 22px 62px rgba(0,0,0,.52),0 0 34px color-mix(in srgb,var(--glow) 28%,transparent);outline:none}.open{--glow:#5ce8ff}.library{--glow:#c16cff}.tag{font-size:10px;font-weight:900;letter-spacing:.15em;color:var(--glow)}.card h2{font-size:clamp(25px,4.5vw,38px);margin:8px 0 8px}.card p{margin:0;color:#cfc5db;line-height:1.42;font-size:14px}.play{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-weight:900;font-size:13px}.play:after{content:"→";font-size:20px}.foot{margin-top:16px;color:#a79db4;font-size:11px;line-height:1.45}.foot strong{color:#d9cfea}@media(max-width:680px){.hero{align-items:flex-start;padding-top:max(34px,env(safe-area-inset-top))}.grid{grid-template-columns:1fr}.card{min-height:190px}.title{font-size:46px}.sub{font-size:14px}}@media(prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
 </head>
 <body>
-<div id="app"><div id="stage"></div></div>
-<div id="boot"><div class="bootCard"><div class="spinner"></div><strong>Gamer Bros Portal World</strong><p>Loading the open portal world, natural third-person controls, bridge network and Happy Dude Leafs.</p></div></div>
-<div id="fatal"><div class="bootCard"><strong>Preview could not start</strong><p id="fatalText"></p></div></div>
-<div id="ui">
-  <div class="top">
-    <div class="panel stats"><div class="eyebrow">RENDER TEST</div><div id="statsLine">— FPS</div><div id="qualityLine">AUTO</div><div id="phaseLine">IDLE · EMPTY</div></div>
-    <div class="actions"><button id="qualityBtn">QUALITY: AUTO</button><button id="orbitBtn">CAM: FOLLOW</button><button id="followLockBtn" class="active">FOLLOW LOCK: ON</button></div>
-  </div>
-  <div id="hint">Thumb stick to move · drag world to look · pinch to zoom · tap/hold ZAP</div>
-  <div class="panel playBadge">V0.5 VISUAL BASELINE · V0.8.7 OPEN WORLD</div>
-  <div id="lightingPanel" class="panel lightingPanel"><div class="eyebrow">ROOM LIGHTING</div><div class="lightingRow"><span id="lightingValue">100%</span></div><input id="lightingSlider" type="range" min="35" max="220" value="100" step="1" aria-label="Room lighting" /></div>
-  <div id="characterPanel" class="panel characterPanel"><div class="eyebrow">GAMER BRO TEST</div><div id="characterStatus" class="characterStatus">GB2 · TEAL · IDLE</div><div class="characterRow"><button id="motionBtn">MOTION: IDLE</button><button id="characterBtn" class="active">HERO: ON</button></div></div>
-  <div class="movePad" id="movePad"></div>
-  <div class="moveActions"><button id="actionTouchBtn">ZAP</button><button id="runTouchBtn">RUN</button><button id="jumpTouchBtn">JUMP</button></div>
-  <div class="portalControls"><button id="activateBtn" disabled>ACTIVATE PORTAL</button><button id="dropBtn">LOAD HERO</button><div class="minorRow"><button id="resetBtn">MENU / RESET</button><button id="viewBtn">CAMERA: HERO</button></div></div>
-</div>
-<script>var t=0;</script>
-<script type="module" src="./src/main-v087.js?v=087"></script>
-<script type="module" src="./src/overlay-v085.js?v=087"></script>
-<script type="module" src="./src/v087.js?v=087"></script>
+<main class="hero">
+  <section class="wrap" aria-labelledby="title">
+    <div class="eyebrow">Gamer Bros · playable recovery hub</div>
+    <h1 class="title" id="title">PORTAL WORLDS</h1>
+    <p class="sub">Two preserved playable builds are live while the strongest portal, characters, authored environment and collision work are being merged into the next unified build.</p>
+    <div class="grid">
+      <a class="card open" href="./legacy-main-v087.html?v=087r1">
+        <div class="tag">OUTDOOR WORLD · v0.8.7</div>
+        <h2>Open Portal World</h2>
+        <p>The larger outdoor route network with natural third-person controls, portal hub, bridges, platforms and Happy Dude Leafs.</p>
+        <span class="play">PLAY OPEN WORLD</span>
+      </a>
+      <a class="card library" href="./hybrid-v09/?v=090r1">
+        <div class="tag">AUTHORED INTERIOR · HYBRID v0.9</div>
+        <h2>Crystal Library</h2>
+        <p>The denser authored interior build with the stronger portal lineage, Gamer Bro, stairs, bridges, crystal spaces and mobile validation work.</p>
+        <span class="play">PLAY CRYSTAL LIBRARY</span>
+      </a>
+    </div>
+    <div class="foot"><strong>Recovery rule:</strong> no good asset gets thrown away. The next build is being assembled from the strongest proven pieces rather than replacing them with primitive stand-ins.</div>
+  </section>
+</main>
 </body>
 </html>
