@@ -23,7 +23,7 @@ jobs:
           set -euxo pipefail
           mkdir -p /tmp/leap
           python3 - <<'PY'
-          import re, json, urllib.request, os
+          import re, json, urllib.request
           def fetch_upload(base, out, prefer=None):
               def get(url,binary=False):
                   req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
@@ -53,8 +53,7 @@ jobs:
           unzip -q -o /tmp/leap/source-pack.zip -d /tmp/leap/source
           find /tmp/leap/source -type f | grep -Ei 'palette\.png$' | head -1 | xargs -I{} cp '{}' /tmp/leap/palette.png
           test -s /tmp/leap/palette.png
-          ls -lh '/tmp/leap/Tutorial Starter Level.fbx' /tmp/leap/palette.png
-      - name: Convert starter world to GLB
+      - name: Convert starter world to browser GLB
         run: |
           set -euxo pipefail
           mkdir -p assets/vendor/leap-land
@@ -62,14 +61,38 @@ jobs:
           test -s assets/vendor/leap-land/tutorial-starter-level.glb
           cp '/tmp/leap/Tutorial Starter Level.fbx' assets/vendor/leap-land/tutorial-starter-level.fbx
           cp /tmp/leap/palette.png assets/vendor/leap-land/palette.png
+          python3 - <<'PY'
+          import json, struct
+          path='assets/vendor/leap-land/tutorial-starter-level.glb'
+          data=open(path,'rb').read()
+          magic,version,total=struct.unpack_from('<4sII',data,0)
+          if magic!=b'glTF' or version!=2: raise SystemExit('Unexpected GLB header')
+          off=12; chunks=[]; changed=0
+          while off < len(data):
+              length,ctype=struct.unpack_from('<II',data,off); off+=8
+              payload=data[off:off+length]; off+=length
+              if ctype==0x4E4F534A:
+                  doc=json.loads(payload.rstrip(b' \t\r\n\0').decode('utf-8'))
+                  for image in doc.get('images',[]):
+                      if 'uri' in image and image['uri']!='palette.png':
+                          image['uri']='palette.png'; changed+=1
+                  payload=json.dumps(doc,separators=(',',':')).encode('utf-8')
+                  payload+=b' '*((4-len(payload)%4)%4)
+              chunks.append((ctype,payload))
+          rebuilt=b''.join(struct.pack('<II',len(payload),ctype)+payload for ctype,payload in chunks)
+          out=struct.pack('<4sII',b'glTF',2,12+len(rebuilt))+rebuilt
+          open(path,'wb').write(out)
+          print('Patched GLB image URIs:',changed,'bytes:',len(out))
+          if changed<1: raise SystemExit('No Leap Land image URI was patched')
+          PY
           cat > assets/vendor/leap-land/LICENSE_AND_SOURCE.txt <<'EOF'
           3D Leap Land starter test world
           Starter scene: https://loxaevion.itch.io/upbge-0361-tutorial-starter-level
           Source asset pack: https://essssam.itch.io/3d-leap-land
           Original asset pack license: Creative Commons Zero 1.0 Universal (CC0).
           The starter-page author states the assembled test world is shared with permission from the asset creator.
-          palette.png is preserved from Essssam's official source pack for faithful browser rendering.
-          This repository preserves both the downloaded FBX and a GLB conversion for browser testing.
+          palette.png is preserved from Essssam's official source pack. The GLB image URI is normalized to palette.png for browser rendering.
+          This repository preserves both the downloaded FBX and a browser-ready GLB conversion.
           EOF
           sha256sum assets/vendor/leap-land/tutorial-starter-level.* assets/vendor/leap-land/palette.png > assets/vendor/leap-land/SHA256SUMS.txt
           ls -lh assets/vendor/leap-land
@@ -80,5 +103,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add assets/vendor/leap-land
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Preserve Leap Land palette texture'
+          git commit -m 'Fix Leap Land browser texture reference'
           git push
