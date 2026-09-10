@@ -1,19 +1,11 @@
-name: Gamer Bros live recovery smoke
+name: Gamer Bros live smoke
 
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
-      - 'legacy-main-v087.html'
-      - 'src/main-v087.js'
-      - 'src/bootstrap-v089.js'
-      - 'src/player-v089.js'
-      - 'src/overlay-v085.js'
-      - 'src/v087.js'
-      - 'src/portal-link-v088.js'
-      - 'v089.css'
-      - 'hybrid-v09/**'
+      - 'pass1-v1/**'
       - '.github/workflows/live-recovery-smoke.yml'
 
 permissions:
@@ -28,55 +20,38 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: JavaScript syntax checks
-        run: |
-          node --check src/main-v087.js
-          node --check src/bootstrap-v089.js
-          node --check src/player-v089.js
-          node --check src/overlay-v085.js
-          node --check src/v087.js
-          node --check src/portal-link-v088.js
-          node --check hybrid-v09/src/game.js
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Player flow smoke
+      - name: Title and testing-ground smoke
         run: |
           python3 -m http.server 8080 >/tmp/server.log 2>&1 &
           sleep 2
           node <<'NODE'
           const { chromium }=require('playwright');
-          async function waitFn(page,fn,timeout=45000){return page.waitForFunction(fn,null,{timeout});}
+          const wait=(page,fn,timeout=60000)=>page.waitForFunction(fn,null,{timeout});
           async function run(browser,viewport,isMobile=false){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
-            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(['error','warning','info'].includes(m.type()))console.log(`${m.type()}: ${m.text()}`)});
-            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=089smoke4',{waitUntil:'domcontentloaded',timeout:60000});
-            await waitFn(page,()=>!!window.__bro&&!!window.__gamerRenderer&&!!window.__gamerScene&&!!window.__gamerCamera,60000);
-            await waitFn(page,()=>typeof window.__prewarmPortalHero==='function'&&window.__portalDestination==='hybrid-v09',30000);
-            await waitFn(page,()=>!document.body.classList.contains('introTour'),30000);
-            await page.waitForSelector('#gameMenu.show [data-hero="gb2"]',{state:'visible',timeout:15000});
-            await waitFn(page,()=>document.querySelectorAll('#gameMenu .choicePortrait.livePortrait').length===2,30000);
-            const state=await page.evaluate(()=>({
-              devVisible:['.top','#lightingPanel','#characterPanel','.menuSettings'].some(sel=>{const e=document.querySelector(sel);return e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0}),
-              portraits:document.querySelectorAll('#gameMenu .choicePortrait.livePortrait').length,
-              stick:!!document.querySelector('#movePad .stickRing'),
-              prewarm:window.__prewarmPortalHero?.()===true,
-              fatal:document.getElementById('fatal')&&getComputedStyle(document.getElementById('fatal')).display!=='none'
-            }));
-            console.log('PLAYER STATE',JSON.stringify(state));
-            if(state.devVisible||state.portraits<2||!state.stick||!state.prewarm||state.fatal)throw new Error('v0.8.9 player-state assertion failed');
-            await page.click('#gameMenu [data-hero="gb2"]');
-            await waitFn(page,()=>!document.body.classList.contains('menuOpen'),8000);
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
+            await page.goto('http://127.0.0.1:8080/?smoke=1',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('#characterRail .charBtn',{state:'visible',timeout:20000});
+            await wait(page,()=>document.querySelectorAll('#characterRail .charBtn').length===6,20000);
+            await wait(page,()=>document.getElementById('loading')?.style.opacity==='0',60000);
+            await page.click('[data-id="ghost"]');
+            await wait(page,()=>document.getElementById('characterName')?.textContent==='Ghost'&&document.getElementById('loading')?.style.opacity==='0',60000);
+            await page.click('#playBtn');
+            await page.waitForURL(/pass1-v1\/\?hero=ghost/,20000);
+            await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),60000);
+            await wait(page,()=>document.getElementById('heroName')?.textContent==='GHOST',10000);
+            await page.click('#mode');
+            await wait(page,()=>document.querySelector('#mode strong')?.textContent==='STAR',5000);
+            await page.click('#action');
+            await page.click('#mode');
+            await wait(page,()=>document.querySelector('#mode strong')?.textContent==='ORB',5000);
             if(errors.length)throw new Error(errors.join(' | '));
             await page.close();
           }
-          (async()=>{
-            const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
-            await run(browser,{width:1440,height:900},false);
-            await run(browser,{width:390,height:844},true);
-            await browser.close();
-            console.log('Gamer Bros v0.8.9 player flow passed');
-          })().catch(e=>{console.error(e);process.exit(1);});
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900});await run(browser,{width:390,height:844},true);await browser.close();console.log('Gamer Bros title + testing ground passed');})().catch(e=>{console.error(e);process.exit(1)});
           NODE
