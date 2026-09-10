@@ -1,4 +1,4 @@
-name: Gamer Bros Diorama Adventure Pass 5 smoke
+name: Gamer Bros legacy transition smoke
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
       - 'index.html'
       - 'title-v2.js'
       - 'pass5-v1/**'
+      - 'src/advanced-tube-v1.js'
+      - 'room01-v1/portal-v2.js'
       - 'playground-v2/gamer-bro.js'
       - '.github/workflows/live-recovery-smoke.yml'
 
@@ -26,13 +28,15 @@ jobs:
         run: |
           node --check title-v2.js
           node --check pass5-v1/app.js
-          node --check pass5-v1/portal-direct.js
+          node --check pass5-v1/tube-upgrade.js
+          node --check src/advanced-tube-v1.js
+          node --check room01-v1/portal-v2.js
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Diorama gameplay, tube and Crystal Gate
+      - name: Two Gamer Bros and advanced tube
         run: |
           python3 -m http.server 8080 >/tmp/server.log 2>&1 &
           sleep 2
@@ -40,29 +44,27 @@ jobs:
           const {chromium}=require('playwright');
           const wait=(p,fn,t=60000,arg=null)=>p.waitForFunction(fn,arg,{timeout:t});
           const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
-          async function move(page){const start=await page.evaluate(()=>({...window.__playerPosition}));await page.keyboard.down('w');await page.waitForTimeout(650);await page.keyboard.up('w');const end=await page.evaluate(()=>({...window.__playerPosition}));if(dist(start,end)<.15)throw new Error('Player movement failed '+JSON.stringify({start,end,debug:await page.evaluate(()=>window.__moveDebug)}));}
           async function run(browser,viewport,isMobile){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
-            await page.goto('http://127.0.0.1:8080/pass5-v1/?hero=gb2&smoke=52',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.goto('http://127.0.0.1:8080/?smoke=roster',{waitUntil:'domcontentloaded',timeout:60000});
+            await wait(page,()=>Array.isArray(window.__playableRoster)&&window.__playableRoster.length===2,30000);
+            const roster=await page.evaluate(()=>window.__playableRoster.slice());
+            if(roster.join(',')!=='gb1,gb2')throw new Error('Unexpected base roster '+JSON.stringify(roster));
+            await page.goto('http://127.0.0.1:8080/pass5-v1/?hero=gb2&smoke=advanced-tube',{waitUntil:'domcontentloaded',timeout:60000});
             await wait(page,()=>window.__pass5Ready===true&&window.__continuousGround===true&&window.__characterReady==='gb2'&&window.__tubeReady===true&&(window.__frameCount||0)>2,90000);
             await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),15000);
-            await page.waitForTimeout(1500);
-            const diag=await page.evaluate(()=>({portalDebug:window.__portalDebug,bridge:window.__naturePortalBridge,ready:window.__naturePortalReady,prepared:window.__naturePortalPrepared,prewarmed:window.__naturePortalPrewarmed,state:window.__naturePortalState,errors:[] }));
-            console.log('PASS5 PORTAL DIAG',JSON.stringify(diag),'PAGE ERRORS',JSON.stringify(errors));
+            await wait(page,()=>window.__advancedTubeReady===true&&window.__placeholderTubeHidden===true,20000);
+            await wait(page,()=>window.__advancedTubePrewarmed===true,60000);
+            if(await page.evaluate(()=>window.__naturePortalReady===true))throw new Error('Flat portal must not exist');
             if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));
-            await wait(page,()=>window.__naturePortalReady===true&&window.__naturePortalPrepared===true,12000);
-            const sys=await page.evaluate(()=>({terrain:window.__terrainSource,crates:window.__crateCount,enemies:window.__enemyCount,bits:window.__starBitSeed,portal:window.__naturePortalPosition,tube:window.__tubePosition}));
-            if(sys.terrain!=='diorama'||sys.crates<5||sys.enemies<3||sys.bits<12||!sys.portal||!sys.tube)throw new Error('Pass 5 systems incomplete '+JSON.stringify(sys));
-            if(dist(sys.portal,sys.tube)<12)throw new Error('Portal and tube are too close');
-            await move(page);
+            const sys=await page.evaluate(()=>({terrain:window.__terrainSource,tube:window.__tubePosition,advanced:window.__advancedTubeComponent}));
+            if(!sys.tube||sys.advanced!=='gamer-bros-advanced-tube-v1')throw new Error('Advanced tube incomplete '+JSON.stringify(sys));
+            const start=await page.evaluate(()=>({...window.__playerPosition}));await page.keyboard.down('w');await page.waitForTimeout(650);await page.keyboard.up('w');const end=await page.evaluate(()=>({...window.__playerPosition}));if(dist(start,end)<.15)throw new Error('Player movement failed');
             await page.click('#action');await page.waitForTimeout(100);if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Star power failed');
             await page.evaluate(()=>{const t=window.__tubePosition;window.__playerPosition.x=t.x;window.__playerPosition.z=t.z;window.__playerPosition.y=t.y+.03;});
             await wait(page,()=>window.__tubeState==='charge',8000);await wait(page,()=>window.__tubeState==='complete',8000);
-            await wait(page,()=>window.__naturePortalPrewarmed===true,60000);
-            await page.evaluate(()=>{const p=window.__naturePortalPosition;window.__playerPosition.x=p.x;window.__playerPosition.z=p.z;window.__playerPosition.y=p.y+.03;});
-            await wait(page,()=>['charge','convert','dissipate','afterglow','transfer'].includes(window.__naturePortalState),10000);
             await page.close();
           }
-          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Diorama Adventure Pass 5 passed');})().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Gamer Bros roster and advanced tube smoke passed');})().catch(e=>{console.error(e);process.exit(1)});
           NODE
