@@ -1,0 +1,81 @@
+name: Gamer Bros Leap Land Level 1 smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'title-v2.js'
+      - 'pass6-v1/**'
+      - 'src/advanced-tube-v1.js'
+      - 'room01-v1/portal-v2.js'
+      - 'playground-v2/gamer-bro.js'
+      - 'assets/vendor/leap-land/**'
+      - 'assets/vendor/kenney-platformer/models/coin-gold.glb'
+      - 'assets/vendor/kenney-platformer/models/jewel.glb'
+      - '.github/workflows/pass6-leap-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check title-v2.js
+          node --check pass6-v1/app.js
+          node --check src/advanced-tube-v1.js
+          node --check room01-v1/portal-v2.js
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Real-world gameplay smoke
+        run: |
+          python3 -m http.server 8080 >/tmp/server.log 2>&1 &
+          sleep 2
+          mkdir -p smoke-shots
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          const wait=(p,fn,t=90000)=>p.waitForFunction(fn,null,{timeout:t});
+          const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
+          async function run(browser,viewport,isMobile,label){
+            const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
+            await page.addInitScript(()=>localStorage.clear());
+            await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded',timeout:60000});
+            await wait(page,()=>Array.isArray(window.__playableRoster)&&window.__playableRoster.length===2,30000);
+            if((await page.evaluate(()=>window.__playableRoster.join(',')))!=='gb1,gb2')throw new Error('Base roster is not GB1/GB2 only');
+            await page.goto('http://127.0.0.1:8080/pass6-v1/?hero=gb2&smoke=1',{waitUntil:'domcontentloaded',timeout:60000});
+            await wait(page,()=>window.__pass6Ready===true&&window.__visibleMapIsImported===true&&window.__advancedTubeReady===true&&window.__advancedTubePrewarmed===true&&(window.__frameCount||0)>3,90000);
+            await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),15000);
+            const sys=await page.evaluate(()=>({source:window.__levelSource,world:window.__pass6World,mesh:window.__mapMeshCount,bounds:window.__mapBounds,enemies:window.__enemyCount,scale:window.__enemyScaleTarget,gems:window.__gemSeed,coins:window.__coinSeed,tube:window.__advancedTubeComponent,noFlat:window.__noFlatPortal,spawn:window.__spawnPoint,tubePos:window.__tubePosition}));
+            console.log('PASS6 SYS',JSON.stringify(sys));
+            if(sys.source!=='leap-land-tutorial-starter'||sys.world!=='real-leap-land-starter'||sys.mesh<10||sys.enemies!==4||sys.scale!==2.72||sys.gems!==8||sys.coins!==8||sys.tube!=='gamer-bros-advanced-tube-v1'||sys.noFlat!==true)throw new Error('Level systems incomplete '+JSON.stringify(sys));
+            if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));
+            await page.screenshot({path:`smoke-shots/${label}-world.png`,fullPage:true});
+            const start=await page.evaluate(()=>({...window.__playerPosition}));await page.keyboard.down('w');await page.waitForTimeout(750);await page.keyboard.up('w');const end=await page.evaluate(()=>({...window.__playerPosition}));if(dist(start,end)<.12)throw new Error('Player movement failed '+JSON.stringify({start,end,debug:await page.evaluate(()=>window.__moveDebug)}));
+            await page.click('#action');await page.waitForTimeout(120);if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Power action failed');
+            await page.evaluate(()=>window.__damageEnemy(0));await wait(page,()=>window.__enemyKills===1,5000);
+            await page.evaluate(()=>window.__defeatAllEnemies());await wait(page,()=>window.__enemyKills===4,5000);
+            await page.evaluate(()=>{const t=window.__tubePosition;window.__playerPosition.x=t.x;window.__playerPosition.y=t.y+.04;window.__playerPosition.z=t.z;});
+            await wait(page,()=>window.__levelComplete===true&&localStorage.getItem('gamerBrosCitrusUnlocked')==='1',10000);
+            await page.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});await wait(page,()=>Array.isArray(window.__playableRoster)&&window.__playableRoster.includes('citrus'),30000);
+            await page.close();
+          }
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false,'desktop');await run(browser,{width:390,height:844},true,'mobile');await browser.close();console.log('Leap Land Level 1 smoke passed');})().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pass6-leap-land-screenshots
+          path: smoke-shots
+          if-no-files-found: ignore
