@@ -49,14 +49,15 @@ jobs:
           node <<'NODE'
           const { chromium }=require('playwright');
           async function waitFn(page,fn,timeout=45000){return page.waitForFunction(fn,null,{timeout});}
-          async function run(viewport,isMobile=false){
+          async function run(browser,viewport,isMobile=false){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(['error','warning','info'].includes(m.type()))console.log(`${m.type()}: ${m.text()}`)});
-            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=089smoke3',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=089smoke4',{waitUntil:'domcontentloaded',timeout:60000});
             await waitFn(page,()=>!!window.__bro&&!!window.__gamerRenderer&&!!window.__gamerScene&&!!window.__gamerCamera,60000);
             await waitFn(page,()=>typeof window.__prewarmPortalHero==='function'&&window.__portalDestination==='hybrid-v09',30000);
             await waitFn(page,()=>!document.body.classList.contains('introTour'),30000);
             await page.waitForSelector('#gameMenu.show [data-hero="gb2"]',{state:'visible',timeout:15000});
+            await waitFn(page,()=>document.querySelectorAll('#gameMenu .choicePortrait.livePortrait').length===2,30000);
             const state=await page.evaluate(()=>({
               devVisible:['.top','#lightingPanel','#characterPanel','.menuSettings'].some(sel=>{const e=document.querySelector(sel);return e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0}),
               portraits:document.querySelectorAll('#gameMenu .choicePortrait.livePortrait').length,
@@ -71,9 +72,11 @@ jobs:
             if(errors.length)throw new Error(errors.join(' | '));
             await page.close();
           }
-          const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
-          await run({width:1440,height:900},false);
-          await run({width:390,height:844},true);
-          await browser.close();
-          console.log('Gamer Bros v0.8.9 player flow passed');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
+            await run(browser,{width:1440,height:900},false);
+            await run(browser,{width:390,height:844},true);
+            await browser.close();
+            console.log('Gamer Bros v0.8.9 player flow passed');
+          })().catch(e=>{console.error(e);process.exit(1);});
           NODE
