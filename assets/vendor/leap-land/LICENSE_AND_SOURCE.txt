@@ -3,5 +3,5 @@ Starter scene: https://loxaevion.itch.io/upbge-0361-tutorial-starter-level
 Source asset pack: https://essssam.itch.io/3d-leap-land
 Original asset pack license: Creative Commons Zero 1.0 Universal (CC0).
 The starter-page author states the assembled test world is shared with permission from the asset creator.
-palette.png is preserved from Essssam's official source pack for faithful browser rendering.
-This repository preserves both the downloaded FBX and a GLB conversion for browser testing.
+palette.png is preserved from Essssam's official source pack. The GLB image URI is normalized to palette.png for browser rendering.
+This repository preserves both the downloaded FBX and a browser-ready GLB conversion.
