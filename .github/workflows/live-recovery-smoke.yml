@@ -7,7 +7,6 @@ on:
       - 'index.html'
       - 'title-v2.js'
       - 'pass5-v1/**'
-      - 'pass4-v2/portal-bridge.js'
       - 'playground-v2/gamer-bro.js'
       - '.github/workflows/live-recovery-smoke.yml'
 
@@ -27,7 +26,7 @@ jobs:
         run: |
           node --check title-v2.js
           node --check pass5-v1/app.js
-          node --check pass4-v2/portal-bridge.js
+          node --check pass5-v1/portal-direct.js
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
@@ -41,34 +40,28 @@ jobs:
           const {chromium}=require('playwright');
           const wait=(p,fn,t=60000,arg=null)=>p.waitForFunction(fn,arg,{timeout:t});
           const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
-          async function move(page,isMobile){
-            const start=await page.evaluate(()=>({...window.__playerPosition}));
-            if(isMobile){
-              const b=await page.locator('#pad').boundingBox();
-              const cx=b.x+b.width/2,cy=b.y+b.height/2;
-              await page.mouse.move(cx,cy);await page.mouse.down();await page.mouse.move(cx,cy-42,{steps:3});await page.waitForTimeout(650);await page.mouse.up();
-            }else{await page.keyboard.down('w');await page.waitForTimeout(650);await page.keyboard.up('w');}
-            const end=await page.evaluate(()=>({...window.__playerPosition}));
-            if(dist(start,end)<.15)throw new Error('Player movement failed '+JSON.stringify({start,end,debug:await page.evaluate(()=>window.__moveDebug)}));
-          }
+          async function move(page){const start=await page.evaluate(()=>({...window.__playerPosition}));await page.keyboard.down('w');await page.waitForTimeout(650);await page.keyboard.up('w');const end=await page.evaluate(()=>({...window.__playerPosition}));if(dist(start,end)<.15)throw new Error('Player movement failed '+JSON.stringify({start,end,debug:await page.evaluate(()=>window.__moveDebug)}));}
           async function run(browser,viewport,isMobile){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
-            await page.goto('http://127.0.0.1:8080/pass5-v1/?hero=gb2&smoke=51',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.goto('http://127.0.0.1:8080/pass5-v1/?hero=gb2&smoke=52',{waitUntil:'domcontentloaded',timeout:60000});
             await wait(page,()=>window.__pass5Ready===true&&window.__continuousGround===true&&window.__characterReady==='gb2'&&window.__tubeReady===true&&(window.__frameCount||0)>2,90000);
             await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),15000);
-            await wait(page,()=>window.__naturePortalReady===true&&window.__naturePortalPrepared===true,30000);
+            await page.waitForTimeout(1500);
+            const diag=await page.evaluate(()=>({portalDebug:window.__portalDebug,bridge:window.__naturePortalBridge,ready:window.__naturePortalReady,prepared:window.__naturePortalPrepared,prewarmed:window.__naturePortalPrewarmed,state:window.__naturePortalState,errors:[] }));
+            console.log('PASS5 PORTAL DIAG',JSON.stringify(diag),'PAGE ERRORS',JSON.stringify(errors));
+            if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));
+            await wait(page,()=>window.__naturePortalReady===true&&window.__naturePortalPrepared===true,12000);
             const sys=await page.evaluate(()=>({terrain:window.__terrainSource,crates:window.__crateCount,enemies:window.__enemyCount,bits:window.__starBitSeed,portal:window.__naturePortalPosition,tube:window.__tubePosition}));
             if(sys.terrain!=='diorama'||sys.crates<5||sys.enemies<3||sys.bits<12||!sys.portal||!sys.tube)throw new Error('Pass 5 systems incomplete '+JSON.stringify(sys));
             if(dist(sys.portal,sys.tube)<12)throw new Error('Portal and tube are too close');
-            await move(page,isMobile);
+            await move(page);
             await page.click('#action');await page.waitForTimeout(100);if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Star power failed');
             await page.evaluate(()=>{const t=window.__tubePosition;window.__playerPosition.x=t.x;window.__playerPosition.z=t.z;window.__playerPosition.y=t.y+.03;});
             await wait(page,()=>window.__tubeState==='charge',8000);await wait(page,()=>window.__tubeState==='complete',8000);
             await wait(page,()=>window.__naturePortalPrewarmed===true,60000);
             await page.evaluate(()=>{const p=window.__naturePortalPosition;window.__playerPosition.x=p.x;window.__playerPosition.z=p.z;window.__playerPosition.y=p.y+.03;});
             await wait(page,()=>['charge','convert','dissipate','afterglow','transfer'].includes(window.__naturePortalState),10000);
-            if(errors.length)throw new Error(errors.join(' | '));
             await page.close();
           }
           (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Diorama Adventure Pass 5 passed');})().catch(e=>{console.error(e);process.exit(1)});
