@@ -58,7 +58,7 @@ jobs:
             await page.dispatchEvent('#pad','pointerdown',{pointerId:11,pointerType:'touch',isPrimary:true,clientX:x,clientY:y,bubbles:true});
             await page.waitForTimeout(850);
             await page.dispatchEvent('#pad','pointerup',{pointerId:11,pointerType:'touch',isPrimary:true,clientX:x,clientY:y,bubbles:true});
-            await wait(page,z=>window.__playerPosition.z<z-.7,5000,z0);
+            await page.waitForFunction(z=>window.__playerPosition.z<z-.7,z0,{timeout:5000});
             await page.click('#mode');await wait(page,()=>document.querySelector('#mode strong')?.textContent==='STAR',5000);
             await page.click('#action');
             if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Power test did not fire');
