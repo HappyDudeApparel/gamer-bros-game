@@ -7,10 +7,13 @@ on:
       - 'index.html'
       - 'legacy-main-v087.html'
       - 'src/main-v087.js'
+      - 'src/bootstrap-v089.js'
+      - 'src/player-v089.js'
       - 'src/overlay-v085.js'
       - 'src/v087.js'
       - 'src/scenic-v088.js'
       - 'src/portal-link-v088.js'
+      - 'v089.css'
       - 'hybrid-v09/**'
       - '.github/workflows/live-recovery-smoke.yml'
 
@@ -29,6 +32,8 @@ jobs:
       - name: JavaScript syntax checks
         run: |
           node --check src/main-v087.js
+          node --check src/bootstrap-v089.js
+          node --check src/player-v089.js
           node --check src/overlay-v085.js
           node --check src/v087.js
           node --check src/scenic-v088.js
@@ -51,25 +56,36 @@ jobs:
               return !!c && c.width>0 && c.height>0;
             },{timeout:45000});
           }
-          async function openWorld(browser, mobile=false){
+          async function openWorld(browser,mobile=false){
             const page=await browser.newPage(mobile?{
               viewport:{width:390,height:844},
               userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36',
               hasTouch:true,isMobile:true
             }:{viewport:{width:1440,height:900}});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=088smoke2',{waitUntil:'domcontentloaded',timeout:45000});
+            await page.goto('http://127.0.0.1:8080/legacy-main-v087.html?v=089smoke',{waitUntil:'domcontentloaded',timeout:45000});
+            if(!await page.evaluate(()=>window.__v089Bootstrap===true))throw new Error('v0.8.9 bootstrap did not load');
             await waitCanvas(page);
-            await page.waitForFunction(()=>!!window.__bro,{timeout:45000});
+            await page.waitForFunction(()=>!!window.__bro&&!!window.__gamerRenderer&&!!window.__gamerScene&&!!window.__gamerCamera,{timeout:45000});
             await page.waitForFunction(()=>!!window.__v088Scenic,{timeout:45000});
             await page.waitForFunction(()=>window.__portalDestination==='hybrid-v09',{timeout:20000});
-            const scenic=await page.evaluate(()=>({name:window.__v088Scenic?.name,children:window.__v088Scenic?.children?.length||0}));
-            if(scenic.name!=='V088ScenicRecovery'||scenic.children<5) throw new Error('v0.8.8 scenic recovery did not initialize');
-            const menu=page.locator('#gameMenu');
-            if(await menu.count()){
-              await page.waitForSelector('#gameMenu [data-hero="gb2"]',{state:'attached',timeout:20000});
-              await page.click('#gameMenu [data-hero="gb2"]');
-            }
+            await page.waitForFunction(()=>typeof window.__prewarmPortalHero==='function',{timeout:20000});
+            const prewarmed=await page.evaluate(()=>window.__prewarmPortalHero?.());
+            if(!prewarmed)throw new Error('Portal prewarm hook failed');
+
+            // The game must show the actual world first, finish the fly-through, then reveal selection.
+            await page.waitForFunction(()=>!document.body.classList.contains('introTour'),{timeout:20000});
+            await page.waitForSelector('#gameMenu.show [data-hero="gb2"]',{state:'visible',timeout:10000});
+            const devVisible=await page.evaluate(()=>['.top','#lightingPanel','#characterPanel','.menuSettings'].some(sel=>{
+              const el=document.querySelector(sel);return el&&getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().width>0;
+            }));
+            if(devVisible)throw new Error('Developer controls are visible in player mode');
+            const livePortraits=await page.locator('#gameMenu .choicePortrait.livePortrait').count();
+            if(livePortraits<2)throw new Error(`Expected 2 live Gamer Bro portraits, got ${livePortraits}`);
+            if(await page.locator('#movePad .stickRing').count()!==1)throw new Error('Crystal Library stick UI missing');
+
+            await page.click('#gameMenu [data-hero="gb2"]');
+            await page.waitForFunction(()=>!document.body.classList.contains('menuOpen'),{timeout:5000});
             if(!mobile){
               await page.keyboard.down('w');await page.waitForTimeout(450);await page.keyboard.up('w');
               await page.keyboard.press('Space');await page.waitForTimeout(250);
@@ -77,25 +93,25 @@ jobs:
             await page.evaluate(()=>{const el=document.getElementById('phaseLine');if(el)el.textContent='4 · AFTERGLOW';});
             await page.waitForFunction(()=>document.getElementById('enterCrystalLibraryBtn')?.classList.contains('ready'),{timeout:5000});
             const portalText=await page.locator('#enterCrystalLibraryBtn').textContent();
-            if(!/CRYSTAL LIBRARY/i.test(portalText||'')) throw new Error('Portal destination button missing');
+            if(!/CRYSTAL LIBRARY/i.test(portalText||''))throw new Error('Portal destination button missing');
             const fatal=page.locator('#fatal');
-            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Open world fatal UI visible');
-            if(errors.length) throw new Error(errors.join(' | '));
+            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none'))throw new Error('Open world fatal UI visible');
+            if(errors.length)throw new Error(errors.join(' | '));
             await page.screenshot({path:mobile?'open-world-mobile.png':'open-world-desktop.png',fullPage:true});
             await page.close();
           }
           async function library(browser){
             const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:8080/hybrid-v09/?v=090smoke2',{waitUntil:'domcontentloaded',timeout:45000});
+            await page.goto('http://127.0.0.1:8080/hybrid-v09/?v=090smoke',{waitUntil:'domcontentloaded',timeout:45000});
             await waitCanvas(page);
             await page.waitForFunction(()=>{
               const boot=document.getElementById('boot');
-              return !boot || boot.style.display==='none' || boot.classList.contains('hidden') || getComputedStyle(boot).display==='none';
+              return !boot||boot.style.display==='none'||boot.classList.contains('hidden')||getComputedStyle(boot).display==='none';
             },{timeout:45000});
             const fatal=page.locator('#fatal');
-            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none')) throw new Error('Crystal Library fatal UI visible');
-            if(errors.length) throw new Error(errors.join(' | '));
+            if(await fatal.count()&&await fatal.evaluate(el=>getComputedStyle(el).display!=='none'))throw new Error('Crystal Library fatal UI visible');
+            if(errors.length)throw new Error(errors.join(' | '));
             await page.screenshot({path:'crystal-library-mobile.png',fullPage:true});
             await page.close();
           }
@@ -103,14 +119,14 @@ jobs:
             const browser=await chromium.launch({headless:true});
             const hub=await browser.newPage({viewport:{width:390,height:844}});
             await hub.goto('http://127.0.0.1:8080/',{waitUntil:'domcontentloaded'});
-            if(await hub.locator('a[href*="legacy-main-v087"]').count()!==1) throw new Error('Open World hub link missing');
-            if(await hub.locator('a[href*="hybrid-v09"]').count()!==1) throw new Error('Crystal Library hub link missing');
+            if(await hub.locator('a[href*="legacy-main-v087"]').count()!==1)throw new Error('Open World hub link missing');
+            if(await hub.locator('a[href*="hybrid-v09"]').count()!==1)throw new Error('Crystal Library hub link missing');
             await hub.close();
             await openWorld(browser,false);
             await openWorld(browser,true);
             await library(browser);
             await browser.close();
-            console.log('Gamer Bros live recovery smoke passed');
+            console.log('Gamer Bros v0.8.9 live recovery smoke passed');
           })().catch(e=>{console.error(e);process.exit(1);});
           NODE
       - uses: actions/upload-artifact@v4
