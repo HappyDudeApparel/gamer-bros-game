@@ -16,6 +16,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install converter
         run: sudo apt-get update -qq && sudo apt-get install -y -qq assimp-utils unzip
       - name: Download starter and source palette from itch.io
@@ -95,8 +97,7 @@ jobs:
           This repository preserves both the downloaded FBX and a browser-ready GLB conversion.
           EOF
           sha256sum assets/vendor/leap-land/tutorial-starter-level.* assets/vendor/leap-land/palette.png > assets/vendor/leap-land/SHA256SUMS.txt
-          ls -lh assets/vendor/leap-land
-      - name: Commit vendored level safely
+      - name: Commit and retry push safely
         run: |
           set -euxo pipefail
           git config user.name 'github-actions[bot]'
@@ -104,6 +105,14 @@ jobs:
           git add assets/vendor/leap-land
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Fix Leap Land browser texture reference'
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with main; retry $attempt/5"
+            sleep $((attempt * 2))
+          done
+          echo 'Unable to push Leap Land assets after retries' >&2
+          exit 1
