@@ -1,4 +1,4 @@
-name: Gamer Bros Pass 3 smoke
+name: Gamer Bros Pass 4 smoke
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'title-v2.js'
-      - 'pass3-v1/**'
+      - 'pass4-v1/**'
       - 'playground-v2/gamer-bro.js'
       - '.github/workflows/live-recovery-smoke.yml'
 
@@ -25,13 +25,13 @@ jobs:
       - name: Syntax checks
         run: |
           node --check title-v2.js
-          node --check pass3-v1/app.js
+          node --check pass4-v1/app.js
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Title and authored level gameplay
+      - name: Title and continuous nature gameplay
         run: |
           python3 -m http.server 8080 >/tmp/server.log 2>&1 &
           sleep 2
@@ -40,33 +40,55 @@ jobs:
           const wait=(page,fn,timeout=60000,arg=null)=>page.waitForFunction(fn,arg,{timeout});
           async function run(browser,viewport,isMobile=false){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
-            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
-            await page.goto('http://127.0.0.1:8080/?smoke=pass3b',{waitUntil:'domcontentloaded',timeout:60000});
+            const errors=[];
+            page.on('pageerror',e=>errors.push(String(e)));
+            page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
+            await page.goto('http://127.0.0.1:8080/?smoke=pass4',{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForSelector('#characterRail .charBtn',{state:'visible',timeout:30000});
             await wait(page,()=>document.querySelectorAll('#characterRail .charBtn').length===7,30000);
-            await wait(page,()=>window.__titleCharacterReady==='gb2'&&(window.__titleVisibleMeshCount||0)>0,60000);
-            await page.click('[data-id="ghost"]');await wait(page,()=>window.__titleCharacterReady==='ghost',30000);
-            await page.click('[data-id="gb2"]');await wait(page,()=>window.__titleCharacterReady==='gb2'&&(window.__titleVisibleMeshCount||0)>0,30000);
+            await wait(page,()=>window.__titlePass4===true&&window.__titleCharacterReady==='gb2'&&(window.__titleVisibleMeshCount||0)>0,60000);
+            await page.click('[data-id="ghost"]');
+            await wait(page,()=>window.__titleCharacterReady==='ghost',30000);
+            await page.click('[data-id="gb2"]');
+            await wait(page,()=>window.__titleCharacterReady==='gb2'&&(window.__titleVisibleMeshCount||0)>0,30000);
             await page.click('#playBtn');
-            await page.waitForURL(/pass3-v1\/\?hero=gb2/,20000);
-            await wait(page,()=>window.__pass3Ready===true&&window.__characterReady==='gb2'&&(window.__characterMeshCount||0)>0,90000);
+            await page.waitForURL(/pass4-v1\/\?hero=gb2/,20000);
+            await wait(page,()=>window.__pass4Ready===true&&window.__continuousGround===true&&window.__characterReady==='gb2'&&(window.__characterMeshCount||0)>0&&(window.__frameCount||0)>2,90000);
             await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),10000);
-            if((await page.evaluate(()=>window.__authoredPlatformCount))!==15)throw new Error('Authored platform layout incomplete');
-            if((await page.evaluate(()=>window.__coinCount))!==14)throw new Error('Authored coin route incomplete');
+            const systems=await page.evaluate(()=>({terrain:window.__terrainSource,crate:window.__crateCount,enemy:window.__enemyCount,bits:window.__starBitSeed,systems:window.__interactionSystems}));
+            if(!['roboblast','fallback'].includes(systems.terrain))throw new Error('Continuous terrain did not initialize');
+            if(!systems.systems?.crates||!systems.systems?.enemies||!systems.systems?.starBits)throw new Error('Adventure interaction systems missing');
+            if(systems.bits<8)throw new Error('Star-bit route did not seed');
             const p0=await page.evaluate(()=>({...window.__playerPosition}));
-            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyW',key:'w',bubbles:true})));
-            await page.waitForTimeout(360);
-            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyW',key:'w',bubbles:true})));
+            if(isMobile){
+              const box=await page.locator('#pad').boundingBox();
+              const x=box.x+box.width/2,y=box.y+box.height/2-36;
+              await page.evaluate(({x,y})=>{const el=document.getElementById('pad'),t=new Touch({identifier:77,target:el,clientX:x,clientY:y});el.dispatchEvent(new TouchEvent('touchstart',{touches:[t],targetTouches:[t],changedTouches:[t],bubbles:true,cancelable:true}));},{x,y});
+              await page.waitForTimeout(650);
+              await page.evaluate(()=>{const el=document.getElementById('pad');el.dispatchEvent(new TouchEvent('touchend',{touches:[],targetTouches:[],changedTouches:[],bubbles:true,cancelable:true}));});
+            } else {
+              await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyW',key:'w',bubbles:true})));
+              await page.waitForTimeout(650);
+              await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyW',key:'w',bubbles:true})));
+            }
             await wait(page,p=>Math.hypot(window.__playerPosition.x-p.x,window.__playerPosition.z-p.z)>.45,5000,p0);
+            const y0=await page.evaluate(()=>window.__playerPosition.y);
             await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true})));
             await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{code:'Space',key:' ',bubbles:true})));
-            await page.waitForTimeout(140);
-            if((await page.evaluate(()=>window.__playerPosition.y))<=.55)throw new Error('Jump did not lift player');
+            await page.waitForTimeout(130);
+            if((await page.evaluate(()=>window.__playerPosition.y))<=y0+.35)throw new Error('Adventure jump did not lift player');
             await page.click('#action');await page.waitForTimeout(120);
             if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Star power did not fire');
-            await page.click('#powerMode');await wait(page,()=>document.querySelector('#powerMode strong')?.textContent==='VOLLEY',5000);
+            await page.click('#powerMode');
+            await wait(page,()=>document.querySelector('#powerMode strong')?.textContent==='VOLLEY',5000);
             if(errors.length)throw new Error(errors.join(' | '));
             await page.close();
           }
-          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900});await run(browser,{width:390,height:844},true);await browser.close();console.log('Gamer Bros Pass 3 passed');})().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
+            await run(browser,{width:1440,height:900});
+            await run(browser,{width:390,height:844},true);
+            await browser.close();
+            console.log('Gamer Bros Pass 4 passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
           NODE
