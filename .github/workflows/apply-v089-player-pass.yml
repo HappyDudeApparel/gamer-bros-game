@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Patch open-world runtime and player page
-        shell: python
+        shell: python {0}
         run: |
           from pathlib import Path
 
@@ -26,17 +26,11 @@ jobs:
           s = main.read_text()
           original = s
 
-          # Let the browser cache the ten preserved source chunks instead of explicitly
-          # bypassing cache on every visit.
           s = s.replace("fetch(url, { cache: 'no-store' })", "fetch(url, { cache: 'force-cache' })")
-
-          # Crystal Library movement response.
           s = s.replace("player.yaw+=diff*Math.min(1,dt*5.8);", "player.yaw+=diff*Math.min(1,dt*8.5);")
           s = s.replace("(moveKeys.run?4.65:2.85)*THREE.MathUtils.smoothstep", "(moveKeys.run?6.35:3.75)*THREE.MathUtils.smoothstep")
           s = s.replace("followDistance=14.5,followYawOffset=0,followPitchOffset=0,recenterClock=0", "followDistance=13.4,followYawOffset=0,followPitchOffset=0,recenterClock=0")
 
-          # Expose only the scene objects needed by the player-facing cinematic and shader
-          # prewarm layer. Gameplay state remains inside the proven runtime.
           marker = "  // Camera: no joystick/camera feedback loop. While the stick is active the camera keeps its\n"
           expose = '''  rep("const scene=new THREE.Scene();",\n      "const scene=new THREE.Scene();window.__gamerScene=scene;window.__gamerRenderer=renderer;",\n      'expose scene and renderer');\n  rep("const camera=new THREE.PerspectiveCamera(36,1,.15,125);",\n      "const camera=new THREE.PerspectiveCamera(36,1,.15,125);window.__gamerCamera=camera;",\n      'expose camera');\n\n'''
           if expose not in s:
@@ -44,8 +38,6 @@ jobs:
                   raise SystemExit('camera marker missing')
               s = s.replace(marker, expose + marker, 1)
 
-          # After the existing v0.8.7 camera patch is applied, replace that function with
-          # the Crystal Library follow model. An intro pose can temporarily take control.
           world_marker = '  const worldMarker = "    // Abyss cue only outside the room; quality stays in geometry/materials above it.";\n'
           crystal_patch = r'''  const camera87Pattern=/function applyCamera\(dt=\.016\)\{[\s\S]*?\}function selectView\(name\)/;
           if(camera87Pattern.test(source)){
