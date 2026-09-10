@@ -1,0 +1,56 @@
+name: Vendor Kenney Platformer Kit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vendor-kenney-platformer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download official CC0 Kenney Platformer Kit
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/kenney
+          curl -L --fail --retry 3 \
+            'https://kenney.nl/media/pages/assets/platformer-kit/1585cf62b4-1775122253/kenney_platformer-kit.zip' \
+            -o /tmp/kenney.zip
+          unzip -q /tmp/kenney.zip -d /tmp/kenney
+          find /tmp/kenney -maxdepth 4 -type f | sort | sed 's#^/tmp/kenney/##' > /tmp/kenney-files.txt
+          head -200 /tmp/kenney-files.txt
+      - name: Stage GLB models and license
+        run: |
+          set -euxo pipefail
+          rm -rf assets/vendor/kenney-platformer
+          mkdir -p assets/vendor/kenney-platformer/models
+          find /tmp/kenney -type f -iname '*.glb' -print0 | while IFS= read -r -d '' f; do
+            cp "$f" "assets/vendor/kenney-platformer/models/$(basename "$f")"
+          done
+          test "$(find assets/vendor/kenney-platformer/models -type f -name '*.glb' | wc -l)" -ge 50
+          cp /tmp/kenney-files.txt assets/vendor/kenney-platformer/SOURCE_FILE_MANIFEST.txt
+          cat > assets/vendor/kenney-platformer/LICENSE.txt <<'EOF'
+          Kenney Platformer Kit
+          Source: https://kenney.nl/assets/platformer-kit
+          License: Creative Commons CC0 1.0
+          Downloaded from Kenney's official asset page by this repository workflow.
+          EOF
+          printf '{\n  "source": "https://kenney.nl/assets/platformer-kit",\n  "license": "CC0-1.0",\n  "glbCount": %s\n}\n' "$(find assets/vendor/kenney-platformer/models -type f -name '*.glb' | wc -l)" > assets/vendor/kenney-platformer/manifest.json
+      - name: Commit vendored assets
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/vendor/kenney-platformer
+          if git diff --cached --quiet; then
+            echo 'No asset changes.'
+          else
+            git commit -m 'Vendor Kenney Platformer Kit CC0 assets'
+            git push
+          fi
