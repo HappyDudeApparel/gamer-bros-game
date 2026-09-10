@@ -96,7 +96,7 @@ jobs:
           EOF
           sha256sum assets/vendor/leap-land/tutorial-starter-level.* assets/vendor/leap-land/palette.png > assets/vendor/leap-land/SHA256SUMS.txt
           ls -lh assets/vendor/leap-land
-      - name: Commit vendored level
+      - name: Commit vendored level safely
         run: |
           set -euxo pipefail
           git config user.name 'github-actions[bot]'
@@ -104,4 +104,6 @@ jobs:
           git add assets/vendor/leap-land
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Fix Leap Land browser texture reference'
-          git push
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
