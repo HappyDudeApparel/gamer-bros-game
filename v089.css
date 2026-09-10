@@ -1,0 +1,43 @@
+/* Gamer Bros v0.8.9 — player-facing presentation layer */
+body.playerMode .top,
+body.playerMode #lightingPanel,
+body.playerMode #characterPanel,
+body.playerMode .playBadge,
+body.playerMode #hint,
+body.playerMode #activateBtn,
+body.playerMode #dropBtn,
+body.playerMode #viewBtn,
+body.playerMode #orbitBtn,
+body.playerMode #followLockBtn{display:none!important}
+
+body.playerMode .portalControls{left:auto!important;right:max(16px,env(safe-area-inset-right));bottom:auto!important;top:max(14px,env(safe-area-inset-top));transform:none!important;width:auto!important;gap:0!important}
+body.playerMode .portalControls .minorRow{display:block!important}
+body.playerMode #resetBtn{min-width:68px!important;min-height:40px!important;border-radius:13px!important;padding:0 11px!important;font-size:8px!important;background:rgba(8,12,18,.72)!important;backdrop-filter:blur(10px)}
+
+/* Match the control language and proportions of the Crystal Library build. */
+body.playerMode .movePad{position:fixed!important;left:max(18px,env(safe-area-inset-left))!important;bottom:max(18px,env(safe-area-inset-bottom))!important;width:154px!important;height:154px!important;border-radius:50%!important;display:block!important;pointer-events:auto;z-index:30;touch-action:none;user-select:none;background:radial-gradient(circle at 42% 35%,rgba(92,85,130,.30),rgba(8,9,18,.68) 62%,rgba(2,3,8,.78))!important;border:1px solid rgba(174,158,255,.26)!important;box-shadow:inset 0 0 35px rgba(77,57,138,.18),0 12px 35px rgba(0,0,0,.24)!important}
+body.playerMode .stickRing{position:absolute;inset:21px;border-radius:50%;border:1px solid rgba(195,189,255,.18);box-shadow:inset 0 0 24px rgba(80,210,255,.05);pointer-events:none}
+body.playerMode .stickKnob{position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px;border-radius:50%;background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.26),rgba(109,95,173,.52) 38%,rgba(32,28,57,.88));border:1px solid rgba(206,198,255,.44);box-shadow:0 8px 24px rgba(0,0,0,.38),0 0 22px rgba(84,211,255,.08);transform:translate3d(0,0,0);pointer-events:none;will-change:transform}
+body.playerMode .moveActions{position:fixed!important;right:max(18px,env(safe-area-inset-right))!important;bottom:max(20px,env(safe-area-inset-bottom))!important;display:flex!important;flex-direction:column!important;gap:10px!important;z-index:32!important;pointer-events:auto}
+body.playerMode .moveActions button{width:70px!important;height:58px!important;border-radius:22px!important;padding:0!important;font-size:9px!important;background:rgba(8,12,18,.76)!important;border:1px solid rgba(155,139,255,.30)!important;backdrop-filter:blur(10px)}
+body.playerMode #actionTouchBtn{border-color:rgba(95,225,255,.45)!important;color:#dffbff!important}
+body.playerMode #jumpTouchBtn{border-color:rgba(255,174,105,.34)!important}
+
+/* No developer UI flash during boot or the cinematic. */
+body.introTour #gameMenu{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+body.introTour .movePad,
+body.introTour .moveActions,
+body.introTour .portalControls,
+body.introTour #scoreHud{opacity:0!important;pointer-events:none!important}
+
+#worldIntroLabel{position:fixed;z-index:90;left:50%;bottom:max(28px,env(safe-area-inset-bottom));transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:rgba(6,7,14,.52);border:1px solid rgba(184,166,255,.20);backdrop-filter:blur(12px);font:900 10px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:.17em;color:#eaf8ff;white-space:nowrap;pointer-events:none;transition:opacity .35s ease,transform .35s ease}
+#worldIntroLabel.fade{opacity:0;transform:translate(-50%,8px)}
+
+body.playerMode .menuSettings{display:none!important}
+body.playerMode .menuNote{margin-top:10px;color:#b8b4c7}
+body.playerMode .choicePortrait{position:relative;background-image:none!important;overflow:hidden}
+body.playerMode .choicePortrait:after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 -25px 35px rgba(4,4,11,.18);border-radius:inherit;pointer-events:none}
+body.playerMode .choicePortrait.livePortrait{background-position:center 47%!important;background-size:cover!important;background-repeat:no-repeat!important}
+
+@media(max-width:560px){body.playerMode .movePad{width:148px!important;height:148px!important}body.playerMode .moveActions button{width:66px!important;height:55px!important}#worldIntroLabel{font-size:8px;max-width:88vw;overflow:hidden;text-overflow:ellipsis}}
+@media(prefers-reduced-motion:reduce){#worldIntroLabel{transition:none}}
