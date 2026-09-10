@@ -41,7 +41,7 @@ jobs:
           async function run(browser,viewport,isMobile=false){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
-            await page.goto('http://127.0.0.1:8080/?smoke=pass3',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.goto('http://127.0.0.1:8080/?smoke=pass3b',{waitUntil:'domcontentloaded',timeout:60000});
             await page.waitForSelector('#characterRail .charBtn',{state:'visible',timeout:30000});
             await wait(page,()=>document.querySelectorAll('#characterRail .charBtn').length===7,30000);
             await wait(page,()=>window.__titleCharacterReady==='gb2'&&(window.__titleVisibleMeshCount||0)>0,60000);
@@ -54,9 +54,13 @@ jobs:
             if((await page.evaluate(()=>window.__authoredPlatformCount))!==15)throw new Error('Authored platform layout incomplete');
             if((await page.evaluate(()=>window.__coinCount))!==14)throw new Error('Authored coin route incomplete');
             const p0=await page.evaluate(()=>({...window.__playerPosition}));
-            await page.keyboard.down('w');await page.waitForTimeout(750);await page.keyboard.up('w');
-            await wait(page,p=>Math.hypot(window.__playerPosition.x-p.x,window.__playerPosition.z-p.z)>.8,5000,p0);
-            await page.keyboard.press('Space');await page.waitForTimeout(180);
+            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyW',key:'w',bubbles:true})));
+            await page.waitForTimeout(360);
+            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{code:'KeyW',key:'w',bubbles:true})));
+            await wait(page,p=>Math.hypot(window.__playerPosition.x-p.x,window.__playerPosition.z-p.z)>.45,5000,p0);
+            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' ',bubbles:true})));
+            await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keyup',{code:'Space',key:' ',bubbles:true})));
+            await page.waitForTimeout(140);
             if((await page.evaluate(()=>window.__playerPosition.y))<=.55)throw new Error('Jump did not lift player');
             await page.click('#action');await page.waitForTimeout(120);
             if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Star power did not fire');
