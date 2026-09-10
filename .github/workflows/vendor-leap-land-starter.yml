@@ -1,0 +1,83 @@
+name: Vendor Leap Land starter world
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vendor-leap-land-starter.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install converter
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq assimp-utils
+      - name: Download real starter FBX from itch.io
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/leap
+          python3 - <<'PY'
+          import re, json, urllib.request, urllib.parse
+          base='https://loxaevion.itch.io/upbge-0361-tutorial-starter-level'
+          def get(url):
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              return urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
+          def post(url,data=b''):
+              req=urllib.request.Request(url,data=data,headers={'User-Agent':'Mozilla/5.0','X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'})
+              return urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
+          html=get(base)
+          ids=re.findall(r'data-upload_id=["\'](\d+)',html)
+          if not ids:
+              j=json.loads(post(base+'/download_url'))
+              html=get(j['url'])
+              ids=re.findall(r'data-upload_id=["\'](\d+)',html)
+          if not ids: raise SystemExit('No public itch upload id found')
+          ok=False
+          for uid in ids:
+              try:
+                  j=json.loads(post(base+f'/file/{uid}?source=view_game&as_props=1&after_download_lightbox=true'))
+                  url=j.get('url')
+                  if not url: continue
+                  req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+                  data=urllib.request.urlopen(req,timeout=60).read()
+                  if data[:20].lower().startswith(b'<!doctype') or len(data)<100000: continue
+                  open('/tmp/leap/Tutorial Starter Level.fbx','wb').write(data)
+                  print('downloaded upload',uid,'bytes',len(data))
+                  ok=True; break
+              except Exception as e: print('candidate failed',uid,e)
+          if not ok: raise SystemExit('Unable to download starter FBX')
+          PY
+          ls -lh '/tmp/leap/Tutorial Starter Level.fbx'
+          strings '/tmp/leap/Tutorial Starter Level.fbx' | grep -Ei '\.(png|jpg|jpeg|tga)' | head -40 || true
+      - name: Convert starter world to GLB
+        run: |
+          set -euxo pipefail
+          mkdir -p assets/vendor/leap-land
+          assimp export '/tmp/leap/Tutorial Starter Level.fbx' assets/vendor/leap-land/tutorial-starter-level.glb -f glb2
+          test -s assets/vendor/leap-land/tutorial-starter-level.glb
+          cp '/tmp/leap/Tutorial Starter Level.fbx' assets/vendor/leap-land/tutorial-starter-level.fbx
+          cat > assets/vendor/leap-land/LICENSE_AND_SOURCE.txt <<'EOF'
+          3D Leap Land starter test world
+          Starter scene: https://loxaevion.itch.io/upbge-0361-tutorial-starter-level
+          Source asset pack: https://essssam.itch.io/3d-leap-land
+          Original asset pack license: Creative Commons Zero 1.0 Universal (CC0).
+          The starter-page author states the assembled test world is shared with permission from the asset creator.
+          This repository preserves both the downloaded FBX and a GLB conversion for browser testing.
+          EOF
+          sha256sum assets/vendor/leap-land/tutorial-starter-level.* > assets/vendor/leap-land/SHA256SUMS.txt
+          ls -lh assets/vendor/leap-land
+      - name: Commit vendored level
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/vendor/leap-land
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Vendor real Leap Land starter level'
+          git push
