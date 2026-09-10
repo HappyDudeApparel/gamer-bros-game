@@ -1,11 +1,14 @@
-name: Gamer Bros live smoke
+name: Gamer Bros Pass 2 smoke
 
 on:
   push:
     branches: [main]
     paths:
       - 'index.html'
-      - 'pass1-v1/**'
+      - 'title-v2.js'
+      - 'pass2-v1/**'
+      - 'playground-v2/gamer-bro.js'
+      - 'room01-v1/v04-sprites.js'
       - '.github/workflows/live-recovery-smoke.yml'
 
 permissions:
@@ -20,12 +23,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check title-v2.js
+          node --check pass2-v1/app.js
       - name: Install Playwright Chromium
         run: |
           npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Title and testing-ground smoke
+      - name: Title and Pass 2 smoke
         run: |
           python3 -m http.server 8080 >/tmp/server.log 2>&1 &
           sleep 2
@@ -35,23 +42,26 @@ jobs:
           async function run(browser,viewport,isMobile=false){
             const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
             const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
-            await page.goto('http://127.0.0.1:8080/?smoke=1',{waitUntil:'domcontentloaded',timeout:60000});
-            await page.waitForSelector('#characterRail .charBtn',{state:'visible',timeout:20000});
-            await wait(page,()=>document.querySelectorAll('#characterRail .charBtn').length===6,20000);
-            await wait(page,()=>document.getElementById('loading')?.style.opacity==='0',60000);
+            await page.goto('http://127.0.0.1:8080/?smoke=pass2',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForSelector('#characterRail .charBtn',{state:'visible',timeout:30000});
+            await wait(page,()=>document.querySelectorAll('#characterRail .charBtn').length===8,30000);
+            await wait(page,()=>window.__titleCharacterReady==='gb2',60000);
+            await page.click('[data-id="citrus"]');
+            await wait(page,()=>window.__titleCharacterReady==='citrus',30000);
             await page.click('[data-id="ghost"]');
-            await wait(page,()=>document.getElementById('characterName')?.textContent==='Ghost'&&document.getElementById('loading')?.style.opacity==='0',60000);
+            await wait(page,()=>window.__titleCharacterReady==='ghost',30000);
             await page.click('#playBtn');
-            await page.waitForURL(/pass1-v1\/\?hero=ghost/,20000);
-            await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),60000);
-            await wait(page,()=>document.getElementById('heroName')?.textContent==='GHOST',10000);
+            await page.waitForURL(/pass2-v1\/\?hero=ghost/,20000);
+            await wait(page,()=>window.__pass2Ready===true,90000);
+            await wait(page,()=>window.__characterReady==='ghost',20000);
             await page.click('#mode');
             await wait(page,()=>document.querySelector('#mode strong')?.textContent==='STAR',5000);
             await page.click('#action');
             await page.click('#mode');
             await wait(page,()=>document.querySelector('#mode strong')?.textContent==='ORB',5000);
+            if((await page.evaluate(()=>window.__powerCount||0))<1)throw new Error('Power test did not fire');
             if(errors.length)throw new Error(errors.join(' | '));
             await page.close();
           }
-          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900});await run(browser,{width:390,height:844},true);await browser.close();console.log('Gamer Bros title + testing ground passed');})().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900});await run(browser,{width:390,height:844},true);await browser.close();console.log('Gamer Bros Pass 2 passed');})().catch(e=>{console.error(e);process.exit(1)});
           NODE
