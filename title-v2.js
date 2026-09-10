@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {createGamerBro} from './playground-v2/gamer-bro.js?v=pass2-3';
+import {createGamerBro} from './playground-v2/gamer-bro.js?v=pass3';
 
 const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 const CHARACTERS=[
- {id:'gb1',name:'GB1',power:'Prism Star Burst',accent:'#ff58b7',kind:'gamer',colorway:'pink'},
- {id:'gb2',name:'GB2',power:'Prism Star Burst',accent:'#58e2e0',kind:'gamer',colorway:'teal'},
- {id:'citrus',name:'Citrus',power:'Multicolour Star Burst',accent:'#ff9a3d',kind:'glb',file:'./pass1-v1/assets/recovered/characters/sprite_hero.glb'},
- {id:'ghost',name:'Ghost',power:'Spectral Phase Wave',accent:'#f2a0d4',kind:'glb',file:'./pass1-v1/assets/recovered/characters/ghost.glb',metalPink:true},
- {id:'stump',name:'Stump',power:'Root Shockwave',accent:'#92d56d',kind:'glb',file:'./pass1-v1/assets/recovered/characters/stump.glb'},
- {id:'cthulhu',name:'Cthulhu',power:'Void Orb',accent:'#a66cff',kind:'glb',file:'./pass1-v1/assets/recovered/characters/cthulhu.glb'},
- {id:'yeti',name:'Yeti',power:'Frost Orb',accent:'#bcefff',kind:'glb',file:'./pass1-v1/assets/recovered/characters/yeti.glb'}
+ {id:'gb1',name:'GB1',power:'Prism Star Volley',accent:'#ff58b7',kind:'gamer',colorway:'pink'},
+ {id:'gb2',name:'GB2',power:'Prism Star Volley',accent:'#58e2e0',kind:'gamer',colorway:'teal'},
+ {id:'citrus',name:'Citrus',power:'Rainbow Star Comet',accent:'#ff9a3d',kind:'glb',file:'./pass1-v1/assets/recovered/characters/sprite_hero.glb'},
+ {id:'ghost',name:'Ghost',power:'Metallic Rose Star Nova',accent:'#f2a0d4',kind:'glb',file:'./pass1-v1/assets/recovered/characters/ghost.glb',metalPink:true},
+ {id:'stump',name:'Stump',power:'Forest Starburst',accent:'#92d56d',kind:'glb',file:'./pass1-v1/assets/recovered/characters/stump.glb'},
+ {id:'cthulhu',name:'Cthulhu',power:'Void Constellation',accent:'#a66cff',kind:'glb',file:'./pass1-v1/assets/recovered/characters/cthulhu.glb'},
+ {id:'yeti',name:'Yeti',power:'Ice Star Shatter',accent:'#bcefff',kind:'glb',file:'./pass1-v1/assets/recovered/characters/yeti.glb'}
 ];
 const canvas=document.getElementById('previewCanvas'),preview=document.getElementById('preview'),rail=document.getElementById('characterRail'),nameEl=document.getElementById('characterName'),powerEl=document.getElementById('characterPower'),loading=document.getElementById('loading'),playBtn=document.getElementById('playBtn'),fail=document.getElementById('fail'),failText=document.getElementById('failText');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!mobile,alpha:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,mobile?1.35:1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;
@@ -24,6 +24,6 @@ function buildRail(){for(const c of CHARACTERS){const b=document.createElement('
 async function select(id){const c=CHARACTERS.find(x=>x.id===id)||CHARACTERS[1];currentId=c.id;localStorage.setItem('gamerBroCharacter',c.id);nameEl.textContent=c.name;powerEl.textContent=c.power;ring.material.color.set(c.accent);rail.querySelectorAll('.charBtn').forEach(b=>b.classList.toggle('active',b.dataset.id===c.id));loading.textContent='Loading current character…';loading.style.opacity='1';const token=++loadToken;try{const made=await make(c);if(token!==loadToken)return;if(current)scene.remove(current);current=made.root;currentAdapter=made.adapter;currentMixer=made.mixer;scene.add(current);current.rotation.y=.18;userYaw=0;loading.style.opacity='0';let visibleMeshes=0;current.traverse(o=>{if(o.isMesh&&camera.layers.test(o.layers))visibleMeshes++;});window.__titleVisibleMeshCount=visibleMeshes;window.__titleCharacterReady=c.id;}catch(err){console.error(err);loading.textContent='Preview unavailable — choose another character';}}
 function resize(){const r=preview.getBoundingClientRect(),w=Math.max(1,r.width|0),h=Math.max(1,r.height|0);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}addEventListener('resize',resize,{passive:true});new ResizeObserver(resize).observe(preview);resize();
 canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;userYaw+=(e.clientX-lastX)*.008;lastX=e.clientX});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
-playBtn.onclick=()=>{const id=currentId||'gb2';location.href=`./pass2-v1/?hero=${encodeURIComponent(id)}`};
+playBtn.onclick=()=>{const id=currentId||'gb2';location.href=`./pass3-v1/?hero=${encodeURIComponent(id)}`};
 let last=performance.now();function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;animT+=dt;if(current){try{if(currentAdapter)currentAdapter.update(animT,dt,0);if(currentMixer)currentMixer.update(dt);}catch{}current.rotation.y+=dragging?0:dt*.24;current.rotation.y+=userYaw;userYaw=0;current.position.y=(current.userData.previewBaseY||0)+Math.sin(now*.0017)*.026;}ring.rotation.z+=dt*.18;renderer.render(scene,camera)}
-try{buildRail();let saved=localStorage.getItem('gamerBroCharacter');if(saved==='hero')saved='gb2';if(saved==='sprite_hero')saved='citrus';if(saved==='ghost_glb')saved='ghost';select(CHARACTERS.some(c=>c.id===saved)?saved:'gb2');requestAnimationFrame(frame);window.__titlePass2=true;}catch(err){console.error(err);failText.textContent=String(err?.message||err);fail.classList.add('show')}
+try{buildRail();let saved=localStorage.getItem('gamerBroCharacter');if(saved==='hero')saved='gb2';if(saved==='sprite_hero')saved='citrus';if(saved==='ghost_glb')saved='ghost';select(CHARACTERS.some(c=>c.id===saved)?saved:'gb2');requestAnimationFrame(frame);window.__titlePass3=true;}catch(err){console.error(err);failText.textContent=String(err?.message||err);fail.classList.add('show')}
