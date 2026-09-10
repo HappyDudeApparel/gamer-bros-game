@@ -25,14 +25,17 @@ jobs:
           unzip -q /tmp/kenney.zip -d /tmp/kenney
           find /tmp/kenney -maxdepth 4 -type f | sort | sed 's#^/tmp/kenney/##' > /tmp/kenney-files.txt
           head -200 /tmp/kenney-files.txt
-      - name: Stage GLB models and license
+      - name: Stage GLB models, shared texture and license
         run: |
           set -euxo pipefail
           rm -rf assets/vendor/kenney-platformer
-          mkdir -p assets/vendor/kenney-platformer/models
+          mkdir -p assets/vendor/kenney-platformer/models/Textures
           find /tmp/kenney -type f -iname '*.glb' -print0 | while IFS= read -r -d '' f; do
             cp "$f" "assets/vendor/kenney-platformer/models/$(basename "$f")"
           done
+          texture="$(find /tmp/kenney -type f -path '*/GLB format/Textures/colormap.png' | head -1)"
+          test -n "$texture"
+          cp "$texture" assets/vendor/kenney-platformer/models/Textures/colormap.png
           test "$(find assets/vendor/kenney-platformer/models -type f -name '*.glb' | wc -l)" -ge 50
           cp /tmp/kenney-files.txt assets/vendor/kenney-platformer/SOURCE_FILE_MANIFEST.txt
           cat > assets/vendor/kenney-platformer/LICENSE.txt <<'EOF'
@@ -40,8 +43,9 @@ jobs:
           Source: https://kenney.nl/assets/platformer-kit
           License: Creative Commons CC0 1.0
           Downloaded from Kenney's official asset page by this repository workflow.
+          The shared GLB colormap texture is preserved at models/Textures/colormap.png.
           EOF
-          printf '{\n  "source": "https://kenney.nl/assets/platformer-kit",\n  "license": "CC0-1.0",\n  "glbCount": %s\n}\n' "$(find assets/vendor/kenney-platformer/models -type f -name '*.glb' | wc -l)" > assets/vendor/kenney-platformer/manifest.json
+          printf '{\n  "source": "https://kenney.nl/assets/platformer-kit",\n  "license": "CC0-1.0",\n  "glbCount": %s,\n  "sharedTexture": "models/Textures/colormap.png"\n}\n' "$(find assets/vendor/kenney-platformer/models -type f -name '*.glb' | wc -l)" > assets/vendor/kenney-platformer/manifest.json
       - name: Commit vendored assets
         run: |
           set -euxo pipefail
@@ -51,6 +55,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No asset changes.'
           else
-            git commit -m 'Vendor Kenney Platformer Kit CC0 assets'
+            git commit -m 'Vendor Kenney Platformer Kit shared texture'
             git push
           fi
