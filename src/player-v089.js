@@ -9,17 +9,17 @@
   body.classList.add('playerMode','introTour');
 
   let bro=null,menu=null,canvas=null,renderer=null,camera=null,scene=null;
-  for(let i=0;i<520;i++){
+  for(let i=0;i<360;i++){
     bro=window.__bro;
     menu=document.getElementById('gameMenu');
     canvas=document.querySelector('#stage canvas');
     renderer=window.__gamerRenderer;
     camera=window.__gamerCamera;
     scene=window.__gamerScene||bro?.root?.parent;
-    if(bro&&menu&&canvas&&menu.querySelector('[data-hero="gb1"]')&&menu.querySelector('[data-hero="gb2"]'))break;
+    if(bro&&menu&&canvas&&renderer&&camera&&scene&&menu.querySelector('[data-hero="gb1"]')&&menu.querySelector('[data-hero="gb2"]'))break;
     await sleep(25);
   }
-  if(!bro||!menu||!canvas){
+  if(!bro||!menu||!canvas||!renderer||!camera||!scene){
     body.classList.remove('introTour');
     window.__introTourActive=false;
     window.__showGameMenu?.();
@@ -58,14 +58,6 @@
     movePad.addEventListener('lostpointercapture',release);
   }
 
-  // Move expensive portal setup to the non-interactive opening cinematic. The visual
-  // portal design is untouched; this only changes WHEN shaders/bounds/particle samples
-  // are prepared so conversion does not have to do them on its critical frame.
-  if(renderer&&scene&&camera){
-    try{await renderer.compileAsync?.(scene,camera);}catch{}
-  }
-  try{window.__prewarmPortalHero?.();}catch(err){console.warn('[v0.8.9 portal prewarm]',err);}
-
   const label=document.createElement('div');
   label.id='worldIntroLabel';
   label.textContent='GAMER BROS · PORTAL WORLD';
@@ -77,8 +69,17 @@
   window.__introTourActive=true;
   window.__introPose={pos:[0,22,-30],look:[0,3,31]};
 
+  // Expensive portal preparation happens opportunistically while the player is already
+  // watching the world preview. Never make the preview wait for shader compilation.
+  const prepPortal=()=>{
+    try{renderer.compileAsync?.(scene,camera)?.catch?.(()=>{});}catch{}
+    try{window.__prewarmPortalHero?.();}catch(err){console.warn('[v0.8.9 portal prewarm]',err);}
+  };
+  if('requestIdleCallback' in window)requestIdleCallback(prepPortal,{timeout:1400});
+  else setTimeout(prepPortal,500);
+
   // Arrive over the hub -> orbit the route network -> settle toward playable spawn.
-  const total=3900,start=performance.now();
+  const total=3600,start=performance.now();
   await new Promise(resolve=>{
     const tick=now=>{
       const t=Math.min(1,(now-start)/total);
@@ -102,6 +103,7 @@
     requestAnimationFrame(tick);
   });
 
+  let selectionMade=false;
   async function applyVariant(which){
     if(which==='gb1'){
       bro.setColorway('pink');
@@ -115,40 +117,49 @@
     await nextFrame();
   }
 
-  // Snapshot the actual live 3D Gamer Bro in both real shirt colorways for selection.
-  async function capturePortrait(which){
-    if(!renderer||!scene||!camera)return null;
-    try{
-      await applyVariant(which);
-      const p=bro.root?.position||{x:0,y:0,z:0};
-      window.__introPose={pos:[p.x+3.8,p.y+2.75,p.z+5.8],look:[p.x,p.y+1.38,p.z]};
-      await nextFrame();
-      const oldRot=bro.root.rotation.y;
-      bro.root.rotation.y=0;
-      renderer.render(scene,camera);
-      const data=renderer.domElement.toDataURL('image/jpeg',.78);
-      bro.root.rotation.y=oldRot;
-      return data;
-    }catch(err){console.warn('[v0.8.9 portrait capture]',err);return null;}
-  }
-
-  const pink=await capturePortrait('gb1');
-  const teal=await capturePortrait('gb2');
-  const pinkArt=menu.querySelector('.choicePink'),tealArt=menu.querySelector('.choiceTeal');
-  if(pink&&pinkArt){pinkArt.style.backgroundImage=`url(${pink})`;pinkArt.classList.add('livePortrait');}
-  if(teal&&tealArt){tealArt.style.backgroundImage=`url(${teal})`;tealArt.classList.add('livePortrait');}
-
-  await applyVariant(localStorage.getItem('gamerBroHero')==='gb1'?'gb1':'gb2');
+  // Open selection immediately. Real current-model portraits are filled in asynchronously
+  // so a GPU readback can never delay the player's first interaction.
+  const selected=localStorage.getItem('gamerBroHero')==='gb1'?'gb1':'gb2';
+  await applyVariant(selected);
   label.classList.add('fade');
-  await sleep(220);
+  await sleep(160);
   label.remove();
-
   body.classList.remove('introTour');
   window.__showGameMenu?.();
   body.classList.add('menuOpen');
   menu.classList.add('show');
 
+  async function capturePortrait(which){
+    if(selectionMade)return null;
+    try{
+      await applyVariant(which);
+      if(selectionMade)return null;
+      const p=bro.root?.position||{x:0,y:0,z:0};
+      window.__introPose={pos:[p.x+3.8,p.y+2.75,p.z+5.8],look:[p.x,p.y+1.38,p.z]};
+      await nextFrame();
+      if(selectionMade)return null;
+      const oldRot=bro.root.rotation.y;
+      bro.root.rotation.y=0;
+      renderer.render(scene,camera);
+      const blob=await new Promise(resolve=>renderer.domElement.toBlob(resolve,'image/jpeg',.72));
+      bro.root.rotation.y=oldRot;
+      return blob?URL.createObjectURL(blob):null;
+    }catch(err){console.warn('[v0.8.9 portrait capture]',err);return null;}
+  }
+
+  const fillPortraits=async()=>{
+    const pinkArt=menu.querySelector('.choicePink'),tealArt=menu.querySelector('.choiceTeal');
+    const pink=await capturePortrait('gb1');
+    if(pink&&!selectionMade&&pinkArt){pinkArt.style.backgroundImage=`url(${pink})`;pinkArt.classList.add('livePortrait');}
+    const teal=await capturePortrait('gb2');
+    if(teal&&!selectionMade&&tealArt){tealArt.style.backgroundImage=`url(${teal})`;tealArt.classList.add('livePortrait');}
+    if(!selectionMade)await applyVariant(selected);
+  };
+  if('requestIdleCallback' in window)requestIdleCallback(()=>void fillPortraits(),{timeout:900});
+  else setTimeout(()=>void fillPortraits(),120);
+
   menu.querySelectorAll('[data-hero]').forEach(btn=>btn.addEventListener('click',()=>{
+    selectionMade=true;
     window.__introTourActive=false;
     window.__introPose=null;
     body.classList.remove('introTour');
