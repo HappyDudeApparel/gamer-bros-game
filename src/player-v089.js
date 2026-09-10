@@ -26,15 +26,13 @@
     return;
   }
 
-  // Hide any menu that an older recovery layer tried to reveal before the fly-through.
   menu.classList.remove('show');
   body.classList.remove('menuOpen');
   menu.querySelector('.menuSettings')?.remove();
   const note=menu.querySelector('.menuNote');
   if(note)note.textContent='Move · drag the world to look · pinch to zoom · RUN · JUMP · ZAP';
 
-  // Crystal Library movement pad behavior. Replacing the inner node also removes the
-  // v0.8.7 experimental stick listeners without touching keyboard/gameplay state.
+  // Exact Crystal Library thumb-pad response instead of the v0.8.7 experimental stick.
   const movePad=document.getElementById('movePad');
   if(movePad){
     movePad.innerHTML='<div class="stickRing"></div><div id="stickKnob" class="stickKnob"></div>';
@@ -60,11 +58,13 @@
     movePad.addEventListener('lostpointercapture',release);
   }
 
-  // Compile the already-authored portal/material programs while the cinematic is playing.
-  // This moves shader work away from the exact frame where the hero converts/disappears.
+  // Move expensive portal setup to the non-interactive opening cinematic. The visual
+  // portal design is untouched; this only changes WHEN shaders/bounds/particle samples
+  // are prepared so conversion does not have to do them on its critical frame.
   if(renderer&&scene&&camera){
-    try{renderer.compileAsync?.(scene,camera)?.catch?.(()=>{});}catch{}
+    try{await renderer.compileAsync?.(scene,camera);}catch{}
   }
+  try{window.__prewarmPortalHero?.();}catch(err){console.warn('[v0.8.9 portal prewarm]',err);}
 
   const label=document.createElement('div');
   label.id='worldIntroLabel';
@@ -77,8 +77,7 @@
   window.__introTourActive=true;
   window.__introPose={pos:[0,22,-30],look:[0,3,31]};
 
-  // Three-part preview: arrive over the hub -> orbit the route network -> settle back
-  // toward the playable spawn before hero selection.
+  // Arrive over the hub -> orbit the route network -> settle toward playable spawn.
   const total=3900,start=performance.now();
   await new Promise(resolve=>{
     const tick=now=>{
@@ -116,8 +115,7 @@
     await nextFrame();
   }
 
-  // Render the actual current Gamer Bro twice. These are not approximation SVGs:
-  // each select card becomes a snapshot of the live 3D hero in its real shirt colorway.
+  // Snapshot the actual live 3D Gamer Bro in both real shirt colorways for selection.
   async function capturePortrait(which){
     if(!renderer||!scene||!camera)return null;
     try{
@@ -145,8 +143,6 @@
   await sleep(220);
   label.remove();
 
-  // Keep the scripted camera until the user actually picks a hero so the menu opens over
-  // the polished hero inspection frame rather than snapping back underneath it.
   body.classList.remove('introTour');
   window.__showGameMenu?.();
   body.classList.add('menuOpen');
