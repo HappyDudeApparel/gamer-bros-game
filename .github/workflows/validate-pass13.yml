@@ -6,6 +6,8 @@ on:
     paths:
       - 'pass13-v1/**'
       - 'vendor/three/**'
+      - 'index.html'
+      - 'title-v2.js'
       - '.github/workflows/validate-pass13.yml'
 
 permissions:
@@ -16,12 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Syntax check every Pass 13 module
+      - name: Syntax check production modules
         run: |
           node --check pass13-v1/app.js
           node --check pass13-v1/world.js
           node --check pass13-v1/assets.js
           node --check pass13-v1/powers.js
+          node --check title-v2.js
       - name: Structural and local-runtime checks
         run: |
           COUNT="$(grep -R -E '^[[:space:]]*(let|const|var)[[:space:]]+actionSerial\b' pass13-v1 --include='*.js' | wc -l)"
@@ -29,38 +32,45 @@ jobs:
           grep -q "PASS 13 · CLEAN REBUILD" pass13-v1/index.html
           grep -q "window.__world1Ready=true" pass13-v1/app.js
           grep -q "../vendor/three/three.module.min.js" pass13-v1/index.html
+          grep -q "./vendor/three/three.module.min.js" index.html
+          grep -q "pass13-v1" title-v2.js
+          ! grep -q "pass12-v1" title-v2.js
+          ! grep -q "pass12-v1" index.html
           test -s vendor/three/three.module.min.js
           test -s vendor/three/three.core.min.js
           test -s vendor/three/addons/loaders/GLTFLoader.js
           test -s vendor/three/addons/utils/BufferGeometryUtils.js
-          ! grep -R "cdn.jsdelivr.net\|unpkg.com" pass13-v1
-      - name: Browser smoke test desktop and Android
+          ! grep -R "cdn.jsdelivr.net\|unpkg.com" pass13-v1 index.html title-v2.js
+      - name: Browser smoke test title desktop
         run: |
           python3 -m http.server 8000 >/tmp/pass13-http.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID || true' EXIT
+          echo $! >/tmp/pass13-server.pid
           sleep 2
           BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
-          if [ -z "$BROWSER" ]; then
-            echo "No Chrome/Chromium found on runner"
-            exit 1
-          fi
+          if [ -z "$BROWSER" ]; then echo "No Chrome/Chromium found"; exit 1; fi
+          "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader --virtual-time-budget=8000 --dump-dom "http://127.0.0.1:8000/?ci=title" >/tmp/pass13-title.html 2>/tmp/pass13-title.err
+          ! grep -q 'class="fail show"' /tmp/pass13-title.html
+          grep -q 'PLAY WORLD 1 · PASS 13' /tmp/pass13-title.html
+          grep -q 'style="opacity: 0' /tmp/pass13-title.html
+      - name: Browser smoke test game desktop and Android
+        run: |
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
           "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader --virtual-time-budget=12000 --dump-dom "http://127.0.0.1:8000/pass13-v1/?hero=gb2&ci=desktop" >/tmp/pass13-desktop.html 2>/tmp/pass13-desktop.err
           grep -q 'class="boot hide"' /tmp/pass13-desktop.html
           ! grep -q 'class="fatal show"' /tmp/pass13-desktop.html
           "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader --user-agent="Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36" --virtual-time-budget=12000 --dump-dom "http://127.0.0.1:8000/pass13-v1/?hero=gb2&ci=android" >/tmp/pass13-mobile.html 2>/tmp/pass13-mobile.err
           grep -q 'class="boot hide"' /tmp/pass13-mobile.html
           ! grep -q 'class="fatal show"' /tmp/pass13-mobile.html
+      - name: Stop local server
+        if: always()
+        run: kill "$(cat /tmp/pass13-server.pid)" 2>/dev/null || true
       - name: Show diagnostics on failure
         if: failure()
         run: |
-          echo '--- HTTP LOG ---'
-          cat /tmp/pass13-http.log || true
-          echo '--- DESKTOP STDERR ---'
-          cat /tmp/pass13-desktop.err || true
-          echo '--- MOBILE STDERR ---'
-          cat /tmp/pass13-mobile.err || true
-          echo '--- DESKTOP DOM TAIL ---'
-          tail -c 7000 /tmp/pass13-desktop.html || true
-          echo '--- MOBILE DOM TAIL ---'
-          tail -c 7000 /tmp/pass13-mobile.html || true
+          echo '--- HTTP LOG ---'; cat /tmp/pass13-http.log || true
+          echo '--- TITLE STDERR ---'; cat /tmp/pass13-title.err || true
+          echo '--- DESKTOP STDERR ---'; cat /tmp/pass13-desktop.err || true
+          echo '--- MOBILE STDERR ---'; cat /tmp/pass13-mobile.err || true
+          echo '--- TITLE DOM TAIL ---'; tail -c 5000 /tmp/pass13-title.html || true
+          echo '--- DESKTOP DOM TAIL ---'; tail -c 7000 /tmp/pass13-desktop.html || true
+          echo '--- MOBILE DOM TAIL ---'; tail -c 7000 /tmp/pass13-mobile.html || true
