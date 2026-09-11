@@ -1,0 +1,31 @@
+name: Build Pass 11 Gameplay World
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/build_pass11_gameplay_world.py'
+      - '.github/workflows/build-pass11-gameplay-world.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate Pass 11
+        run: python3 scripts/build_pass11_gameplay_world.py
+      - name: Commit Pass 11
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass11-v1
+          if git diff --cached --quiet; then
+            echo 'No Pass 11 changes.'
+          else
+            git commit -m 'Build Pass 11 gameplay environment'
+            git push origin HEAD:main
+          fi
