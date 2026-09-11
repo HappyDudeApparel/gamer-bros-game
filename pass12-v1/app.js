@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createGamerBro} from '../playground-v2/gamer-bro.js?v=pass12';
 import {createCrystalLibraryTubeV2} from '../src/crystal-library-tube-v2.js?v=1';
+window.__pass12ModuleStarted=true;
 
 const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 const qp=new URLSearchParams(location.search),requested=qp.get('hero'),saved=localStorage.getItem('gamerBroCharacter');
@@ -36,7 +36,8 @@ function buildWorld(){progress('Building one continuous World 1 landmass…',18)
 // PASS 10 OPTION B ---------------------------------------------------------
 // Pass 9C's continuous terrain stays the ONLY movement collision surface.
 // Imported kit models are visual-only in this first art-direction pass.
-const assetLoader=new GLTFLoader();
+let assetLoader=null,assetLoaderPromise=null;
+async function ensureAssetLoader(){if(assetLoader)return assetLoader;if(!assetLoaderPromise)assetLoaderPromise=import('three/addons/loaders/GLTFLoader.js').then(m=>assetLoader=new m.GLTFLoader());return assetLoaderPromise}
 const assetRoot=new THREE.Group();assetRoot.name='pass10-imported-world-assets';world.add(assetRoot);
 const assetBase='../assets/world-kit/';
 const cityBase=assetBase+'kenney/city-builder/models/';
@@ -44,9 +45,9 @@ const kenneyPlat=assetBase+'kenney/platformer-kit/Models/GLB format/';
 const kayBase=assetBase+'kaykit/platformer-pack/KayKit_Platformer_Pack_1.0_FREE/Assets/gltf/neutral/';
 const assetCache=new Map();
 let mobileAssetActive=0;const mobileAssetQueue=[];
-function pumpMobileAssets(){while(mobileAssetActive<2&&mobileAssetQueue.length){const job=mobileAssetQueue.shift();mobileAssetActive++;assetLoader.loadAsync(job.url).then(g=>job.resolve(g.scene),job.reject).finally(()=>{mobileAssetActive--;setTimeout(pumpMobileAssets,0)})}}
+function pumpMobileAssets(){while(mobileAssetActive<2&&mobileAssetQueue.length){const job=mobileAssetQueue.shift();mobileAssetActive++;ensureAssetLoader().then(loader=>loader.loadAsync(job.url)).then(g=>job.resolve(g.scene),job.reject).finally(()=>{mobileAssetActive--;setTimeout(pumpMobileAssets,0)})}}
 function queuedMobileAsset(url){return new Promise((resolve,reject)=>{mobileAssetQueue.push({url,resolve,reject});pumpMobileAssets()})}
-async function loadTemplate(url){if(assetCache.has(url))return assetCache.get(url);const pr=(mobile?queuedMobileAsset(url):assetLoader.loadAsync(url).then(g=>g.scene));assetCache.set(url,pr);return pr}
+async function loadTemplate(url){if(assetCache.has(url))return assetCache.get(url);const pr=(mobile?queuedMobileAsset(url):ensureAssetLoader().then(loader=>loader.loadAsync(url)).then(g=>g.scene));assetCache.set(url,pr);return pr}
 function prepModel(root){root.traverse(o=>{if(o.isMesh){o.castShadow=!mobile;o.receiveShadow=true;o.frustumCulled=true}});return root}
 async function placeAsset(url,{x=0,z=0,y=null,height=null,width=null,scale=1,ry=0,name='kit-asset'}={}){
  try{
