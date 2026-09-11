@@ -1,0 +1,61 @@
+name: Gamer Bros Kenney Gardens Pass 7 smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pass7-v1/**'
+      - 'src/advanced-tube-v1.js'
+      - 'room01-v1/portal-v2.js'
+      - 'playground-v2/gamer-bro.js'
+      - 'assets/vendor/kenney-platformer/**'
+      - '.github/workflows/pass7-kenney-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check pass7-v1/app.js
+          node --check pass7-v1/tube-transition.js
+          node --check src/advanced-tube-v1.js
+          node --check room01-v1/portal-v2.js
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Full-ground movement, animation, combat and ungated tube
+        run: |
+          python3 -m http.server 8080 >/tmp/server.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          const wait=(p,fn,t=60000)=>p.waitForFunction(fn,null,{timeout:t});
+          async function run(browser,viewport,isMobile){
+            const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
+            await page.goto('http://127.0.0.1:8080/pass7-v1/?hero=gb2&smoke=1',{waitUntil:'domcontentloaded',timeout:60000});
+            await wait(page,()=>window.__pass7Ready===true&&window.__worldBuilt===true&&window.__fullGround===true&&window.__advancedTubeReady===true,90000);
+            await wait(page,()=>window.__advancedTubePrewarmed===true&&window.__tubeDissolvePrepared===true,60000);
+            await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),12000);
+            const sys=await page.evaluate(()=>({source:window.__worldSource,ladders:window.__ladderCount,requires:window.__portalRequiresEnemies,enemies:window.__enemyCount,tube:window.__advancedTubeComponent}));
+            if(sys.source!=='kenney-platformer-kit'||sys.ladders!==0||sys.requires!==false||sys.enemies!==4||sys.tube!=='gamer-bros-advanced-tube-v1')throw new Error('Pass7 systems wrong '+JSON.stringify(sys));
+            const start=await page.evaluate(()=>({...window.__playerPosition}));await page.keyboard.down('w');await page.waitForTimeout(300);const moving=await page.evaluate(()=>window.__heroMotion);await page.waitForTimeout(450);await page.keyboard.up('w');const end=await page.evaluate(()=>({...window.__playerPosition}));if(Math.hypot(end.x-start.x,end.z-start.z)<1.2)throw new Error('Movement too slow/failed '+JSON.stringify({start,end}));if(!['walk','run'].includes(moving))throw new Error('Feet/motion rig not activated: '+moving);
+            await page.evaluate(()=>{window.__playerPosition.x=-10;window.__playerPosition.z=4;window.__playerPosition.y=.04;});await page.waitForTimeout(100);await page.click('#action');await wait(page,()=>window.__enemyKills>=1,5000);
+            const before=await page.evaluate(()=>window.__enemyKills||0);if(before>=4)throw new Error('Combat test unexpectedly cleared all enemies');
+            await page.evaluate(()=>{const t=window.__tubePosition;window.__playerPosition.x=t.x;window.__playerPosition.z=t.z;window.__playerPosition.y=t.y+.04;});await wait(page,()=>['charge','convert','dissipate','afterglow','transfer'].includes(window.__tubeTransitionState),7000);await wait(page,()=>window.__tubeTransferComplete===true,8000);const after=await page.evaluate(()=>window.__enemyKills||0);if(after>=4)throw new Error('Tube was still enemy-gated');
+            if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));await page.close();
+          }
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Kenney Gardens Pass 7 passed');})().catch(e=>{console.error(e);process.exit(1)});
+          NODE
