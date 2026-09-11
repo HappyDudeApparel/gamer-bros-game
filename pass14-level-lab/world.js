@@ -52,8 +52,8 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
   async function build(){
     setPhase('Loading the real platform kit…',14);
     await assets.prewarm([
-      'block-grass-low-large.glb','block-grass-large.glb','block-grass-long.glb','block-grass-large-slope.glb',
-      'platform-ramp.glb','platform.glb','platform-fortified.glb','platform-overhang.glb','spring.glb','saw.glb',
+      'block-grass-low-large.glb','block-grass-large.glb','block-grass-long.glb','block-grass-large-slope.glb','block-grass-overhang-large.glb',
+      'platform-ramp.glb','platform.glb','platform-fortified.glb','spring.glb','saw.glb',
       'coin-gold.glb','jewel.glb','chest.glb','heart.glb','arrow.glb','sign.glb','tree.glb','tree-pine.glb','flowers.glb','grass.glb','rocks.glb'
     ]);
     setPhase('Authoring Springline Terrace…',28);
@@ -95,21 +95,23 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     await placeDecor('platform-fortified.glb',{x:0,z:-116,topY:goalTop-.32,targetXZ:24});
     addRoute({x:-5,z:-95},{x:-5,z:-98});addRoute({x:0,z:-111},{x:0,z:-118});
 
-    // Mechanical platform-ramp is used as a safe side toy, not a mandatory connector.
+    // Mechanical platform-ramp is a safe side toy, not a mandatory connector.
     await place('platform-ramp.glb',{x:-10,z:-62,topY:splitTop+.28,targetXZ:9});
     const sideCoinY=(groundAt(-10,-62)??splitTop)+.8;
     const sideCoin=await placeDecor('coin-gold.glb',{x:-10,z:-62,bottomY:sideCoinY,targetXZ:.6});
     collectibles.push({type:'coin',root:sideCoin.root,x:-10,z:-62,baseY:sideCoin.root.position.y,taken:false});
 
-    // Optional mastery loop: a second spring to high overhangs, then a broad grass slope rejoin.
+    // Optional mastery loop: dedicated grass-overhang blocks make the visible high route the walkable route.
     const spring2=await placeDecor('spring.glb',{x:16,z:-56,topY:splitTop+.12,targetXZ:2.4});
     springs.push({root:spring2.root,x:16,z:-56,target:{x:23,z:-68},strengthY:8.8,strengthForward:8.5,mandatory:false});
     const highTop=splitTop+5.1;
-    await place('platform-overhang.glb',{x:23,z:-69,topY:highTop,targetXZ:12});
-    await place('platform-overhang.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:12});
-    await place('platform-overhang.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:12});
-    await placeRamp('block-grass-large-slope.glb',{x:14,z:-90},{x:3,z:-96},highTop+.45,{span:15,optional:true});
-    addRoute({x:23,z:-68},{x:20,z:-78},true);addRoute({x:20,z:-78},{x:14,z:-86},true);
+    await place('block-grass-overhang-large.glb',{x:23,z:-69,topY:highTop,targetXZ:14});
+    await place('block-grass-overhang-large.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:14});
+    await place('block-grass-overhang-large.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:14});
+    await place('block-grass-overhang-large.glb',{x:10,z:-89,topY:highTop+.45,targetXZ:13});
+    addRoute({x:23,z:-68},{x:20,z:-78},true);addRoute({x:20,z:-78},{x:14,z:-86},true);addRoute({x:14,z:-86},{x:10,z:-89},true);
+    // The loop ends in an intentional broad drop onto the combat terrace; validate the landing itself.
+    addRoute({x:4,z:-91},{x:4,z:-91},true);
 
     // Real, visible hazards live off the safe centerline.
     const sawA=await placeDecor('saw.glb',{x:-12,z:-91,topY:arenaTop+.28,targetXZ:2.7});hazards.push({type:'saw',root:sawA.root,x:-12,z:-91,radius:1.15});
@@ -119,6 +121,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     await placeDecor('arrow.glb',{x:-1,z:9,topY:startTop+.2,targetXZ:1.7,rotationY:Math.PI});
     await placeDecor('sign.glb',{x:13,z:-53,topY:splitTop+.12,targetXZ:2.2,rotationY:-.6});
     await placeDecor('arrow.glb',{x:15,z:-54,topY:splitTop+.2,targetXZ:1.7,rotationY:-.65});
+    await placeDecor('arrow.glb',{x:9,z:-88,topY:highTop+.7,targetXZ:1.6,rotationY:Math.PI*.9});
 
     // Same-kit scenery frames the path without forming invisible barriers.
     const treeSpots=[[-16,27,6],[-17,8,5],[15,18,5],[18,-8,5],[-18,-30,5],[-17,-57,5],[18,-98,6],[-18,-112,6]];
@@ -129,7 +132,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     // Actual collectible models trace the safe route and reward the high loop.
     const coinSpots=[[0,30],[-1,20],[-2,10],[-5,0],[-6,-8],[-6,-13],[4,-28],[4,-34],[7,-42],[10,-50],[10,-57],[7,-64],[2,-72],[-2,-80],[-5,-88],[-5,-96],[-3,-103],[0,-111],[0,-116]];
     for(const [x,z] of coinSpots){const y=(groundAt(x,z)??-1.35)+.82;const c=await placeDecor('coin-gold.glb',{x,z,bottomY:y,targetXZ:.55});collectibles.push({type:'coin',root:c.root,x,z,baseY:c.root.position.y,taken:false});}
-    for(const [x,z] of [[23,-69],[20,-78],[14,-86]]){const y=(groundAt(x,z)??highTop)+.92;const g=await placeDecor('jewel.glb',{x,z,bottomY:y,targetXZ:.62});collectibles.push({type:'gem',root:g.root,x,z,baseY:g.root.position.y,taken:false});}
+    for(const [x,z] of [[23,-69],[20,-78],[14,-86],[10,-89]]){const y=(groundAt(x,z)??highTop)+.92;const g=await placeDecor('jewel.glb',{x,z,bottomY:y,targetXZ:.62});collectibles.push({type:'gem',root:g.root,x,z,baseY:g.root.position.y,taken:false});}
     const chestY=(groundAt(14,-86)??highTop)+.2;const chest=await placeDecor('chest.glb',{x:11.5,z:-86,bottomY:chestY,targetXZ:1.8,rotationY:-.7});collectibles.push({type:'chest',root:chest.root,x:11.5,z:-86,baseY:chest.root.position.y,taken:false,rewardGems:3});
     const heartY=(groundAt(-5,-91)??arenaTop)+.2;const heart=await placeDecor('heart.glb',{x:-5,z:-91,bottomY:heartY,targetXZ:.8});collectibles.push({type:'heart',root:heart.root,x:-5,z:-91,baseY:heart.root.position.y,taken:false});
 
