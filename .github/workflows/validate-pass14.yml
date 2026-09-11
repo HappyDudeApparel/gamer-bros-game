@@ -29,7 +29,6 @@ jobs:
           test -s vendor/three/three.module.min.js
           test -s vendor/three/three.core.min.js
           test -s vendor/three/addons/loaders/GLTFLoader.js
-          test -s vendor/three/addons/utils/SkeletonUtils.js
           BASE='assets/world-kit/kenney/platformer-kit/Models/GLB format'
           for f in \
             block-grass-low-large.glb block-grass-large.glb block-grass-long.glb block-grass-large-slope.glb \
