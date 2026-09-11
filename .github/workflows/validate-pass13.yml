@@ -1,0 +1,60 @@
+name: Validate Pass 13 Clean Rebuild
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'pass13-v1/**'
+      - '.github/workflows/validate-pass13.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check every Pass 13 module
+        run: |
+          node --check pass13-v1/app.js
+          node --check pass13-v1/world.js
+          node --check pass13-v1/assets.js
+          node --check pass13-v1/powers.js
+      - name: Structural checks
+        run: |
+          test "$(grep -R "let actionSerial\|const actionSerial\|var actionSerial" -n pass13-v1 || true | wc -l)" -eq 0
+          grep -q "PASS 13 · CLEAN REBUILD" pass13-v1/index.html
+          grep -q "window.__world1Ready=true" pass13-v1/app.js
+          grep -q "../vendor/three/three.module.min.js" pass13-v1/index.html
+          ! grep -R "cdn.jsdelivr.net\|unpkg.com" pass13-v1
+      - name: Browser smoke test desktop and Android
+        run: |
+          python3 -m http.server 8000 >/tmp/pass13-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$BROWSER" ]; then
+            echo "No Chrome/Chromium found on runner"
+            exit 1
+          fi
+          "$BROWSER" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=10000 --dump-dom "http://127.0.0.1:8000/pass13-v1/?hero=gb2&ci=desktop" >/tmp/pass13-desktop.html 2>/tmp/pass13-desktop.err
+          grep -q 'class="boot hide"' /tmp/pass13-desktop.html
+          ! grep -q 'class="fatal show"' /tmp/pass13-desktop.html
+          "$BROWSER" --headless=new --no-sandbox --disable-gpu --user-agent="Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36" --virtual-time-budget=10000 --dump-dom "http://127.0.0.1:8000/pass13-v1/?hero=gb2&ci=android" >/tmp/pass13-mobile.html 2>/tmp/pass13-mobile.err
+          grep -q 'class="boot hide"' /tmp/pass13-mobile.html
+          ! grep -q 'class="fatal show"' /tmp/pass13-mobile.html
+      - name: Show diagnostics on failure
+        if: failure()
+        run: |
+          echo '--- HTTP LOG ---'
+          cat /tmp/pass13-http.log || true
+          echo '--- DESKTOP STDERR ---'
+          cat /tmp/pass13-desktop.err || true
+          echo '--- MOBILE STDERR ---'
+          cat /tmp/pass13-mobile.err || true
+          echo '--- DESKTOP DOM TAIL ---'
+          tail -c 5000 /tmp/pass13-desktop.html || true
+          echo '--- MOBILE DOM TAIL ---'
+          tail -c 5000 /tmp/pass13-mobile.html || true
