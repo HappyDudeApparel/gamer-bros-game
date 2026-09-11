@@ -54,7 +54,10 @@ jobs:
             await page.keyboard.press('Space');await page.waitForTimeout(120);const jumped=await page.evaluate(()=>window.__playerPosition.y);if(jumped<=start.y+.02)throw new Error('Jump did not rise');
             await page.evaluate(()=>{const t=window.__tubePosition,p=window.__playerPosition;p.x=t.x;p.z=t.z;p.y=t.y+.02;p.vy=0;p.grounded=true;});
             await wait(page,()=>['loading','charge','convert','sustain','dissipate','afterglow','complete'].includes(window.__tubeTransitionState),8000);
-            await wait(page,()=>window.__tubeTransferComplete===true,15000);
+            // SwiftShader can render this PBR/transmission scene far below realtime. Require
+            // the timeline to reach conversion and completion rather than timing it at 1x wall time.
+            await wait(page,()=>['convert','sustain','dissipate','afterglow','complete'].includes(window.__tubeTransitionState),35000);
+            await wait(page,()=>window.__tubeTransferComplete===true,35000);
             if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));await page.close();
           }
           (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Gold Baseline Pass 8 passed');})().catch(e=>{console.error(e);process.exit(1)});
