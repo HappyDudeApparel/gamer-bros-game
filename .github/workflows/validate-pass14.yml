@@ -1,0 +1,77 @@
+name: Validate Pass 14 Level Lab
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'pass14-level-lab/**'
+      - 'vendor/three/**'
+      - 'assets/world-kit/kenney/platformer-kit/**'
+      - '.github/workflows/validate-pass14.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check Pass 14 modules
+        run: |
+          node --check pass14-level-lab/app.js
+          node --check pass14-level-lab/world.js
+          node --check pass14-level-lab/assets.js
+          node --check pass14-level-lab/enemies.js
+          node --check pass14-level-lab/power.js
+      - name: Verify local runtime and authored assets
+        run: |
+          test -s vendor/three/three.module.min.js
+          test -s vendor/three/three.core.min.js
+          test -s vendor/three/addons/loaders/GLTFLoader.js
+          test -s vendor/three/addons/utils/SkeletonUtils.js
+          BASE='assets/world-kit/kenney/platformer-kit/Models/GLB format'
+          for f in \
+            block-grass-low-large.glb block-grass-large.glb block-grass-long.glb block-grass-large-slope.glb \
+            platform-ramp.glb platform.glb platform-fortified.glb platform-overhang.glb spring.glb saw.glb \
+            coin-gold.glb jewel.glb chest.glb heart.glb arrow.glb sign.glb tree.glb tree-pine.glb flowers.glb rocks.glb \
+            character-oobi.glb character-oodi.glb character-oozi.glb; do
+            test -s "$BASE/$f"
+          done
+          ! grep -R 'cdn.jsdelivr.net\|unpkg.com' pass14-level-lab
+          grep -q 'PASS 14 · LEVEL LAB' pass14-level-lab/index.html
+          grep -q 'Prism Breaker' pass14-level-lab/LEVEL_DESIGN.md
+      - name: Boot desktop and Android hero slice
+        run: |
+          python3 -m http.server 8000 >/tmp/pass14-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$BROWSER" ]; then echo 'No Chrome/Chromium found'; exit 1; fi
+          "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader --virtual-time-budget=26000 --dump-dom \
+            'http://127.0.0.1:8000/pass14-level-lab/?hero=gb2&ci=1' >/tmp/pass14-desktop.html 2>/tmp/pass14-desktop.err
+          grep -q 'data-pass14-ready="1"' /tmp/pass14-desktop.html
+          grep -q 'data-route-main="1"' /tmp/pass14-desktop.html
+          grep -q 'data-route-optional="1"' /tmp/pass14-desktop.html
+          grep -q 'data-enemies="3"' /tmp/pass14-desktop.html
+          grep -q 'class="boot hide"' /tmp/pass14-desktop.html
+          ! grep -q 'class="fatal show"' /tmp/pass14-desktop.html
+          "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader \
+            --user-agent='Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36' \
+            --virtual-time-budget=26000 --dump-dom \
+            'http://127.0.0.1:8000/pass14-level-lab/?hero=gb2&ci=1' >/tmp/pass14-mobile.html 2>/tmp/pass14-mobile.err
+          grep -q 'data-pass14-ready="1"' /tmp/pass14-mobile.html
+          grep -q 'data-route-main="1"' /tmp/pass14-mobile.html
+          grep -q 'data-route-optional="1"' /tmp/pass14-mobile.html
+          grep -q 'data-enemies="3"' /tmp/pass14-mobile.html
+          grep -q 'class="boot hide"' /tmp/pass14-mobile.html
+          ! grep -q 'class="fatal show"' /tmp/pass14-mobile.html
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          echo '--- HTTP ---'; cat /tmp/pass14-http.log || true
+          echo '--- DESKTOP STDERR ---'; cat /tmp/pass14-desktop.err || true
+          echo '--- MOBILE STDERR ---'; cat /tmp/pass14-mobile.err || true
+          echo '--- DESKTOP DOM TAIL ---'; tail -c 9000 /tmp/pass14-desktop.html || true
+          echo '--- MOBILE DOM TAIL ---'; tail -c 9000 /tmp/pass14-mobile.html || true
