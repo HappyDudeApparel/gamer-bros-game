@@ -40,8 +40,8 @@ export function createPrismBreaker({scene,bro,getHeroState,getEnemies,damageEnem
     p.life-=dt;p.root.position.addScaledVector(p.dir,p.speed*dt);p.root.rotation.z+=dt*(5+p.power*4);p.trail-=dt;
     if(p.trail<=0){p.trail=.035;const s=new THREE.Mesh(new THREE.OctahedronGeometry(.04+.05*p.power),new THREE.MeshBasicMaterial({color:Math.random()>.5?0x70eaff:0xff63bd,transparent:true,opacity:.65,depthWrite:false}));s.position.copy(p.root.position);scene.add(s);debris.push({mesh:s,vel:p.dir.clone().multiplyScalar(-1.5).add(new THREE.Vector3((Math.random()-.5)*.6,(Math.random()-.5)*.4,(Math.random()-.5)*.6)),life:.22});}
     for(const e of getEnemies()){
-      if(!e.alive)continue;const d=p.root.position.distanceTo(e.root.position.clone().add(new THREE.Vector3(0,1.05,0)));if(d>p.radius+1)return;
-      if(damageEnemy(e,p.serial,{force:5+5*p.power,source:p.root.position})){p.hits++;burst(p.root.position,p.power);cameraKick=Math.max(cameraKick,.62+.3*p.power);hitStop=Math.max(hitStop,.035+.025*p.power);tone(125,.07,'square',.025,160);if(p.hits>=p.pierce)p.life=0;}
+      if(!e.alive)continue;const d=p.root.position.distanceTo(e.root.position.clone().add(new THREE.Vector3(0,1.05,0)));if(d>p.radius+1)continue;
+      if(damageEnemy(e,p.serial,{force:5+5*p.power,source:p.root.position})){p.hits++;burst(p.root.position,p.power);cameraKick=Math.max(cameraKick,.62+.3*p.power);hitStop=Math.max(hitStop,.035+.025*p.power);tone(125,.07,'square',.025,160);if(p.hits>=p.pierce){p.life=0;break;}}
     }
   }
   function update(dt,t){
