@@ -66,7 +66,7 @@ jobs:
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0.git "$TMP/kay-dungeon"
           copy_browser_assets "$TMP/kay-dungeon" "$ROOT/kaykit/dungeon-remastered"
 
-          echo '--- Try official Kenney Platformer Kit download ---'
+          echo '--- Official Kenney Platformer Kit download ---'
           mkdir -p "$TMP/kenney-platformer" "$ROOT/kenney/platformer-kit"
           python3 - <<'PY'
           import html, re, urllib.request, pathlib
@@ -86,7 +86,6 @@ jobs:
           PY
           if [ -s /tmp/kenney_platformer_url.txt ]; then
             KP_URL="$(cat /tmp/kenney_platformer_url.txt)"
-            echo "Downloading $KP_URL"
             curl -fL --retry 3 "$KP_URL" -o "$TMP/kenney-platformer.zip" || true
             if unzip -t "$TMP/kenney-platformer.zip" >/dev/null 2>&1; then
               unzip -q "$TMP/kenney-platformer.zip" -d "$TMP/kenney-platformer"
@@ -94,32 +93,14 @@ jobs:
             fi
           fi
 
-          echo '--- Try official KayKit Platformer itch page discovery ---'
+          echo '--- Official KayKit Platformer Pack FREE archive ---'
           mkdir -p "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
-          python3 - <<'PY'
-          import html, re, urllib.request, pathlib
-          page='https://kaylousberg.itch.io/kaykit-platformer'
-          out=pathlib.Path('/tmp/kaykit_platformer_url.txt')
-          try:
-              req=urllib.request.Request(page,headers={'User-Agent':'Mozilla/5.0'})
-              text=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
-              text=html.unescape(text)
-              urls=re.findall(r'https?://[^\"\'<> ]+?\.zip(?:\?[^\"\'<> ]*)?',text)
-              rels=re.findall(r'(?:href|data-url|data-download)=[\"\']([^\"\']+?\.zip(?:\?[^\"\']*)?)[\"\']',text,re.I)
-              urls += [('https://kaylousberg.itch.io'+u if u.startswith('/') else u) for u in rels]
-              urls=[u for u in urls if 'platform' in u.lower() or 'kaykit' in u.lower()]
-              if urls: out.write_text(urls[0])
-          except Exception as e:
-              print('KayKit page discovery failed:',e)
-          PY
-          if [ -s /tmp/kaykit_platformer_url.txt ]; then
-            KK_URL="$(cat /tmp/kaykit_platformer_url.txt)"
-            echo "Downloading $KK_URL"
-            curl -fL --retry 3 "$KK_URL" -o "$TMP/kay-platformer.zip" || true
-            if unzip -t "$TMP/kay-platformer.zip" >/dev/null 2>&1; then
-              unzip -q "$TMP/kay-platformer.zip" -d "$TMP/kay-platformer"
-              copy_browser_assets "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
-            fi
+          curl -fL --retry 3 'https://www.patreon.com/file?h=122994247&m=426916688' -o "$TMP/kay-platformer.zip" || true
+          if unzip -t "$TMP/kay-platformer.zip" >/dev/null 2>&1; then
+            unzip -q "$TMP/kay-platformer.zip" -d "$TMP/kay-platformer"
+            copy_browser_assets "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
+          else
+            echo 'KayKit Platformer official archive could not be unpacked; keeping previously imported sources.'
           fi
 
           cat > "$ROOT/SOURCES.md" <<'EOF'
@@ -132,7 +113,7 @@ jobs:
           - Kenney Platformer Kit — official source: https://kenney.nl/assets/platformer-kit — CC0.
           - Kenney Starter Kit City Builder — https://github.com/KenneyNL/Starter-Kit-City-Builder — code MIT; included assets CC0.
           - Kenney Starter Kit Basic Scene — https://github.com/KenneyNL/Starter-Kit-Basic-Scene — support/reference scene assets.
-          - KayKit Platformer Pack — https://kaylousberg.itch.io/kaykit-platformer — CC0 free assets when downloadable from the official page.
+          - KayKit Platformer Pack FREE — official source: https://kaylousberg.itch.io/kaykit-platformer and official free attachment https://www.patreon.com/file?h=122994247&m=426916688 — CC0.
           - KayKit City Builder Bits — https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0 — CC0.
           - KayKit Medieval Hexagon Pack — https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0 — CC0.
           - KayKit Dungeon Remastered — https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0 — CC0.
@@ -144,7 +125,7 @@ jobs:
 
           cat > "$ROOT/catalog.json" <<'EOF'
           {
-            "version": 1,
+            "version": 2,
             "purpose": "Reusable Gamer Bros world/level asset pool",
             "sources": [
               {"id":"kenney-platformer","role":"terrain/traversal","preferred":true},
@@ -171,6 +152,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No asset changes to commit.'
           else
-            git commit -m 'Import reusable Kenney and KayKit world asset library'
+            git commit -m 'Expand reusable world asset library'
             git push origin HEAD:main
           fi
