@@ -12,7 +12,7 @@ s=s.replace('Gamer Bros — World 1 Traversal Test','Gamer Bros — World 1 Asse
 s=s.replace('PASS 9C · CONTINUOUS WORLD 1','PASS 10 · OPTION B ASSET WORLD')
 s=s.replace('Building corrected World 1 test','Building World 1 with imported asset kits')
 s=s.replace('Preparing one continuous landmass…','Loading Kenney + KayKit world assets…')
-s=s.replace('./app.js?v=3','./app.js?v=10')
+s=s.replace('./app.js?v=3','./app.js?v=11')
 p.write_text(s)
 
 p=dst/'app.js'
@@ -63,11 +63,15 @@ async function decorateWorld(){
  for(const [x,z,r] of [[-6,-20,0],[6,-22,.6],[-8,-96,.4],[8,-100,-.5]])jobs.push(placeAsset(kenneyPlat+'barrel.glb',{x,z,height:1.2,ry:r,name:'kenney-barrel'}));
  for(const [x,z,r] of [[-11,-66,0],[11,-72,Math.PI],[-12,-82,.3],[12,-88,-.3]])jobs.push(placeAsset(kenneyPlat+'block-grass-large-slope.glb',{x,z,width:5.8,ry:r,name:'kenney-slope-accent'}));
  for(const [x,z,r] of [[-15,-58,0],[15,-62,Math.PI],[-15,-90,.2],[15,-94,-.2]])jobs.push(placeAsset(kenneyPlat+'block-grass-edge.glb',{x,z,width:4.2,ry:r,name:'kenney-grass-edge'}));
- progress('Placing KayKit ruins and platformer details…',42);
+ progress('Placing KayKit bridge, ruins and route markers…',42);
  for(const [x,z,h,r] of [[0,-103,5,0],[-8,-111,4.4,.08],[8,-115,4.2,-.08],[0,-144,5.3,0]])jobs.push(placeAsset(kayBase+'arch_tall_neutral.gltf',{x,z,height:h,ry:r,name:'kaykit-ruin-arch'}));
  for(const [x,z,w,r] of [[-10,-105,4,0],[10,-108,4,Math.PI/2],[-10,-120,4,.15],[10,-124,4,-.15]])jobs.push(placeAsset(kayBase+'barrier_2x1x4_neutral.gltf',{x,z,width:w,ry:r,name:'kaykit-ruin-barrier'}));
- for(const x of [-3.2,3.2])jobs.push(placeAsset(kayBase+'barrier_1x1x4_neutral.gltf',{x,z:-40,width:3.5,ry:0,name:'kaykit-bridge-rail'}));
- for(const z of [-44,-42,-40,-38,-36])jobs.push(placeAsset(kenneyPlat+'block-grass-long.glb',{x:0,z,y:.02,width:6,ry:Math.PI/2,name:'kenney-bridge-deck-accent'}));
+ // Authored bridge deck + rails; continuous terrain remains hidden underneath for safe collision.
+ for(const z of [-43.5,-40,-36.5])jobs.push(placeAsset(kayBase+'platform_6x2x1_neutral.gltf',{x:0,z,y:.03,width:6.1,ry:0,name:'kaykit-bridge-deck'}));
+ for(const x of [-3.15,3.15])for(const z of [-43,-40,-37])jobs.push(placeAsset(kayBase+'railing_straight_double_neutral.gltf',{x,z,y:.20,width:3.0,ry:0,name:'kaykit-bridge-rail'}));
+ // Readable route markers without giant HUD arrows.
+ for(const [x,z,r] of [[3.7,27,Math.PI],[-3.7,-2,0],[3.8,-31,Math.PI],[-3.8,-55,0],[3.8,-91,Math.PI],[-3.8,-126,0]])jobs.push(placeAsset(kayBase+'signage_arrow_stand_neutral.gltf',{x,z,height:1.8,ry:r,name:'kaykit-route-sign'}));
+ for(const [x,z,r] of [[-5,-101,0],[5,-118,Math.PI]])jobs.push(placeAsset(kayBase+'flag_A_neutral.gltf',{x,z,height:2.4,ry:r,name:'kaykit-ruin-flag'}));
  await Promise.all(jobs);window.__pass10Assets=true;window.__pass10AssetCount=assetRoot.children.length;window.__movementCollisionMeshes=1;
  progress(`Imported world assets ready · ${assetRoot.children.length} placed`,58);
 }
