@@ -1,0 +1,23 @@
+name: Validate Pass 12
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/validate-pass12.yml'
+      - 'pass12-v1/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: node --check pass12-v1/app.js
+      - name: Required Pass 12 markers
+        run: |
+          grep -q "PRISM RAIL" pass12-v1/app.js
+          grep -q "GRAVITY NOVA" pass12-v1/app.js
+          grep -q "AURORA SWARM" pass12-v1/app.js
+          grep -q "buildSignatureTraversal" pass12-v1/app.js
+          grep -q "PASS 12 · SIGNATURE WORLD" pass12-v1/index.html
