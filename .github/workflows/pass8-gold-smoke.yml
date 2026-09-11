@@ -1,0 +1,61 @@
+name: Gamer Bros Gold Baseline Pass 8 smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pass8-v1/**'
+      - 'src/crystal-library-tube-v2.js'
+      - 'playground-v2/gamer-bro.js'
+      - 'pass1-v1/assets/recovered/terrain/concept_arena.glb'
+      - '.github/workflows/pass8-gold-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check pass8-v1/app.js
+          node --check src/crystal-library-tube-v2.js
+          node --check playground-v2/gamer-bro.js
+      - name: Install Playwright Chromium
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Authored arena movement camera jump and exact tube
+        run: |
+          python3 -m http.server 8080 >/tmp/server.log 2>&1 &
+          sleep 2
+          node <<'NODE'
+          const {chromium}=require('playwright');
+          const wait=(p,fn,t=60000)=>p.waitForFunction(fn,null,{timeout:t});
+          async function run(browser,viewport,isMobile){
+            const page=await browser.newPage({viewport,hasTouch:isMobile,isMobile,userAgent:isMobile?'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36':undefined});
+            const errors=[];page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error'&&!m.text().includes('favicon'))errors.push(m.text())});
+            await page.goto('http://127.0.0.1:8080/pass8-v1/?hero=gb2&smoke=1',{waitUntil:'domcontentloaded',timeout:60000});
+            await wait(page,()=>window.__pass8Ready===true&&window.__characterReady==='gb2'&&(window.__frameCount||0)>3,90000);
+            await wait(page,()=>window.__crystalTubePrewarmed===true,60000);
+            await wait(page,()=>document.getElementById('boot')?.classList.contains('hide'),12000);
+            const sys=await page.evaluate(()=>({world:window.__worldSource,route:window.__worldRoute,enemies:window.__enemyCount,movement:window.__movementBaseline,camera:window.__cameraBaseline,tube:window.__tubeComponent,ungated:window.__portalRequiresEnemies,authored:window.__authoredWorldOnly}));
+            if(sys.world!=='recovered-authored-concept-arena'||sys.route!=='pond-ramp-ruins-rope-bridge-shrine'||sys.enemies!==0||sys.movement!=='crystal-library-v2'||sys.camera!=='crystal-library-v2'||sys.tube!=='crystal-library-v2-tube'||sys.ungated!==false||sys.authored!==true)throw new Error('Gold baseline systems wrong '+JSON.stringify(sys));
+            const start=await page.evaluate(()=>({x:window.__playerPosition.x,y:window.__playerPosition.y,z:window.__playerPosition.z}));
+            await page.keyboard.down('w');await page.waitForTimeout(350);const motion=await page.evaluate(()=>window.__heroMotion);await page.keyboard.up('w');if(!['walk','run'].includes(motion))throw new Error('Walk rig did not animate: '+motion);
+            await page.keyboard.press('Space');await page.waitForTimeout(120);const jumped=await page.evaluate(()=>window.__playerPosition.y);if(jumped<=start.y+.02)throw new Error('Jump did not rise');
+            await page.evaluate(()=>{const t=window.__tubePosition,p=window.__playerPosition;p.x=t.x;p.z=t.z;p.y=t.y+.02;p.vy=0;p.grounded=true;});
+            await wait(page,()=>['loading','charge','convert','sustain','dissipate','afterglow','complete'].includes(window.__tubeTransitionState),8000);
+            await wait(page,()=>window.__tubeTransferComplete===true,15000);
+            if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));await page.close();
+          }
+          (async()=>{const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});await run(browser,{width:1440,height:900},false);await run(browser,{width:390,height:844},true);await browser.close();console.log('Gold Baseline Pass 8 passed');})().catch(e=>{console.error(e);process.exit(1)});
+          NODE
