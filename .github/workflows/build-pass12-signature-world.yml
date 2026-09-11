@@ -1,0 +1,31 @@
+name: Build Pass 12 Signature World
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/build_pass12_signature_world.py'
+      - '.github/workflows/build-pass12-signature-world.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate Pass 12
+        run: python3 scripts/build_pass12_signature_world.py
+      - name: Commit Pass 12
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass12-v1
+          if git diff --cached --quiet; then
+            echo 'No Pass 12 changes.'
+          else
+            git commit -m 'Build Pass 12 signature world'
+            git push origin HEAD:main
+          fi
