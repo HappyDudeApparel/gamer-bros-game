@@ -42,7 +42,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
   }
 
   async function buildRecoveryFloor(){
-    const rows=[30,10,-10,-30,-50,-70,-90,-110];
+    const rows=[30,10,-10,-30,-50,-70,-90,-110,-130];
     for(const z of rows){
       await place('block-grass-low-large.glb',{x:-11,z,topY:-1.35,targetXZ:22});
       await place('block-grass-low-large.glb',{x:11,z,topY:-1.35,targetXZ:22});
@@ -75,13 +75,13 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     const landingTop=terrace1+1.55;
     await place('block-grass-large.glb',{x:4,z:-30,topY:landingTop,targetXZ:21});
 
-    // Mandatory climbs use the broad grass slope pieces whose full centerline is walkable.
     const r2=await placeRamp('block-grass-large-slope.glb',{x:4,z:-36},{x:11,z:-50},landingTop,{span:19});
     const splitTop=r2.highY;
     await place('block-grass-large.glb',{x:11,z:-56,topY:splitTop,targetXZ:20});
     addRoute({x:4,z:-28},{x:4,z:-36});addRoute({x:11,z:-50},{x:11,z:-59});
 
-    const bridge=await place('platform-fortified.glb',{x:4,z:-67,topY:splitTop,targetXZ:19});
+    await place('platform-fortified.glb',{x:4,z:-67,topY:splitTop,targetXZ:19});
+    await place('block-grass-large.glb',{x:3,z:-70,topY:splitTop,targetXZ:10});
     addRoute({x:11,z:-59},{x:5,z:-66});
 
     const r3=await placeRamp('block-grass-large-slope.glb',{x:2,z:-72},{x:-5,z:-85},splitTop,{span:18});
@@ -91,7 +91,8 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
 
     const r4=await placeRamp('block-grass-large-slope.glb',{x:-5,z:-98},{x:0,z:-111},arenaTop,{span:18});
     const goalTop=r4.highY;
-    await place('platform-fortified.glb',{x:0,z:-116,topY:goalTop,targetXZ:21});
+    await place('block-grass-large.glb',{x:0,z:-116,topY:goalTop,targetXZ:22});
+    await placeDecor('platform-fortified.glb',{x:0,z:-116,topY:goalTop-.32,targetXZ:24});
     addRoute({x:-5,z:-95},{x:-5,z:-98});addRoute({x:0,z:-111},{x:0,z:-118});
 
     // Mechanical platform-ramp is used as a safe side toy, not a mandatory connector.
