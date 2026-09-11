@@ -43,7 +43,10 @@ const cityBase=assetBase+'kenney/city-builder/models/';
 const kenneyPlat=assetBase+'kenney/platformer-kit/Models/GLB format/';
 const kayBase=assetBase+'kaykit/platformer-pack/KayKit_Platformer_Pack_1.0_FREE/Assets/gltf/neutral/';
 const assetCache=new Map();
-async function loadTemplate(url){if(assetCache.has(url))return assetCache.get(url);const pr=assetLoader.loadAsync(url).then(g=>g.scene);assetCache.set(url,pr);return pr}
+let mobileAssetActive=0;const mobileAssetQueue=[];
+function pumpMobileAssets(){while(mobileAssetActive<2&&mobileAssetQueue.length){const job=mobileAssetQueue.shift();mobileAssetActive++;assetLoader.loadAsync(job.url).then(g=>job.resolve(g.scene),job.reject).finally(()=>{mobileAssetActive--;setTimeout(pumpMobileAssets,0)})}}
+function queuedMobileAsset(url){return new Promise((resolve,reject)=>{mobileAssetQueue.push({url,resolve,reject});pumpMobileAssets()})}
+async function loadTemplate(url){if(assetCache.has(url))return assetCache.get(url);const pr=(mobile?queuedMobileAsset(url):assetLoader.loadAsync(url).then(g=>g.scene));assetCache.set(url,pr);return pr}
 function prepModel(root){root.traverse(o=>{if(o.isMesh){o.castShadow=!mobile;o.receiveShadow=true;o.frustumCulled=true}});return root}
 async function placeAsset(url,{x=0,z=0,y=null,height=null,width=null,scale=1,ry=0,name='kit-asset'}={}){
  try{
@@ -298,32 +301,29 @@ function updatePlayer(dt){if(!bro||!tube||tube.state!=='idle')return;const kx=(m
 const keyMap={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right'};addEventListener('keydown',e=>{if(keyMap[e.code])moveKeys[keyMap[e.code]]=true;if(e.code==='ShiftLeft'||e.code==='ShiftRight')moveKeys.run=true;if(e.code==='Space'){e.preventDefault();if(!moveKeys.jump)moveKeys.jumpQueued=true;moveKeys.jump=true}if(['KeyE','KeyX','KeyJ','KeyK'].includes(e.code))useAction();if(e.code==='KeyC')cyclePower()});addEventListener('keyup',e=>{if(keyMap[e.code])moveKeys[keyMap[e.code]]=false;if(e.code==='ShiftLeft'||e.code==='ShiftRight')moveKeys.run=false;if(e.code==='Space')moveKeys.jump=false});function setStick(x,y){const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,lim=r.width*.34;let dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy);if(d>lim){dx=dx/d*lim;dy=dy/d*lim}let nx=dx/lim,ny=dy/lim;if(Math.hypot(nx,ny)<.035){nx=ny=0}analogMove.x=nx;analogMove.y=ny;analogMove.active=true;stick.style.transform=`translate(${nx*lim}px,${ny*lim}px)`}pad.addEventListener('pointerdown',e=>{analogMove.pointerId=e.pointerId;pad.setPointerCapture(e.pointerId);setStick(e.clientX,e.clientY)});pad.addEventListener('pointermove',e=>{if(e.pointerId===analogMove.pointerId)setStick(e.clientX,e.clientY)});function stopStick(e){if(e.pointerId!==analogMove.pointerId)return;analogMove.active=false;analogMove.pointerId=null;analogMove.x=analogMove.y=0;stick.style.transform='translate(0,0)'}pad.addEventListener('pointerup',stopStick);pad.addEventListener('pointercancel',stopStick);function hold(btn,key){btn.addEventListener('pointerdown',e=>{e.preventDefault();btn.setPointerCapture(e.pointerId);moveKeys[key]=true;if(key==='jump')moveKeys.jumpQueued=true;btn.classList.add('active')});const off=()=>{moveKeys[key]=false;btn.classList.remove('active')};btn.addEventListener('pointerup',off);btn.addEventListener('pointercancel',off)}hold(jumpBtn,'jump');hold(runBtn,'run');actionBtn.addEventListener('pointerdown',e=>{e.preventDefault();useAction()});canvas.addEventListener('pointerdown',e=>{if(e.target!==canvas)return;dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw-=dx*.00245;pitch=THREE.MathUtils.clamp(pitch+dy*.0019,-.08,.78);recenterClock=0});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);canvas.addEventListener('wheel',e=>{followDistance=THREE.MathUtils.clamp(followDistance+e.deltaY*.008,7.2,18);e.preventDefault()},{passive:false});retry.onclick=()=>{tube.reset();resetPlayer();retry.classList.remove('show');objective.textContent='A LAUNCH → B HEIGHTS → C RIVERWORKS → D WINDRIDGE → E RUIN CIRCUIT → F PORTAL ASCENT';toast('ROUTE RESTARTED')};
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();const clock=new THREE.Clock();let elapsed=0;function loop(){requestAnimationFrame(loop);const dt=Math.min(.033,clock.getDelta());elapsed+=dt;updatePlayer(dt);updateAction(dt);updateGameplay(dt,elapsed);updateRewards();if(bro&&tube?.state==='idle')bro.update(elapsed,dt,0);tube?.update(elapsed,dt);cameraDesired(dt);renderer.render(scene,camera)}
 (async()=>{try{
- sites=buildWorld();
- worldBounds=new THREE.Box3().setFromObject(world);
- // Start imported visual dressing immediately, but do not make mobile wait for every GLB.
- const decorationPromise=decorateWorld().catch(err=>console.warn('[Pass12 decoration background load]',err));
- const signaturePromise=buildSignatureTraversal().catch(err=>console.warn('[Pass12 signature visuals background load]',err));
+ sites=buildWorld();worldBounds=new THREE.Box3().setFromObject(world);
+ let decorationPromise=null,signaturePromise=null;
  if(!mobile){
-  await decorationPromise;
-  await signaturePromise;
+  decorationPromise=decorateWorld().catch(err=>console.warn('[Pass12 decoration load]',err));
+  signaturePromise=buildSignatureTraversal().catch(err=>console.warn('[Pass12 signature load]',err));
+  await decorationPromise;await signaturePromise;
+  world.updateMatrixWorld(true);worldBounds=new THREE.Box3().setFromObject(world);heightCache?.clear?.();
  }
- // Signature traversal colliders are authored synchronously before its first await, so mobile can play now.
- world.updateMatrixWorld(true);worldBounds=new THREE.Box3().setFromObject(world);heightCache?.clear?.();
  spawnEnemies();spawnCollectibles();await createPlayer();createTube();
  window.__pass='pass12-v1';window.__world1Ready=true;window.__actionReady=true;window.__rigAnimationLive=true;
  if(mobile){
-  progress('Ready — finishing world details in the background…',100);
-  window.__mobileFastStart=true;
-  boot.classList.add('hide');
-  loop();
-  // Portal is far from spawn, so shader prewarm can safely finish after gameplay begins.
-  tube.prewarm().then(()=>{window.__tubePrewarmBackgroundComplete=true}).catch(err=>console.warn('[Pass12 tube prewarm]',err));
-  Promise.allSettled([decorationPromise,signaturePromise]).then(()=>{
-   world.updateMatrixWorld(true);worldBounds=new THREE.Box3().setFromObject(world);heightCache?.clear?.();
-   window.__worldVisualsBackgroundComplete=true;
-  });
+  progress('READY',100);window.__mobileFastStartV2=true;boot.classList.add('hide');loop();
+  const later=(fn,delay)=>setTimeout(()=>{const ric=window.requestIdleCallback||((cb)=>setTimeout(cb,250));ric(fn,{timeout:1800})},delay);
+  later(()=>{
+   signaturePromise=buildSignatureTraversal().catch(err=>console.warn('[Pass12 signature background load]',err));
+   signaturePromise.finally(()=>{world.updateMatrixWorld(true);worldBounds=new THREE.Box3().setFromObject(world);heightCache?.clear?.();window.__signatureBackgroundComplete=true});
+  },1800);
+  later(()=>{
+   decorationPromise=decorateWorld().catch(err=>console.warn('[Pass12 decoration background load]',err));
+   decorationPromise.finally(()=>{world.updateMatrixWorld(true);worldBounds=new THREE.Box3().setFromObject(world);heightCache?.clear?.();window.__decorationBackgroundComplete=true});
+  },4200);
+  later(()=>tube.prewarm().then(()=>{window.__tubePrewarmBackgroundComplete=true}).catch(err=>console.warn('[Pass12 tube prewarm]',err)),6500);
  }else{
-  progress('Prewarming tube and shaders…',82);await tube.prewarm();
-  progress('World 1 Pass 12 signature level ready',100);setTimeout(()=>boot.classList.add('hide'),180);loop();
+  progress('Prewarming tube and shaders…',82);await tube.prewarm();progress('World 1 Pass 12 signature level ready',100);setTimeout(()=>boot.classList.add('hide'),180);loop();
  }
-}catch(err){console.error(err);errorEl.textContent=err?.stack||err?.message||String(err);fatal.classList.add('show')}})();
+}catch(err){console.error(err);boot.classList.add('hide');errorEl.textContent=err?.stack||err?.message||String(err);fatal.classList.add('show')}})();
