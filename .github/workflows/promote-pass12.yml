@@ -1,0 +1,41 @@
+name: Promote Pass 12
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/promote-pass12.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update title copy for Pass 12
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('Choose GB1 or GB2 · World 1 gameplay test.','Choose GB1 or GB2 · World 1 signature level.')
+          s=s.replace('PLAY WORLD 1 · PASS 11','PLAY WORLD 1 · PASS 12')
+          s=s.replace('A→F world route · optional side loops · enemies + 5-heart health · coins + gems · 3 power FX styles · 2.5× movement · Crystal Library v2 tube.','Six authored traversal set-pieces · real ramps + platforms · optional high routes · signature powers · enemies + collectibles · Crystal Library v2 tube.')
+          s=s.replace('./pass11-v1/?hero=gb2&v=11','./pass12-v1/?hero=gb2&v=12')
+          s=s.replace('Open Pass 11 anyway','Open Pass 12 anyway')
+          s=s.replace('./title-v2.js?v=13','./title-v2.js?v=14')
+          p.write_text(s)
+          PY
+      - name: Commit promotion
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No promotion changes.'
+          else
+            git commit -m 'Promote Pass 12 signature world'
+            git push origin HEAD:main
+          fi
