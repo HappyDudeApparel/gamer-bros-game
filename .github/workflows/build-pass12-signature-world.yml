@@ -18,6 +18,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Generate Pass 12
         run: python3 scripts/build_pass12_signature_world.py
+      - name: Validate generated JavaScript
+        run: node --check pass12-v1/app.js
       - name: Commit Pass 12
         run: |
           git config user.name 'github-actions[bot]'
