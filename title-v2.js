@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {createGamerBro} from './playground-v2/gamer-bro.js?v=pass11';
+import {createGamerBro} from './playground-v2/gamer-bro.js?v=pass12';
 
 const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 const CHARACTERS=[
- {id:'gb1',name:'GB1',power:'Prism Star Volley',accent:'#ff58b7',kind:'gamer',colorway:'pink'},
- {id:'gb2',name:'GB2',power:'Prism Star Volley',accent:'#58e2e0',kind:'gamer',colorway:'teal'}
+ {id:'gb1',name:'GB1',power:'Signature Power Suite',accent:'#ff58b7',kind:'gamer',colorway:'pink'},
+ {id:'gb2',name:'GB2',power:'Signature Power Suite',accent:'#58e2e0',kind:'gamer',colorway:'teal'}
 ];
 if(localStorage.getItem('gamerBrosCitrusUnlocked')==='1')CHARACTERS.push({id:'citrus',name:'Citrus',power:'Rainbow Star Comet',accent:'#ff9a3d',kind:'glb',file:'./pass1-v1/assets/recovered/characters/sprite_hero.glb',unlocked:true});
 const canvas=document.getElementById('previewCanvas'),preview=document.getElementById('preview'),rail=document.getElementById('characterRail'),nameEl=document.getElementById('characterName'),powerEl=document.getElementById('characterPower'),loading=document.getElementById('loading'),playBtn=document.getElementById('playBtn'),fail=document.getElementById('fail'),failText=document.getElementById('failText');
@@ -19,6 +19,6 @@ function buildRail(){for(const c of CHARACTERS){const b=document.createElement('
 async function select(id){const c=CHARACTERS.find(x=>x.id===id)||CHARACTERS[1];currentId=c.id;localStorage.setItem('gamerBroCharacter',c.id);nameEl.textContent=c.name;powerEl.textContent=c.unlocked?'LEVEL 1 UNLOCK · '+c.power:c.power;ring.material.color.set(c.accent);rail.querySelectorAll('.charBtn').forEach(b=>b.classList.toggle('active',b.dataset.id===c.id));loading.textContent='Loading current character…';loading.style.opacity='1';const token=++loadToken;try{const made=await make(c);if(token!==loadToken)return;if(current)scene.remove(current);current=made.root;currentAdapter=made.adapter;currentMixer=made.mixer;scene.add(current);current.rotation.y=.18;userYaw=0;loading.style.opacity='0';let visibleMeshes=0;current.traverse(o=>{if(o.isMesh&&camera.layers.test(o.layers))visibleMeshes++;});window.__titleVisibleMeshCount=visibleMeshes;window.__titleCharacterReady=c.id;}catch(err){console.error(err);loading.textContent='Preview unavailable — choose another character';}}
 function resize(){const r=preview.getBoundingClientRect(),w=Math.max(1,r.width|0),h=Math.max(1,r.height|0);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}addEventListener('resize',resize,{passive:true});new ResizeObserver(resize).observe(preview);resize();
 canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!dragging)return;userYaw+=(e.clientX-lastX)*.008;lastX=e.clientX});canvas.addEventListener('pointerup',()=>dragging=false);canvas.addEventListener('pointercancel',()=>dragging=false);
-playBtn.onclick=()=>{const id=CHARACTERS.some(c=>c.id===currentId)?currentId:'gb2';location.href=`./pass11-v1/?hero=${encodeURIComponent(id)}&v=11`};
+playBtn.onclick=()=>{const id=CHARACTERS.some(c=>c.id===currentId)?currentId:'gb2';location.href=`./pass12-v1/?hero=${encodeURIComponent(id)}&v=12`};
 let last=performance.now();function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;animT+=dt;if(current){try{if(currentAdapter)currentAdapter.update(animT,dt,0);if(currentMixer)currentMixer.update(dt);}catch{}current.rotation.y+=dragging?0:dt*.24;current.rotation.y+=userYaw;userYaw=0;current.position.y=(current.userData.previewBaseY||0)+Math.sin(now*.0017)*.026;}ring.rotation.z+=dt*.18;renderer.render(scene,camera)}
-try{buildRail();let saved=localStorage.getItem('gamerBroCharacter');if(!CHARACTERS.some(c=>c.id===saved))saved='gb2';select(saved||'gb2');requestAnimationFrame(frame);window.__titlePass11=true;window.__playableRoster=CHARACTERS.map(c=>c.id);}catch(err){console.error(err);failText.textContent=String(err?.message||err);fail.classList.add('show')}
+try{buildRail();let saved=localStorage.getItem('gamerBroCharacter');if(!CHARACTERS.some(c=>c.id===saved))saved='gb2';select(saved||'gb2');requestAnimationFrame(frame);window.__titlePass12=true;window.__playableRoster=CHARACTERS.map(c=>c.id);}catch(err){console.error(err);failText.textContent=String(err?.message||err);fail.classList.add('show')}
