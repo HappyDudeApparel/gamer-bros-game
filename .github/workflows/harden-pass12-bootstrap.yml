@@ -1,0 +1,40 @@
+name: Harden Pass 12 Bootstrap
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/patch_pass12_bootstrap.py'
+      - '.github/workflows/harden-pass12-bootstrap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vendor Three.js runtime modules
+        run: |
+          mkdir -p vendor/three/addons/loaders vendor/three/addons/utils
+          curl -L --fail --retry 3 -o vendor/three/three.module.min.js https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js
+          curl -L --fail --retry 3 -o vendor/three/addons/loaders/GLTFLoader.js https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js
+          curl -L --fail --retry 3 -o vendor/three/addons/utils/BufferGeometryUtils.js https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/utils/BufferGeometryUtils.js
+      - name: Apply Pass 12 bootstrap patch
+        run: python3 scripts/patch_pass12_bootstrap.py
+      - name: Validate JavaScript
+        run: |
+          node --check pass12-v1/app.js
+          node --check vendor/three/addons/loaders/GLTFLoader.js
+      - name: Commit hardened bootstrap
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass12-v1 vendor/three
+          if git diff --cached --quiet; then
+            echo 'No bootstrap changes.'
+          else
+            git commit -m 'Harden Pass 12 mobile bootstrap'
+            git push origin HEAD:main
+          fi
