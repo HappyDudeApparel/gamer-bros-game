@@ -1,0 +1,92 @@
+name: Validate Pass 15 Title
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'index.html'
+      - 'title-v3.js'
+      - 'ui/gb-theme.css'
+      - '.github/workflows/validate-pass15-title.yml'
+      - 'playground-v2/gamer-bro.js'
+      - 'vendor/three/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static contract checks
+        run: |
+          node --check title-v3.js
+          test -s ui/gb-theme.css
+          test -s vendor/three/three.module.min.js
+          grep -q 'PASS 15 SHELL' index.html
+          grep -q 'pass14-level-lab' title-v3.js
+          grep -q "id:'gb1'" title-v3.js
+          grep -q "id:'gb2'" title-v3.js
+          ! grep -qi 'byte bro' index.html title-v3.js
+          ! grep -qi 'citrus' index.html title-v3.js
+          ! grep -R 'cdn.jsdelivr.net\|unpkg.com' index.html title-v3.js ui/gb-theme.css
+      - name: Install browser test driver
+        run: python3 -m pip install --quiet selenium
+      - name: Boot title on desktop and Android
+        run: |
+          python3 -m http.server 8000 >/tmp/pass15-http.log 2>&1 &
+          echo $! >/tmp/pass15-http.pid
+          sleep 2
+          python3 - <<'PY'
+          import json, shutil, time
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.chrome.service import Service
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          URL='http://127.0.0.1:8000/'
+          chromedriver=shutil.which('chromedriver')
+
+          def boot(label,mobile=False):
+              opts=Options()
+              opts.add_argument('--headless=new')
+              opts.add_argument('--no-sandbox')
+              opts.add_argument('--enable-unsafe-swiftshader')
+              opts.add_argument('--disable-dev-shm-usage')
+              opts.add_argument('--window-size=1280,800' if not mobile else '--window-size=412,915')
+              if mobile:
+                  opts.add_argument('--user-agent=Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36')
+              driver=webdriver.Chrome(service=Service(chromedriver) if chromedriver else Service(),options=opts)
+              started=time.monotonic()
+              try:
+                  driver.get(URL)
+                  wait=WebDriverWait(driver,15,poll_frequency=.2)
+                  wait.until(lambda d:d.execute_script("return document.documentElement.dataset.titlePass15==='1'"))
+                  wait.until(lambda d:d.execute_script("return window.__titleCharacterReady==='gb2' || window.__titleCharacterReady==='gb1'"))
+                  roster=driver.execute_script("return window.__playableRoster")
+                  if roster!=['gb1','gb2']:
+                      raise AssertionError(f'{label}: wrong roster {roster}')
+                  cards=driver.find_elements('css selector','.hero-card')
+                  if len(cards)!=2:
+                      raise AssertionError(f'{label}: expected 2 hero cards, got {len(cards)}')
+                  driver.execute_script("document.querySelector('.hero-card[data-id=\"gb1\"]').click()")
+                  wait.until(lambda d:d.execute_script("return window.__titleCharacterReady==='gb1'"))
+                  driver.execute_script("document.querySelector('.hero-card[data-id=\"gb2\"]').click()")
+                  wait.until(lambda d:d.execute_script("return window.__titleCharacterReady==='gb2'"))
+                  target=driver.execute_script("const old=window.location.href; const b=document.getElementById('playBtn'); b.click(); return true")
+                  WebDriverWait(driver,5,poll_frequency=.1).until(lambda d:'/pass14-level-lab/' in d.current_url and 'hero=gb2' in d.current_url)
+                  elapsed=round(time.monotonic()-started,2)
+                  print(json.dumps({'label':label,'seconds_to_route':elapsed,'roster':roster,'url':driver.current_url},separators=(',',':')))
+              finally:
+                  driver.quit()
+
+          boot('desktop',False)
+          boot('android',True)
+          PY
+      - name: Stop local server
+        if: always()
+        run: if test -f /tmp/pass15-http.pid; then kill "$(cat /tmp/pass15-http.pid)" || true; fi
+      - name: Diagnostics on failure
+        if: failure()
+        run: cat /tmp/pass15-http.log || true
