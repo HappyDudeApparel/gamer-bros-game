@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { clone as cloneSkeleton } from 'three/addons/utils/SkeletonUtils.js';
 
 const BASE='../assets/world-kit/kenney/platformer-kit/Models/GLB%20format/';
 
@@ -48,7 +47,7 @@ export function createAssetLibrary({mobile=false}={}){
   }
   async function instantiateAnimated(name,{x=0,y=0,z=0,height=2.25,rotationY=0,parent=null}={}){
     const gltf=await load(name);
-    const root=cloneSkeleton(gltf.scene);
+    const root=gltf.scene;
     root.rotation.y=rotationY;
     root.updateMatrixWorld(true);
     let box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3());
