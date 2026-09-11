@@ -1,0 +1,36 @@
+name: Vendor Complete Three Runtime
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/vendor-three-runtime.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download complete local Three.js runtime
+        run: |
+          mkdir -p vendor/three/addons/loaders vendor/three/addons/utils
+          curl -L --fail --retry 3 -o vendor/three/three.module.min.js https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js
+          curl -L --fail --retry 3 -o vendor/three/three.core.min.js https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.core.min.js
+          curl -L --fail --retry 3 -o vendor/three/addons/loaders/GLTFLoader.js https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js
+          curl -L --fail --retry 3 -o vendor/three/addons/utils/BufferGeometryUtils.js https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/utils/BufferGeometryUtils.js
+          grep -q "three.core.min.js" vendor/three/three.module.min.js
+          test -s vendor/three/three.core.min.js
+      - name: Commit runtime
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add vendor/three
+          if git diff --cached --quiet; then
+            echo 'Runtime already complete.'
+          else
+            git commit -m 'Vendor complete local Three.js runtime'
+            git push origin HEAD:main
+          fi
