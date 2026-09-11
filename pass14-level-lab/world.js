@@ -27,7 +27,6 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
 
   async function build(){
     setPhase('Loading core traversal kit…',14);
-    Promise.all(['character-oobi.glb','character-oodi.glb','character-oozi.glb'].map(n=>assets.load(n))).then(()=>window.__pass14EnemyAssetsWarm=true).catch(e=>console.warn('[Pass14 enemy preload]',e));
     await assets.prewarm(['block-grass-low-large.glb','block-grass-large.glb','block-grass-long.glb','block-grass-large-slope.glb','block-grass-overhang-large.glb','platform-ramp.glb','platform-fortified.glb','spring.glb']);
     setPhase('Authoring Springline Terrace…',30);await buildRecoveryFloor();
     const startTop=.45;
@@ -44,7 +43,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     const highTop=splitTop+5.1;await place('block-grass-overhang-large.glb',{x:23,z:-69,topY:highTop,targetXZ:14});await place('block-grass-overhang-large.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:14});await place('block-grass-overhang-large.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:14});await place('block-grass-overhang-large.glb',{x:10,z:-89,topY:highTop+.45,targetXZ:13});addRoute({x:23,z:-68},{x:20,z:-78},true);addRoute({x:20,z:-78},{x:14,z:-86},true);addRoute({x:14,z:-86},{x:10,z:-89},true);addRoute({x:4,z:-91},{x:4,z:-91},true);
     layout={startTop,terrace1,landingTop,splitTop,arenaTop,goalTop,highTop};refreshBounds();
     const spawn={x:0,z:32,y:groundAt(0,32)??startTop},enemySpawns=[{x:9,z:-55,y:groundAt(9,-55)??splitTop,kind:'character-oobi.glb'},{x:-2,z:-89,y:groundAt(-2,-89)??arenaTop,kind:'character-oodi.glb'},{x:-8,z:-93,y:groundAt(-8,-93)??arenaTop,kind:'character-oozi.glb'}],tube={x:0,z:-116,y:(groundAt(0,-116)??goalTop)+.1};
-    setTimeout(()=>decorate().catch(e=>console.warn('[Pass14 dressing]',e)),650);
+    const startDressing=()=>{if((window.__pass14EnemyModelsReady||0)>=3)decorate().catch(e=>console.warn('[Pass14 dressing]',e));else setTimeout(startDressing,350)};setTimeout(startDressing,600);
     return {spawn,tube,enemySpawns,split:{x:11,z:-56,y:splitTop},arena:{x:-5,z:-91,y:arenaTop},goal:{x:0,z:-116,y:goalTop}};
   }
 
