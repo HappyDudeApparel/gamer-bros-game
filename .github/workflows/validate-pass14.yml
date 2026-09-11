@@ -31,8 +31,8 @@ jobs:
           test -s vendor/three/addons/loaders/GLTFLoader.js
           BASE='assets/world-kit/kenney/platformer-kit/Models/GLB format'
           for f in \
-            block-grass-low-large.glb block-grass-large.glb block-grass-long.glb block-grass-large-slope.glb \
-            platform-ramp.glb platform.glb platform-fortified.glb platform-overhang.glb spring.glb saw.glb \
+            block-grass-low-large.glb block-grass-large.glb block-grass-long.glb block-grass-large-slope.glb block-grass-overhang-large.glb \
+            platform-ramp.glb platform.glb platform-fortified.glb spring.glb saw.glb \
             coin-gold.glb jewel.glb chest.glb heart.glb arrow.glb sign.glb tree.glb tree-pine.glb flowers.glb rocks.glb \
             character-oobi.glb character-oodi.glb character-oozi.glb; do
             test -s "$BASE/$f"
@@ -40,37 +40,67 @@ jobs:
           ! grep -R 'cdn.jsdelivr.net\|unpkg.com' pass14-level-lab
           grep -q 'PASS 14 · LEVEL LAB' pass14-level-lab/index.html
           grep -q 'Prism Breaker' pass14-level-lab/LEVEL_DESIGN.md
-      - name: Boot desktop and Android hero slice
+      - name: Install browser test driver
+        run: python3 -m pip install --quiet selenium
+      - name: Boot desktop and Android hero slice in real time
         run: |
           python3 -m http.server 8000 >/tmp/pass14-http.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID || true' EXIT
+          echo $! >/tmp/pass14-http.pid
           sleep 2
-          BROWSER="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
-          if [ -z "$BROWSER" ]; then echo 'No Chrome/Chromium found'; exit 1; fi
-          "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader --virtual-time-budget=26000 --dump-dom \
-            'http://127.0.0.1:8000/pass14-level-lab/?hero=gb2&ci=1' >/tmp/pass14-desktop.html 2>/tmp/pass14-desktop.err
-          grep -q 'data-pass14-ready="1"' /tmp/pass14-desktop.html
-          grep -q 'data-route-main="1"' /tmp/pass14-desktop.html
-          grep -q 'data-route-optional="1"' /tmp/pass14-desktop.html
-          grep -q 'data-enemies="3"' /tmp/pass14-desktop.html
-          grep -q 'class="boot hide"' /tmp/pass14-desktop.html
-          ! grep -q 'class="fatal show"' /tmp/pass14-desktop.html
-          "$BROWSER" --headless=new --no-sandbox --enable-unsafe-swiftshader \
-            --user-agent='Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36' \
-            --virtual-time-budget=26000 --dump-dom \
-            'http://127.0.0.1:8000/pass14-level-lab/?hero=gb2&ci=1' >/tmp/pass14-mobile.html 2>/tmp/pass14-mobile.err
-          grep -q 'data-pass14-ready="1"' /tmp/pass14-mobile.html
-          grep -q 'data-route-main="1"' /tmp/pass14-mobile.html
-          grep -q 'data-route-optional="1"' /tmp/pass14-mobile.html
-          grep -q 'data-enemies="3"' /tmp/pass14-mobile.html
-          grep -q 'class="boot hide"' /tmp/pass14-mobile.html
-          ! grep -q 'class="fatal show"' /tmp/pass14-mobile.html
+          python3 - <<'PY'
+          import json, shutil, time
+          from selenium import webdriver
+          from selenium.webdriver.chrome.options import Options
+          from selenium.webdriver.chrome.service import Service
+          from selenium.webdriver.support.ui import WebDriverWait
+
+          URL='http://127.0.0.1:8000/pass14-level-lab/?hero=gb2&ci=1'
+          chromedriver=shutil.which('chromedriver')
+
+          def boot(label,mobile=False):
+              opts=Options()
+              opts.add_argument('--headless=new')
+              opts.add_argument('--no-sandbox')
+              opts.add_argument('--enable-unsafe-swiftshader')
+              opts.add_argument('--disable-dev-shm-usage')
+              opts.add_argument('--window-size=1280,800' if not mobile else '--window-size=412,915')
+              if mobile:
+                  opts.add_argument('--user-agent=Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36')
+              service=Service(chromedriver) if chromedriver else Service()
+              driver=webdriver.Chrome(service=service,options=opts)
+              started=time.monotonic()
+              try:
+                  driver.get(URL)
+                  wait=WebDriverWait(driver,20,poll_frequency=.2)
+                  wait.until(lambda d:d.execute_script("return document.documentElement.dataset.pass14Ready==='1'"))
+                  playable=time.monotonic()-started
+                  main=driver.execute_script("return document.documentElement.dataset.routeMain")
+                  optional=driver.execute_script("return document.documentElement.dataset.routeOptional")
+                  fatal=driver.execute_script("return document.getElementById('fatal').classList.contains('show')")
+                  boot_hidden=driver.execute_script("return document.getElementById('boot').classList.contains('hide')")
+                  if main!='1' or optional!='1' or fatal or not boot_hidden:
+                      raise AssertionError(f'{label}: bad playable state main={main} optional={optional} fatal={fatal} bootHidden={boot_hidden}')
+                  WebDriverWait(driver,30,poll_frequency=.25).until(lambda d:d.execute_script("return document.documentElement.dataset.enemies==='3'"))
+                  WebDriverWait(driver,30,poll_frequency=.25).until(lambda d:d.execute_script("return document.documentElement.dataset.decor==='1'"))
+                  clips=driver.execute_script("return window.__pass14EnemyClips||[]")
+                  if len(clips)!=3 or not any(len(x.get('clips',[]))>0 for x in clips):
+                      raise AssertionError(f'{label}: real enemy animation clips not loaded: {clips}')
+                  route=driver.execute_script("return window.__pass14RouteValidation")
+                  if not route or not route['main']['ok'] or not route['optional']['ok']:
+                      raise AssertionError(f'{label}: route validation changed: {route}')
+                  print(json.dumps({'label':label,'playable_seconds':round(playable,2),'enemies':3,'decor':True,'route':route,'clips':clips},separators=(',',':')))
+              finally:
+                  driver.quit()
+
+          boot('desktop',False)
+          boot('android',True)
+          PY
+      - name: Stop local server
+        if: always()
+        run: |
+          if test -f /tmp/pass14-http.pid; then kill "$(cat /tmp/pass14-http.pid)" || true; fi
       - name: Diagnostics on failure
         if: failure()
         run: |
-          echo '--- HTTP ---'; cat /tmp/pass14-http.log || true
-          echo '--- DESKTOP STDERR ---'; cat /tmp/pass14-desktop.err || true
-          echo '--- MOBILE STDERR ---'; cat /tmp/pass14-mobile.err || true
-          echo '--- DESKTOP DOM TAIL ---'; tail -c 9000 /tmp/pass14-desktop.html || true
-          echo '--- MOBILE DOM TAIL ---'; tail -c 9000 /tmp/pass14-mobile.html || true
+          echo '--- HTTP ---'
+          cat /tmp/pass14-http.log || true
