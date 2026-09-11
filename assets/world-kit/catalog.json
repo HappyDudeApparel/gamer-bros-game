@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "purpose": "Reusable Gamer Bros world/level asset pool",
   "sources": [
     {"id":"kenney-platformer","role":"terrain/traversal","preferred":true},
