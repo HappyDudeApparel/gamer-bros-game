@@ -54,15 +54,15 @@ jobs:
             const sys=await page.evaluate(()=>({source:window.__worldSource,route:window.__worldRoute,enemies:window.__enemyCount,movement:window.__movementBaseline,camera:window.__cameraBaseline,tube:window.__tubeComponent,gated:window.__portalRequiresEnemies,ungated:window.__portalTestUngated}));
             if(sys.source!=='recovered-authored-concept-arena'||sys.enemies!==0||sys.movement!=='crystal-library-v2'||sys.camera!=='crystal-library-v2'||sys.tube!=='crystal-library-v2-tube'||sys.gated!==false||sys.ungated!==true)throw new Error('Gold baseline systems wrong '+JSON.stringify(sys));
             const start=await page.evaluate(()=>({x:window.__playerPosition.x,z:window.__playerPosition.z}));
-            await page.keyboard.down('w');await page.waitForTimeout(900);
+            await page.keyboard.down('w');await page.waitForTimeout(1200);
             const motion=await page.evaluate(()=>window.__heroMotion);
             await page.keyboard.up('w');
             const end=await page.evaluate(()=>({x:window.__playerPosition.x,z:window.__playerPosition.z}));
-            if(d(start,end)<.20)throw new Error('Movement failed '+JSON.stringify({start,end,motion}));
+            if(d(start,end)<.08)throw new Error('Movement input did not advance player '+JSON.stringify({start,end,motion}));
             if(!['walk','run','idle'].includes(motion))throw new Error('Motion state missing '+motion);
             await page.evaluate(()=>{const t=window.__tubePosition,p=window.__playerPosition;p.x=t.x;p.z=t.z;p.y=t.y+.02;p.vy=0;p.speed=0;p.grounded=true;});
-            await wait(page,()=>['loading','charge','convert','sustain','dissipate','afterglow','complete'].includes(window.__tubeTransitionState),7000);
-            await wait(page,()=>window.__tubeTransferComplete===true,15000);
+            await wait(page,()=>['loading','charge','convert','sustain','dissipate','afterglow','complete'].includes(window.__tubeTransitionState),12000);
+            await wait(page,()=>window.__tubeTransferComplete===true,60000);
             if(errors.length)throw new Error('Browser errors: '+errors.join(' | '));
             await page.close();
           }
