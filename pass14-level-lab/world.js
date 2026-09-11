@@ -27,6 +27,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
 
   async function build(){
     setPhase('Loading core traversal kit…',14);
+    Promise.all(['character-oobi.glb','character-oodi.glb','character-oozi.glb'].map(n=>assets.load(n))).then(()=>window.__pass14EnemyAssetsWarm=true).catch(e=>console.warn('[Pass14 enemy preload]',e));
     await assets.prewarm(['block-grass-low-large.glb','block-grass-large.glb','block-grass-long.glb','block-grass-large-slope.glb','block-grass-overhang-large.glb','platform-ramp.glb','platform-fortified.glb','spring.glb']);
     setPhase('Authoring Springline Terrace…',30);await buildRecoveryFloor();
     const startTop=.45;
@@ -43,6 +44,7 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     const highTop=splitTop+5.1;await place('block-grass-overhang-large.glb',{x:23,z:-69,topY:highTop,targetXZ:14});await place('block-grass-overhang-large.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:14});await place('block-grass-overhang-large.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:14});await place('block-grass-overhang-large.glb',{x:10,z:-89,topY:highTop+.45,targetXZ:13});addRoute({x:23,z:-68},{x:20,z:-78},true);addRoute({x:20,z:-78},{x:14,z:-86},true);addRoute({x:14,z:-86},{x:10,z:-89},true);addRoute({x:4,z:-91},{x:4,z:-91},true);
     layout={startTop,terrace1,landingTop,splitTop,arenaTop,goalTop,highTop};refreshBounds();
     const spawn={x:0,z:32,y:groundAt(0,32)??startTop},enemySpawns=[{x:9,z:-55,y:groundAt(9,-55)??splitTop,kind:'character-oobi.glb'},{x:-2,z:-89,y:groundAt(-2,-89)??arenaTop,kind:'character-oodi.glb'},{x:-8,z:-93,y:groundAt(-8,-93)??arenaTop,kind:'character-oozi.glb'}],tube={x:0,z:-116,y:(groundAt(0,-116)??goalTop)+.1};
+    setTimeout(()=>decorate().catch(e=>console.warn('[Pass14 dressing]',e)),650);
     return {spawn,tube,enemySpawns,split:{x:11,z:-56,y:splitTop},arena:{x:-5,z:-91,y:arenaTop},goal:{x:0,z:-116,y:goalTop}};
   }
 
@@ -53,10 +55,10 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     await placeDecor('arrow.glb',{x:-1,z:9,topY:startTop+.2,targetXZ:1.7,rotationY:Math.PI});await placeDecor('sign.glb',{x:13,z:-53,topY:splitTop+.12,targetXZ:2.2,rotationY:-.6});await placeDecor('arrow.glb',{x:15,z:-54,topY:splitTop+.2,targetXZ:1.7,rotationY:-.65});await placeDecor('arrow.glb',{x:9,z:-88,topY:highTop+.7,targetXZ:1.6,rotationY:Math.PI*.9});
     for(const [x,z,s] of [[-16,27,6],[-17,8,5],[15,18,5],[18,-8,5],[-18,-30,5],[-17,-57,5],[18,-98,6],[-18,-112,6]])await placeDecor((x+z)%2?'tree.glb':'tree-pine.glb',{x,z,topY:-1.25,targetXZ:s});
     for(const [x,z] of [[-12,18],[10,5],[-14,-14],[13,-34],[-14,-71],[13,-106]])await placeDecor('rocks.glb',{x,z,topY:-1.2,targetXZ:3.4});for(const [x,z] of [[-9,24],[8,25],[-11,2],[12,-18],[-13,-46],[14,-101]])await placeDecor('flowers.glb',{x,z,topY:-1.18,targetXZ:2.2});
-    const sideY=(groundAt(-10,-62)??splitTop)+.8;const side=await placeDecor('coin-gold.glb',{x:-10,z:-62,bottomY:sideY,targetXZ:.6});collectibles.push({type:'coin',root:side.root,x:-10,z:-62,baseY:side.root.position.y,taken:false});
+    const sideY=(groundAt(-10,-62)??splitTop)+.8,side=await placeDecor('coin-gold.glb',{x:-10,z:-62,bottomY:sideY,targetXZ:.6});collectibles.push({type:'coin',root:side.root,x:-10,z:-62,baseY:side.root.position.y,taken:false});
     for(const [x,z] of [[0,30],[-1,20],[-2,10],[-5,0],[-6,-8],[-6,-13],[4,-28],[4,-34],[7,-42],[10,-50],[10,-57],[7,-64],[2,-72],[-2,-80],[-5,-88],[-5,-96],[-3,-103],[0,-111],[0,-116]]){const y=(groundAt(x,z)??-1.35)+.82,c=await placeDecor('coin-gold.glb',{x,z,bottomY:y,targetXZ:.55});collectibles.push({type:'coin',root:c.root,x,z,baseY:c.root.position.y,taken:false})}
     for(const [x,z] of [[23,-69],[20,-78],[14,-86],[10,-89]]){const y=(groundAt(x,z)??highTop)+.92,g=await placeDecor('jewel.glb',{x,z,bottomY:y,targetXZ:.62});collectibles.push({type:'gem',root:g.root,x,z,baseY:g.root.position.y,taken:false})}
-    const chestY=(groundAt(14,-86)??highTop)+.2,chest=await placeDecor('chest.glb',{x:11.5,z:-86,bottomY:chestY,targetXZ:1.8,rotationY:-.7});collectibles.push({type:'chest',root:chest.root,x:11.5,z:-86,baseY:chest.root.position.y,taken:false,rewardGems:3});const heartY=(groundAt(-5,-91)??arenaTop)+.2,heart=await placeDecor('heart.glb',{x:-5,z:-91,bottomY:heartY,targetXZ:.8});collectibles.push({type:'heart',root:heart.root,x:-5,z:-91,baseY:heart.root.position.y,taken:false});window.__pass14DecorReady=true;
+    const chestY=(groundAt(14,-86)??highTop)+.2,chest=await placeDecor('chest.glb',{x:11.5,z:-86,bottomY:chestY,targetXZ:1.8,rotationY:-.7});collectibles.push({type:'chest',root:chest.root,x:11.5,z:-86,baseY:chest.root.position.y,taken:false,rewardGems:3});const heartY=(groundAt(-5,-91)??arenaTop)+.2,heart=await placeDecor('heart.glb',{x:-5,z:-91,bottomY:heartY,targetXZ:.8});collectibles.push({type:'heart',root:heart.root,x:-5,z:-91,baseY:heart.root.position.y,taken:false});window.__pass14DecorReady=true;document.documentElement.dataset.decor='1';
   }
 
   function probe(segments){const failures=[];let samples=0;for(const seg of segments){const len=Math.hypot(seg.b.x-seg.a.x,seg.b.z-seg.a.z),n=Math.max(2,Math.ceil(len/.55));let prev=null;for(let i=0;i<=n;i++){const t=i/n,x=THREE.MathUtils.lerp(seg.a.x,seg.b.x,t),z=THREE.MathUtils.lerp(seg.a.z,seg.b.z,t),y=groundAt(x,z);samples++;if(y===null){failures.push({reason:'hole',x,z});prev=null;continue}if(prev!==null&&Math.abs(y-prev)>.92)failures.push({reason:'step',x,z,from:prev,to:y});prev=y}}return {ok:failures.length===0,samples,failures:failures.slice(0,16)}}
