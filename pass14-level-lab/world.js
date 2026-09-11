@@ -60,46 +60,54 @@ export function createLevelLabWorld({scene,assets,mobile=false,setPhase=()=>{}})
     await buildRecoveryFloor();
 
     const startTop=.45;
-    await place('block-grass-large.glb',{x:0,z:28,topY:startTop,targetXZ:20});
-    await place('block-grass-long.glb',{x:-1,z:16,topY:startTop,targetXZ:15});
-    addRoute({x:0,z:34},{x:-1,z:12});
+    await place('block-grass-large.glb',{x:0,z:28,topY:startTop,targetXZ:22});
+    await place('block-grass-long.glb',{x:-1,z:17,topY:startTop,targetXZ:18});
+    await place('block-grass-large.glb',{x:-1,z:11,topY:startTop,targetXZ:9});
+    addRoute({x:0,z:34},{x:-1,z:11});
 
-    const r1=await placeRamp('block-grass-large-slope.glb',{x:-1,z:11},{x:-6,z:-4},startTop,{span:18});
+    const r1=await placeRamp('block-grass-large-slope.glb',{x:-1,z:11},{x:-6,z:-4},startTop,{span:19});
     const terrace1=r1.highY;
-    await place('block-grass-large.glb',{x:-6,z:-10,topY:terrace1,targetXZ:18});
+    await place('block-grass-large.glb',{x:-6,z:-10,topY:terrace1,targetXZ:19});
     addRoute({x:-6,z:-4},{x:-6,z:-13});
 
     const spring1=await placeDecor('spring.glb',{x:-6,z:-13,topY:terrace1+.12,targetXZ:2.5});
     springs.push({root:spring1.root,x:-6,z:-13,target:{x:4,z:-29},strengthY:7.4,strengthForward:10.2,mandatory:true});
     const landingTop=terrace1+1.55;
-    await place('block-grass-large.glb',{x:4,z:-30,topY:landingTop,targetXZ:20});
+    await place('block-grass-large.glb',{x:4,z:-30,topY:landingTop,targetXZ:21});
 
-    const r2=await placeRamp('platform-ramp.glb',{x:4,z:-36},{x:11,z:-50},landingTop,{span:18});
+    // Mandatory climbs use the broad grass slope pieces whose full centerline is walkable.
+    const r2=await placeRamp('block-grass-large-slope.glb',{x:4,z:-36},{x:11,z:-50},landingTop,{span:19});
     const splitTop=r2.highY;
-    await place('block-grass-large.glb',{x:11,z:-56,topY:splitTop,targetXZ:19});
+    await place('block-grass-large.glb',{x:11,z:-56,topY:splitTop,targetXZ:20});
     addRoute({x:4,z:-28},{x:4,z:-36});addRoute({x:11,z:-50},{x:11,z:-59});
 
-    const bridge=await place('platform-fortified.glb',{x:4,z:-67,topY:splitTop,targetXZ:18});
+    const bridge=await place('platform-fortified.glb',{x:4,z:-67,topY:splitTop,targetXZ:19});
     addRoute({x:11,z:-59},{x:5,z:-66});
 
-    const r3=await placeRamp('block-grass-large-slope.glb',{x:2,z:-72},{x:-5,z:-85},splitTop,{span:17});
+    const r3=await placeRamp('block-grass-large-slope.glb',{x:2,z:-72},{x:-5,z:-85},splitTop,{span:18});
     const arenaTop=r3.highY;
-    await place('block-grass-large.glb',{x:-5,z:-91,topY:arenaTop,targetXZ:21});
+    await place('block-grass-large.glb',{x:-5,z:-91,topY:arenaTop,targetXZ:22});
     addRoute({x:4,z:-68},{x:2,z:-72});addRoute({x:-5,z:-85},{x:-5,z:-95});
 
-    const r4=await placeRamp('platform-ramp.glb',{x:-5,z:-98},{x:0,z:-111},arenaTop,{span:17});
+    const r4=await placeRamp('block-grass-large-slope.glb',{x:-5,z:-98},{x:0,z:-111},arenaTop,{span:18});
     const goalTop=r4.highY;
-    await place('platform-fortified.glb',{x:0,z:-116,topY:goalTop,targetXZ:20});
+    await place('platform-fortified.glb',{x:0,z:-116,topY:goalTop,targetXZ:21});
     addRoute({x:-5,z:-95},{x:-5,z:-98});addRoute({x:0,z:-111},{x:0,z:-118});
 
-    // Optional mastery loop: a second spring to high overhangs, then a forgiving rejoin.
+    // Mechanical platform-ramp is used as a safe side toy, not a mandatory connector.
+    await place('platform-ramp.glb',{x:-10,z:-62,topY:splitTop+.28,targetXZ:9});
+    const sideCoinY=(groundAt(-10,-62)??splitTop)+.8;
+    const sideCoin=await placeDecor('coin-gold.glb',{x:-10,z:-62,bottomY:sideCoinY,targetXZ:.6});
+    collectibles.push({type:'coin',root:sideCoin.root,x:-10,z:-62,baseY:sideCoin.root.position.y,taken:false});
+
+    // Optional mastery loop: a second spring to high overhangs, then a broad grass slope rejoin.
     const spring2=await placeDecor('spring.glb',{x:16,z:-56,topY:splitTop+.12,targetXZ:2.4});
     springs.push({root:spring2.root,x:16,z:-56,target:{x:23,z:-68},strengthY:8.8,strengthForward:8.5,mandatory:false});
     const highTop=splitTop+5.1;
-    await place('platform-overhang.glb',{x:23,z:-69,topY:highTop,targetXZ:10});
-    await place('platform-overhang.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:10});
-    await place('platform-overhang.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:10});
-    const highDown=await placeRamp('platform-ramp.glb',{x:14,z:-90},{x:3,z:-96},highTop+.45,{span:14,optional:true});
+    await place('platform-overhang.glb',{x:23,z:-69,topY:highTop,targetXZ:12});
+    await place('platform-overhang.glb',{x:20,z:-78,topY:highTop+.25,targetXZ:12});
+    await place('platform-overhang.glb',{x:14,z:-86,topY:highTop+.45,targetXZ:12});
+    await placeRamp('block-grass-large-slope.glb',{x:14,z:-90},{x:3,z:-96},highTop+.45,{span:15,optional:true});
     addRoute({x:23,z:-68},{x:20,z:-78},true);addRoute({x:20,z:-78},{x:14,z:-86},true);
 
     // Real, visible hazards live off the safe centerline.
