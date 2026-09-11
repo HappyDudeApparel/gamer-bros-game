@@ -17,7 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Generate Pass 11
-        run: python3 scripts/build_pass11_gameplay_world.py
+        run: |
+          sed -i 's/marker="  await Promise.all(jobs);window.__pass10Assets=true;"/marker="await Promise.all(jobs);window.__pass10Assets=true;"/' scripts/build_pass11_gameplay_world.py
+          python3 scripts/build_pass11_gameplay_world.py
       - name: Commit Pass 11
         run: |
           git config user.name 'github-actions[bot]'
