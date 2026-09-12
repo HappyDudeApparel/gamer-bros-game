@@ -1,0 +1,79 @@
+name: Validate Pass 17C-5 Canonical Portal
+
+on:
+  push:
+    branches: [pass17-concept-match]
+    paths:
+      - 'scripts/test_pass17c5_portal.py'
+      - 'scripts/patch_pass17c5_portal.py'
+      - '.github/workflows/validate-pass17c5-portal.yml'
+      - 'scripts/build_pass17a.py'
+      - 'scripts/fix_pass17a_bridge.py'
+      - 'scripts/fix_pass17a_clover.py'
+      - 'scripts/build_pass17b.py'
+      - 'scripts/patch_pass17_concept_hero.py'
+      - 'scripts/patch_pass17_camera.py'
+      - 'scripts/patch_pass17_meadow.py'
+      - 'scripts/patch_pass17c.py'
+      - 'scripts/patch_pass17c3_ci.py'
+      - 'src/crystal-library-tube-v2.js'
+  workflow_dispatch:
+
+concurrency:
+  group: pass17c5-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild deterministic Pass 17 portal candidate
+        run: |
+          python scripts/build_pass17a.py
+          python scripts/fix_pass17a_bridge.py
+          python scripts/fix_pass17a_clover.py
+          python scripts/build_pass17b.py
+          python scripts/patch_pass17_concept_hero.py
+          python scripts/patch_pass17_camera.py
+          python scripts/patch_pass17_meadow.py
+          python scripts/patch_pass17c.py
+          python scripts/patch_pass17c3_ci.py
+          python scripts/patch_pass17c5_portal.py
+
+      - name: Static canonical portal sanity
+        run: |
+          node --check pass17-world1/app.js
+          node --check src/crystal-library-tube-v2.js
+          grep -q "createCrystalLibraryTubeV2" pass17-world1/app.js
+          grep -q "crystal-library-v2-tube" src/crystal-library-tube-v2.js
+          grep -q "phaseDur={charge:2.60,convert:2.65,sustain:.45,dissipate:1.55,afterglow:.90}" src/crystal-library-tube-v2.js
+          grep -q "portalColdTrigger" pass17-world1/app.js
+          grep -q "portalEnter" pass17-world1/app.js
+          grep -q "portalStep" pass17-world1/app.js
+          grep -q "c5portal" pass17-world1/app.js
+
+      - name: Browser dependency
+        run: pip install selenium
+
+      - name: Start local game server
+        run: |
+          python -m http.server 8000 >/tmp/pass17c5-http.log 2>&1 &
+          sleep 2
+
+      - name: Desktop canonical portal gate
+        run: timeout 150s python -u scripts/test_pass17c5_portal.py --target desktop
+
+      - name: Android canonical portal gate
+        run: timeout 150s python -u scripts/test_pass17c5_portal.py --target android
+
+      - name: Upload Pass 17C-5 portal proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass17c5-portal-proof
+          path: artifacts/pass17c5-portal-proof
+          if-no-files-found: warn
+          retention-days: 14
