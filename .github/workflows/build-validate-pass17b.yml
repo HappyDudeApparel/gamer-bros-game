@@ -15,6 +15,7 @@ on:
       - 'scripts/build_pass17b.py'
       - 'scripts/patch_pass17_concept_hero.py'
       - 'scripts/patch_pass17_camera.py'
+      - 'scripts/patch_pass17_meadow.py'
       - 'scripts/test_pass17b_browser.py'
       - '.github/workflows/build-validate-pass17b.yml'
   workflow_dispatch:
@@ -35,6 +36,7 @@ jobs:
           python scripts/build_pass17b.py
           python scripts/patch_pass17_concept_hero.py
           python scripts/patch_pass17_camera.py
+          python scripts/patch_pass17_meadow.py
       - name: Validate JavaScript
         run: |
           node --check pass17-world1/app.js
@@ -52,6 +54,8 @@ jobs:
           grep -q "dungeon:chest_gold.glb" pass17-world1/world.js
           grep -q "prism-crystal-cluster" pass17-world1/world.js
           grep -q "__pass17ConceptLandmarksReady" pass17-world1/world.js
+          grep -q "portal-meadow-dirt-path" pass17-world1/world.js
+          grep -q "__pass17PortalMeadowDressed" pass17-world1/world.js
           grep -q "platformerBlue" pass17-world1/assets.js
           grep -q "pass17-gamer-bro.js" pass17-world1/index.html
           grep -q "camPitch=.18" pass17-world1/app.js
