@@ -42,6 +42,7 @@ hook = """  power=createPrismBreaker({scene,bro,getHeroState:()=>player,getEnemi
       stageCombat:(distance=4)=>{const e=enemies.living()[0];if(!e)return null;e.alertRadius=0;e.attackRange=0;const p=testMoveTo(e.root.position.x,e.root.position.z-distance,0);return {player:p,enemy:{id:e.id,hp:e.hp,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}}},
       powerStart:()=>power.start(),powerRelease:()=>power.release(),
       cameraInfo:()=>({index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}),
+      portalWarm:async()=>{await beginTubeWarm();return {prewarmed:tube.prewarmed,state:tube.state}},
       portalPrime:async()=>{await beginTubeWarm();testMoveTo(sites.tube.x,sites.tube.z,0);return {prewarmed:tube.prewarmed,state:tube.state,x:player.x,y:player.y,z:player.z}},
       portalInfo:()=>({state:tube.state,prewarmed:tube.prewarmed,complete:tube.complete,watchdog:window.__pass17PortalWatchdog,frames:window.__pass17FrameCount}),
       startup:()=>({ms:window.__pass17StartupMs||0,mobile,zoom:[...CAMERA_ZOOMS],touch:window.__pass17TouchCamera===true})
