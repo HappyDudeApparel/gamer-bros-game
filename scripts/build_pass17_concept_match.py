@@ -33,7 +33,7 @@ if needle not in ws: raise SystemExit('Riverworks rise anchor not found')
 ws=ws.replace(needle,replacement)
 
 needle2="""    addRoute({x:33,z:-27,y:4.1},{x:22,z:-29,y:3.3});addRoute({x:22,z:-29,y:3.3},{x:10,z:-44,y:5.55});"""
-replacement2="""    terrain('works-clover-handoff',[[25,-23],[36,-24],[37,-32],[28,-38],[18,-35],[17,-28]],3.7,8);\n    addRoute({x:33,z:-27,y:4.1},{x:28,z:-30,y:3.7});addRoute({x:28,z:-30,y:3.7},{x:22,z:-32,y:3.3});addRoute({x:22,z:-32,y:3.3},{x:10,z:-44,y:5.55});"""
+replacement2="""    terrain('works-clover-handoff',[[25,-23],[36,-24],[37,-32],[28,-38],[18,-35],[17,-28]],3.7,8);\n    terrain('clover-rise-a',[[17,-31],[28,-32],[27,-41],[18,-46],[10,-41],[10,-34]],4.0,8);\n    terrain('clover-rise-b',[[11,-37],[22,-40],[20,-49],[12,-54],[3,-49],[3,-42]],4.75,9);\n    addRoute({x:33,z:-27,y:4.1},{x:28,z:-30,y:3.7});addRoute({x:28,z:-30,y:3.7},{x:22,z:-32,y:3.3});addRoute({x:22,z:-32,y:3.3},{x:19,z:-36,y:4.0});addRoute({x:19,z:-36,y:4.0},{x:15,z:-41,y:4.75});addRoute({x:15,z:-41,y:4.75},{x:10,z:-44,y:5.55});"""
 if needle2 not in ws: raise SystemExit('Riverworks/Clover anchor not found')
 ws=ws.replace(needle2,replacement2)
 wp.write_text(ws,encoding='utf-8')
