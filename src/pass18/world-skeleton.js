@@ -165,9 +165,10 @@ function addSectionLabels(sections) {
   sections.forEach((section, index) => {
     const material = new THREE.SpriteMaterial({ map: labelTexture(`${section.id} · ${section.name.toUpperCase()}`, accents[index]), transparent: true, depthTest: false });
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(8.2, 2.05, 1);
-    sprite.position.set(section.center[0], section.center[1] + 6.0, section.center[2]);
+    sprite.scale.set(5.6, 1.4, 1);
+    sprite.position.set(section.center[0], section.center[1] + 5.2, section.center[2]);
     sprite.renderOrder = 20;
+    sprite.userData.pass18SectionLabel = section.id;
     labelRoot.add(sprite);
     sectionAnchors.set(section.id, new THREE.Vector3(...section.center));
   });
@@ -222,6 +223,13 @@ function setView(name) {
   camera.lookAt(...pose.target);
   camera.updateMatrixWorld(true);
   activeView = name;
+  const focusedSection = ({ spawn: 'A', clover: 'D', ruins: 'E', ridge: 'F' })[name] || null;
+  for (const sprite of labelRoot.children) {
+    const sectionId = sprite.userData.pass18SectionLabel;
+    const anchor = sectionAnchors.get(sectionId);
+    const distance = anchor ? camera.position.distanceTo(anchor) : Infinity;
+    sprite.visible = name === 'overview' || (sectionId !== focusedSection && distance > 28);
+  }
   document.documentElement.dataset.pass18SkeletonView = name;
   if (viewButtons) [...viewButtons.querySelectorAll('button')].forEach(button => button.classList.toggle('active', button.dataset.view === name));
   return true;
