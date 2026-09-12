@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Pass 17C-4 combat checkpoint instrumentation. CI-only hooks; production controls are unchanged.
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'pass17-world1' / 'app.js'
 
