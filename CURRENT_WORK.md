@@ -12,7 +12,35 @@ This file is overwritten as the project advances. It is the authoritative recove
 
 ## Current stage
 
-**18-1B — In-browser world authoring tool**
+**18-2 — Golden Slice, Creek Crossing**
+
+Status: **ACTIVE / TECHNICALLY GREEN / VISUALLY RED**
+
+Three CI runs on `validate-pass18-2-golden-slice.yml` are green as of
+`25232b7` (`34697743985` failed on an asset-catalog typo, since fixed;
+`34700076003` and `25232b7`'s run `34703057628` are green). The visual gate
+remains explicitly **refused** by the project owner: the first cut read as
+oversized disconnected cliff slabs; a camera-and-scale-multiplier repair
+(`25232b7`) made the frame readable but exposed a second failure —
+disconnected terrain islands with unexplained void between banks. Root
+cause diagnosed: terrain-family kit modules (ground/path/river/cliff, and
+the bridge) were being routed through the prop bounding-box normalizer
+(`normalizePass18Asset`) instead of being placed at their verified native
+1-unit grid scale, and the manifest's straight approach/exit route crossed
+the creek's own meander at ground level in several rows.
+
+A full terrain-rebuild design was produced and geometry-verified (real
+glTF vertex/triangle decode, not bounding-box guesses) covering: creek-
+following bank tiling, real multi-primitive `InstancedMesh` batching,
+same-side west/east cliff-corner generation, an explicit route with a
+single-instance `nature.bridge.stone` prop oriented on its verified local-X
+walking axis, and corrected ridge classification (`nature.platform.grass`
+reclassified from prop to tile). Implementation of that design is
+**in progress on this branch** — see the checkpoint written alongside it
+once complete, and do not treat any resulting green CI run as visual
+approval until a human has looked at the actual screenshots.
+
+## Historical: 18-1B — In-browser world authoring tool
 
 Status: **COMPLETE / GREEN**
 
@@ -87,9 +115,9 @@ Read, in order:
 
 ## NEXT TASK
 
-**18-2 — Golden Slice, Creek Crossing**
+**18-2 — Golden Slice, Creek Crossing (terrain rebuild)**
 
-Status: **NOT STARTED — requires the user’s next GO**
+Status: **IN PROGRESS** — see "Current stage" above.
 
 This is the first true concept-resemblance gate. Build Creek Crossing in situ at final intended scale using the accepted Pass 18 architecture and real-asset vocabulary.
 
