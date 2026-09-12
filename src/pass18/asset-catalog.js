@@ -50,7 +50,7 @@ export const PASS18_ASSETS = Object.freeze([
   item('castle.flag', 'kenneyCastle', 'flag.glb', 'Decor', 'Castle Flag'),
   item('kenney.platform.slope', 'kenneyPlatformer', 'block-grass-large-slope.glb', 'Terrain', 'Large Grass Slope'),
   item('kaykit.arch.green', 'kaykitPlatformer', 'arch_green.gltf', 'Structures', 'KayKit Arch'),
-  item('kaykit.barrier.green', 'kaykitPlatformer', 'barrier_green.gltf', 'Structures', 'KayKit Barrier'),
+  item('kaykit.barrier.green', 'kaykitPlatformer', 'barrier_1x1x4_green.gltf', 'Structures', 'KayKit Barrier'),
   item('kaykit.chest.green', 'kaykitPlatformer', 'chest_green.gltf', 'Gameplay', 'KayKit Chest'),
   item('dungeon.banner.blue', 'kaykitDungeon', 'addons/kaykit_dungeon_remastered/Assets/gltf/banner_blue.gltf.glb', 'Decor', 'Dungeon Banner')
 ]);
