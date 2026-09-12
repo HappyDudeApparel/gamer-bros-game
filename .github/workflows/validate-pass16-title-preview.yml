@@ -1,0 +1,30 @@
+name: Validate Pass 16 Title Preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pass16-title-preview/**'
+      - 'scripts/test_pass16_title_preview.py'
+      - '.github/workflows/validate-pass16-title-preview.yml'
+  workflow_dispatch:
+jobs:
+  validate-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate title JavaScript
+        run: node --check pass16-title-preview/app.js
+      - name: Validate title structure
+        run: |
+          grep -q 'CHOOSE YOUR GAMER BRO' pass16-title-preview/index.html
+          grep -q 'data-id="gb1"' pass16-title-preview/index.html
+          grep -q 'data-id="gb2"' pass16-title-preview/index.html
+          grep -q 'WORLD 1 · PRISM VALLEY' pass16-title-preview/index.html
+          grep -q 'pass16-world1' pass16-title-preview/app.js
+      - name: Browser dependencies
+        run: pip install selenium
+      - name: Desktop and Android title smoke
+        run: |
+          python -m http.server 8000 >/tmp/title-http.log 2>&1 &
+          sleep 2
+          python scripts/test_pass16_title_preview.py
