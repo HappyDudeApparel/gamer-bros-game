@@ -1,13 +1,16 @@
 {
-  "version": 2,
+  "version": 3,
   "purpose": "Reusable Gamer Bros world/level asset pool",
   "sources": [
     {"id":"kenney-platformer","role":"terrain/traversal","preferred":true},
-    {"id":"kenney-city-builder","role":"settlements/buildings","preferred":true},
-    {"id":"kenney-basic-scene","role":"lighting/support","preferred":false},
-    {"id":"kaykit-platformer","role":"platformer dressing/gameplay props","preferred":true},
-    {"id":"kaykit-city-builder-bits","role":"settlement props/buildings","preferred":true},
-    {"id":"kaykit-medieval-hexagon","role":"ruins/medieval structures/props","preferred":true},
+    {"id":"kenney-nature","role":"cliffs/nature/bridges/fences/river-path vocabulary","preferred":true},
+    {"id":"kenney-fantasy-town","role":"ruins/woodwork/riverworks structures","preferred":true},
+    {"id":"kenney-castle","role":"ceremonial/bridge gates/prism ridge structures","preferred":true},
+    {"id":"kenney-city-builder","role":"settlements/buildings","preferred":false},
+    {"id":"kenney-basic-scene","role":"ruin/support vocabulary","preferred":true},
+    {"id":"kaykit-platformer","role":"pipes/platformer dressing/gameplay props","preferred":true},
+    {"id":"kaykit-city-builder-bits","role":"settlement props/buildings","preferred":false},
+    {"id":"kaykit-medieval-hexagon","role":"nature/river/far ridge/medieval props","preferred":true},
     {"id":"kaykit-dungeon-remastered","role":"ruins/interiors/stone props","preferred":true}
   ]
 }
