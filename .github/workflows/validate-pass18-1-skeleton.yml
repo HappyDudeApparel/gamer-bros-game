@@ -1,0 +1,76 @@
+name: Validate Pass 18-1 Structural Skeleton
+
+on:
+  push:
+    branches: [pass18-rebuild]
+    paths:
+      - 'data/pass18/world-skeleton.json'
+      - 'src/pass18/world-skeleton.js'
+      - 'src/pass18/asset-catalog.js'
+      - 'src/pass18/asset-registry.js'
+      - 'src/pass18/spatial-grid.js'
+      - 'src/pass18/budget-hud.js'
+      - 'src/pass18/world-language.js'
+      - 'pass18-skeleton/**'
+      - 'scripts/test_pass18_1_skeleton.py'
+      - '.github/workflows/validate-pass18-1-skeleton.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass18-1-skeleton-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout isolated Pass 18 branch
+        uses: actions/checkout@v4
+      - name: Verify authored structural architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "pass18-rebuild"
+          node --check src/pass18/world-skeleton.js
+          node --check src/pass18/asset-registry.js
+          node --check src/pass18/spatial-grid.js
+          python -m py_compile scripts/test_pass18_1_skeleton.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('data/pass18/world-skeleton.json')
+          d=json.loads(p.read_text())
+          assert d['version']=='18-1.0'
+          assert ''.join(x['id'] for x in d['sections'])=='ABCDEF'
+          assert set(d['routes'])=={'main','springShortcut','pipeLoop','cloverMastery','lowerBypass','ruinHighRoute'}
+          assert len(d['terrain'])>=30 and len(d['structures'])>=10
+          assert len(d['river']['points'])>=12
+          print('manifest structural contract', len(d['terrain']), len(d['structures']), len(d['river']['points']))
+          PY
+          ! grep -q 'patch_pass18' src/pass18/world-skeleton.js
+          ! grep -q 'pass17-world1' src/pass18/world-skeleton.js
+          grep -q 'world-skeleton.json' src/pass18/world-skeleton.js
+          grep -q 'Pass18AssetRegistry' src/pass18/world-skeleton.js
+          grep -q 'Pass18SpatialGrid' src/pass18/world-skeleton.js
+      - name: Browser dependency
+        run: pip install selenium
+      - name: Start local static server
+        run: |
+          python -m http.server 8000 >/tmp/pass18-1-http.log 2>&1 &
+          sleep 2
+      - name: Desktop whole-map structural proof
+        run: timeout 180s python -u scripts/test_pass18_1_skeleton.py --target desktop
+      - name: Android landscape whole-map structural proof
+        run: timeout 180s python -u scripts/test_pass18_1_skeleton.py --target android
+      - name: Upload structural screenshots and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass18-1-structural-proof
+          path: artifacts/pass18-1-skeleton
+          if-no-files-found: warn
+          retention-days: 21
