@@ -1,0 +1,75 @@
+name: Validate Pass 17C-3 World + Camera + Streaming
+
+on:
+  push:
+    branches: [pass17-concept-match]
+    paths:
+      - 'scripts/test_pass17c3_world_camera.py'
+      - '.github/workflows/validate-pass17c3-world-camera.yml'
+      - 'scripts/build_pass17a.py'
+      - 'scripts/fix_pass17a_bridge.py'
+      - 'scripts/fix_pass17a_clover.py'
+      - 'scripts/build_pass17b.py'
+      - 'scripts/patch_pass17_concept_hero.py'
+      - 'scripts/patch_pass17_camera.py'
+      - 'scripts/patch_pass17_meadow.py'
+      - 'scripts/patch_pass17c.py'
+      - 'src/pass17-riverworks-kit.js'
+      - 'src/pass17-enemies.js'
+      - 'src/pass17-asset-library.js'
+  workflow_dispatch:
+
+concurrency:
+  group: pass17c3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checkpoint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild deterministic Pass 17 world
+        run: |
+          python scripts/build_pass17a.py
+          python scripts/fix_pass17a_bridge.py
+          python scripts/fix_pass17a_clover.py
+          python scripts/build_pass17b.py
+          python scripts/patch_pass17_concept_hero.py
+          python scripts/patch_pass17_camera.py
+          python scripts/patch_pass17_meadow.py
+          python scripts/patch_pass17c.py
+
+      - name: Static world and camera sanity
+        run: |
+          node --check pass17-world1/app.js
+          node --check pass17-world1/world.js
+          node --check pass17-world1/assets.js
+          node --check pass17-world1/enemies.js
+          grep -q "continuous-prism-valley-terrain" pass17-world1/world.js
+          grep -q "portal-meadow-dirt-path" pass17-world1/world.js
+          grep -q "riverworks-main-pipe" pass17-world1/world.js
+          grep -q "dungeon:wall_arched.gltf.glb" pass17-world1/world.js
+          grep -q "__pass17ConceptLandmarksReady" pass17-world1/world.js
+          grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
+          grep -q "camPitch=.18" pass17-world1/app.js
+          grep -q "cameraInfo" pass17-world1/app.js
+
+      - name: Browser dependency
+        run: pip install selenium
+
+      - name: Desktop and Android world camera streaming checkpoint
+        run: |
+          python -m http.server 8000 >/tmp/pass17c3-http.log 2>&1 &
+          sleep 2
+          python -u scripts/test_pass17c3_world_camera.py
+
+      - name: Upload Pass 17C-3 proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass17c3-world-camera-proof
+          path: artifacts/pass17c3-proof
+          if-no-files-found: warn
+          retention-days: 14
