@@ -3,15 +3,21 @@ name: Import reusable world assets
 on:
   workflow_dispatch:
   push:
+    branches: [pass18-rebuild]
     paths:
       - '.github/workflows/import-world-assets.yml'
 
 permissions:
   contents: write
 
+concurrency:
+  group: world-assets-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   import-assets:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout game repo
         uses: actions/checkout@v4
@@ -39,61 +45,64 @@ jobs:
               -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o \
               -iname '*.ogg' -o -iname '*.wav' -o -iname '*.mp3' \
             \) -print0)
-            for meta in LICENSE LICENSE.md LICENSE.txt README.md README.txt; do
+            for meta in LICENSE LICENSE.md LICENSE.txt License.txt README.md README.txt; do
               if [ -f "$src/$meta" ]; then cp "$src/$meta" "$dst/$meta"; fi
             done
           }
 
-          echo '--- Kenney City Builder starter assets ---'
+          download_kenney_pack() {
+            slug="$1"; dst="$2"; key="$3"
+            mkdir -p "$TMP/$key" "$dst"
+            PAGE="https://kenney.nl/assets/$slug"
+            OUT="$TMP/$key-url.txt"
+            python3 - "$PAGE" "$OUT" <<'PY'
+          import html, re, sys, urllib.request, pathlib, urllib.parse
+          page, out = sys.argv[1], pathlib.Path(sys.argv[2])
+          req=urllib.request.Request(page,headers={'User-Agent':'Mozilla/5.0'})
+          text=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
+          text=html.unescape(text)
+          candidates=[]
+          candidates += re.findall(r'https?://[^\"\'<> ]+?\.zip(?:\?[^\"\'<> ]*)?',text,re.I)
+          candidates += re.findall(r'(?:href|data-url|data-download)=[\"\']([^\"\']+?\.zip(?:\?[^\"\']*)?)[\"\']',text,re.I)
+          normalized=[]
+          for u in candidates:
+              normalized.append(urllib.parse.urljoin(page,u))
+          if not normalized:
+              raise SystemExit(f'No ZIP URL discovered on {page}')
+          out.write_text(normalized[0])
+          print(normalized[0])
+          PY
+            ZIP_URL="$(cat "$OUT")"
+            curl -fL --retry 3 "$ZIP_URL" -o "$TMP/$key.zip"
+            unzip -t "$TMP/$key.zip" >/dev/null
+            unzip -q "$TMP/$key.zip" -d "$TMP/$key"
+            copy_browser_assets "$TMP/$key" "$dst"
+          }
+
+          echo '--- Existing permanent reusable sources ---'
           git clone --depth 1 https://github.com/KenneyNL/Starter-Kit-City-Builder.git "$TMP/kenney-city"
           copy_browser_assets "$TMP/kenney-city/models" "$ROOT/kenney/city-builder/models"
           cp "$TMP/kenney-city/LICENSE.md" "$ROOT/kenney/city-builder/LICENSE.md" || true
           cp "$TMP/kenney-city/README.md" "$ROOT/kenney/city-builder/README.md" || true
 
-          echo '--- Kenney Basic Scene support assets ---'
           git clone --depth 1 https://github.com/KenneyNL/Starter-Kit-Basic-Scene.git "$TMP/kenney-basic"
           copy_browser_assets "$TMP/kenney-basic" "$ROOT/kenney/basic-scene"
 
-          echo '--- KayKit City Builder Bits ---'
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0.git "$TMP/kay-city"
           copy_browser_assets "$TMP/kay-city" "$ROOT/kaykit/city-builder-bits"
 
-          echo '--- KayKit Medieval Hexagon Pack ---'
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0.git "$TMP/kay-medieval"
           copy_browser_assets "$TMP/kay-medieval" "$ROOT/kaykit/medieval-hexagon"
 
-          echo '--- KayKit Dungeon Remastered ---'
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0.git "$TMP/kay-dungeon"
           copy_browser_assets "$TMP/kay-dungeon" "$ROOT/kaykit/dungeon-remastered"
 
-          echo '--- Official Kenney Platformer Kit download ---'
-          mkdir -p "$TMP/kenney-platformer" "$ROOT/kenney/platformer-kit"
-          python3 - <<'PY'
-          import html, re, urllib.request, pathlib
-          page='https://kenney.nl/assets/platformer-kit'
-          out=pathlib.Path('/tmp/kenney_platformer_url.txt')
-          try:
-              req=urllib.request.Request(page,headers={'User-Agent':'Mozilla/5.0'})
-              text=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
-              text=html.unescape(text)
-              urls=re.findall(r'https?://[^\"\'<> ]+?\.zip(?:\?[^\"\'<> ]*)?',text)
-              rels=re.findall(r'(?:href|data-url|data-download)=[\"\']([^\"\']+?\.zip(?:\?[^\"\']*)?)[\"\']',text,re.I)
-              urls += [('https://kenney.nl'+u if u.startswith('/') else u) for u in rels]
-              urls=[u for u in urls if 'platform' in u.lower() or 'kenney' in u.lower()]
-              if urls: out.write_text(urls[0])
-          except Exception as e:
-              print('Kenney page discovery failed:',e)
-          PY
-          if [ -s /tmp/kenney_platformer_url.txt ]; then
-            KP_URL="$(cat /tmp/kenney_platformer_url.txt)"
-            curl -fL --retry 3 "$KP_URL" -o "$TMP/kenney-platformer.zip" || true
-            if unzip -t "$TMP/kenney-platformer.zip" >/dev/null 2>&1; then
-              unzip -q "$TMP/kenney-platformer.zip" -d "$TMP/kenney-platformer"
-              copy_browser_assets "$TMP/kenney-platformer" "$ROOT/kenney/platformer-kit"
-            fi
+          echo '--- Kenney Platformer Kit ---'
+          if ! download_kenney_pack 'platformer-kit' "$ROOT/kenney/platformer-kit" 'kenney-platformer'; then
+            echo 'Platformer download failed; preserving previously vendored pack.'
           fi
 
-          echo '--- Official KayKit Platformer Pack FREE archive ---'
+          echo '--- KayKit Platformer Pack FREE ---'
           mkdir -p "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
           curl -fL --retry 3 'https://www.patreon.com/file?h=122994247&m=426916688' -o "$TMP/kay-platformer.zip" || true
           if unzip -t "$TMP/kay-platformer.zip" >/dev/null 2>&1; then
@@ -103,6 +112,15 @@ jobs:
             echo 'KayKit Platformer official archive could not be unpacked; keeping previously imported sources.'
           fi
 
+          echo '--- Pass 18 required Kenney Nature Kit ---'
+          download_kenney_pack 'nature-kit' "$ROOT/kenney/nature-kit" 'kenney-nature'
+
+          echo '--- Pass 18 approved Kenney Fantasy Town Kit ---'
+          download_kenney_pack 'fantasy-town-kit' "$ROOT/kenney/fantasy-town-kit" 'kenney-fantasy-town'
+
+          echo '--- Pass 18 approved Kenney Castle Kit ---'
+          download_kenney_pack 'castle-kit' "$ROOT/kenney/castle-kit" 'kenney-castle'
+
           cat > "$ROOT/SOURCES.md" <<'EOF'
           # Gamer Bros reusable world asset library
 
@@ -110,30 +128,40 @@ jobs:
 
           ## Approved sources
 
-          - Kenney Platformer Kit — official source: https://kenney.nl/assets/platformer-kit — CC0.
+          - Kenney Platformer Kit — https://kenney.nl/assets/platformer-kit — CC0.
+          - Kenney Nature Kit — https://kenney.nl/assets/nature-kit — CC0. Pass 18 primary terrain/nature/bridge/fence kit.
+          - Kenney Fantasy Town Kit — https://kenney.nl/assets/fantasy-town-kit — CC0. Pass 18 ruins/woodwork/Riverworks support.
+          - Kenney Castle Kit — https://kenney.nl/assets/castle-kit — CC0. Pass 18 ceremonial/bridge-gate/Prism Ridge support.
           - Kenney Starter Kit City Builder — https://github.com/KenneyNL/Starter-Kit-City-Builder — code MIT; included assets CC0.
           - Kenney Starter Kit Basic Scene — https://github.com/KenneyNL/Starter-Kit-Basic-Scene — support/reference scene assets.
-          - KayKit Platformer Pack FREE — official source: https://kaylousberg.itch.io/kaykit-platformer and official free attachment https://www.patreon.com/file?h=122994247&m=426916688 — CC0.
+          - KayKit Platformer Pack FREE — https://kaylousberg.itch.io/kaykit-platformer and official free attachment https://www.patreon.com/file?h=122994247&m=426916688 — CC0.
           - KayKit City Builder Bits — https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0 — CC0.
           - KayKit Medieval Hexagon Pack — https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0 — CC0.
           - KayKit Dungeon Remastered — https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0 — CC0.
 
           Only browser-useful runtime files are vendored here. Godot import caches/editor metadata are intentionally excluded.
 
-          World design rule: use these assets to dress coherent continuous land. Do not revert to floating-island/obstacle-course world structure.
+          Pass 18 rules:
+          - Real kit assets are searched before custom geometry is authored.
+          - World content is composed from real modular terrain/structure assets plus narrowly justified custom shaders/geometry.
+          - Do not revert to a single smooth heightfield as the visible Prism Valley terrain.
+          - Main remains untouched until Pass 18 visual and performance gates are approved.
           EOF
 
           cat > "$ROOT/catalog.json" <<'EOF'
           {
-            "version": 2,
+            "version": 3,
             "purpose": "Reusable Gamer Bros world/level asset pool",
             "sources": [
               {"id":"kenney-platformer","role":"terrain/traversal","preferred":true},
-              {"id":"kenney-city-builder","role":"settlements/buildings","preferred":true},
-              {"id":"kenney-basic-scene","role":"lighting/support","preferred":false},
-              {"id":"kaykit-platformer","role":"platformer dressing/gameplay props","preferred":true},
-              {"id":"kaykit-city-builder-bits","role":"settlement props/buildings","preferred":true},
-              {"id":"kaykit-medieval-hexagon","role":"ruins/medieval structures/props","preferred":true},
+              {"id":"kenney-nature","role":"cliffs/nature/bridges/fences/river-path vocabulary","preferred":true},
+              {"id":"kenney-fantasy-town","role":"ruins/woodwork/riverworks structures","preferred":true},
+              {"id":"kenney-castle","role":"ceremonial/bridge gates/prism ridge structures","preferred":true},
+              {"id":"kenney-city-builder","role":"settlements/buildings","preferred":false},
+              {"id":"kenney-basic-scene","role":"ruin/support vocabulary","preferred":true},
+              {"id":"kaykit-platformer","role":"pipes/platformer dressing/gameplay props","preferred":true},
+              {"id":"kaykit-city-builder-bits","role":"settlement props/buildings","preferred":false},
+              {"id":"kaykit-medieval-hexagon","role":"nature/river/far ridge/medieval props","preferred":true},
               {"id":"kaykit-dungeon-remastered","role":"ruins/interiors/stone props","preferred":true}
             ]
           }
@@ -143,7 +171,18 @@ jobs:
           echo "Imported file count: $(find "$ROOT" -type f | wc -l)"
           du -sh "$ROOT" || true
 
-      - name: Commit imported asset library
+          # 18-0A hard evidence: required packs must have usable 3D files.
+          for required in \
+            "$ROOT/kenney/nature-kit" \
+            "$ROOT/kenney/fantasy-town-kit" \
+            "$ROOT/kenney/castle-kit" \
+            "$ROOT/kaykit/platformer-pack"; do
+            count=$(find "$required" -type f \( -iname '*.glb' -o -iname '*.gltf' \) | wc -l)
+            echo "$required: $count 3D files"
+            test "$count" -gt 0
+          done
+
+      - name: Commit imported asset library to the active branch only
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
@@ -152,6 +191,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No asset changes to commit.'
           else
-            git commit -m 'Expand reusable world asset library'
-            git push origin HEAD:main
+            git commit -m 'Pass 18-0A: import approved concept-match asset kits'
+            git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
