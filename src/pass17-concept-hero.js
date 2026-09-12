@@ -1,7 +1,7 @@
 // Pass 17 concept-match presentation layer for GB1 / GB2.
 // Keeps the proven Gamer Bro rig/motion controller intact and pushes the visible
 // silhouette toward the approved Prism Valley V2 concept: compact toy proportions,
-// bigger blond hair, oversized headphones and a clean GB back mark.
+// a full blond rear/crown read, oversized headphones and a clean GB back mark.
 
 export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal', mobile=false}={}) {
   if (!bro?.root || !bro?.body || bro.root.userData.pass17ConceptHero) return bro?.root?.userData?.pass17ConceptHeroMeta || null;
@@ -12,10 +12,10 @@ export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal
   body.add(group);
 
   // Compact/chunky toy read. The gameplay root and movement controller stay untouched.
-  body.scale.set(1.095,.955,1.055);
+  body.scale.set(1.105,.945,1.06);
   if (bro.head) {
-    bro.head.scale.multiply(new THREE.Vector3(1.055,1.035,1.045));
-    bro.head.position.y+=.012;
+    bro.head.scale.multiply(new THREE.Vector3(1.06,1.04,1.05));
+    bro.head.position.y+=.010;
   }
 
   const hairMat=M.hair || new THREE.MeshStandardMaterial({color:0xf7bf46,roughness:.32,metalness:.02});
@@ -30,6 +30,18 @@ export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal
     o.traverse?.(m=>{if(!m.isMesh)return;m.castShadow=!mobile;m.receiveShadow=false;m.layers.enable(0);m.layers.enable(1);all.push(m)});
     return o;
   }
+
+  // The first candidate still exposed too much skin from the rear. This back hemisphere
+  // makes the approved blond hair mass read from the actual third-person gameplay camera
+  // without obscuring the authored face/visor on the front half of the head.
+  const backHair=new THREE.Mesh(
+    new THREE.SphereGeometry(.735,mobile?20:28,mobile?12:18,Math.PI,Math.PI,0,1.78),
+    hairMat
+  );
+  backHair.name='pass17-blond-rear-hair-shell';
+  backHair.position.set(0,1.92,-.015);
+  backHair.scale.set(1.035,1.0,.98);
+  group.add(backHair);register(backHair);
 
   // Chunky crown spikes layered over the authored hair. They are deliberately few and
   // broad so the silhouette reads like the concept instead of becoming noisy/anime-thin.
@@ -47,18 +59,23 @@ export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal
   spike(.42,2.33,-.22,.20,.86,.80,true);
   spike(.02,2.43,-.35,.42,.08,.86,true);
 
+  // A few broad rear locks break up the helmet-like edge of the hair shell and give the
+  // third-person silhouette the soft, layered blond shape shown in the approved vistas.
+  const rearLocks=[[-.42,2.13,-.49,-.68,.58],[.42,2.13,-.49,-.68,-.58],[-.18,2.08,-.58,-.78,.24],[.18,2.08,-.58,-.78,-.24]];
+  for(const [x,y,z,rx,rz] of rearLocks)spike(x,y,z,rx,rz,.68,true);
+
   // Oversized side cups and bright rings are the strongest read in the approved rear view.
   function ear(side){
     const g=new THREE.Group();g.name=`pass17-headphone-${side<0?'left':'right'}`;
-    g.position.set(side*.805,1.875,-.018);group.add(g);
-    const disk=new THREE.Mesh(new THREE.CylinderGeometry(.238,.238,.135,24,1,false),darkMat);
+    g.position.set(side*.81,1.875,-.018);group.add(g);
+    const disk=new THREE.Mesh(new THREE.CylinderGeometry(.242,.242,.138,24,1,false),darkMat);
     disk.rotation.z=Math.PI/2;g.add(disk);
-    const face=new THREE.Mesh(new THREE.CylinderGeometry(.205,.205,.148,24,1,false),cupMat);
+    const face=new THREE.Mesh(new THREE.CylinderGeometry(.209,.209,.152,24,1,false),cupMat);
     face.rotation.z=Math.PI/2;face.position.x=side*.012;g.add(face);
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(.205,.036,8,28),accentMat);
-    ring.rotation.y=Math.PI/2;ring.position.x=side*.080;g.add(ring);
-    const hub=new THREE.Mesh(new THREE.CylinderGeometry(.072,.072,.17,18),accentMat);
-    hub.rotation.z=Math.PI/2;hub.position.x=side*.086;g.add(hub);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.209,.037,8,28),accentMat);
+    ring.rotation.y=Math.PI/2;ring.position.x=side*.081;g.add(ring);
+    const hub=new THREE.Mesh(new THREE.CylinderGeometry(.074,.074,.173,18),accentMat);
+    hub.rotation.z=Math.PI/2;hub.position.x=side*.087;g.add(hub);
     register(g);return g;
   }
   ear(-1);ear(1);
@@ -70,8 +87,8 @@ export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal
   ctx.strokeStyle='rgba(20,24,40,.35)';ctx.lineWidth=18;ctx.strokeText('GB',256,132);
   ctx.fillStyle='#f7fbff';ctx.fillText('GB',256,132);
   const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;tex.needsUpdate=true;
-  const badge=new THREE.Mesh(new THREE.PlaneGeometry(.52,.26),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,toneMapped:false}));
-  badge.name='pass17-gb-back-mark';badge.position.set(0,1.03,-.575);badge.rotation.y=Math.PI;group.add(badge);register(badge);
+  const badge=new THREE.Mesh(new THREE.PlaneGeometry(.70,.34),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,toneMapped:false}));
+  badge.name='pass17-gb-back-mark';badge.position.set(0,1.035,-.59);badge.rotation.y=Math.PI;group.add(badge);register(badge);
 
   // Small shoulder trim gives GB1/GB2 a cleaner toy-like upper-body read without touching animation.
   const trimMat=M.trim||accentMat;
@@ -81,8 +98,8 @@ export function applyPass17ConceptHero(THREE, bro, {heroId='gb2', colorway='teal
   }
 
   const meta={
-    version:'17-hero-1',heroId,colorway,
-    silhouette:'compact-chibi',hairSpikes:7,headphoneCups:2,backMark:true,
+    version:'17-hero-2',heroId,colorway,
+    silhouette:'compact-chibi',hairSpikes:11,hairShell:true,rearLocks:4,headphoneCups:2,backMark:true,
     target:'approved-prism-valley-v2-concept'
   };
   bro.root.userData.pass17ConceptHero=group;
