@@ -131,8 +131,9 @@ def launch_from_title(hero, label, width=412, height=915):
             raise RuntimeError(f'{label} startup marker outside checkpoint gate: {startup_ms}ms')
         if elapsed > 45:
             raise RuntimeError(f'{label} title->game startup exceeded 45s: {elapsed:.2f}s')
-        if d.execute_script("return document.getElementById('hud')?.classList.contains('ready')!==true"):
-            raise RuntimeError(f'{label} HUD did not become ready')
+        ui_ready = d.execute_script("return !!document.querySelector('.hud') && document.getElementById('boot')?.classList.contains('hide')===true")
+        if not ui_ready:
+            raise RuntimeError(f'{label} gameplay HUD/boot transition not ready')
         d.save_screenshot(str(PROOF / f'{label}-{hero}-gameplay.png'))
         severe = [x for x in logs(d) if x.get('level') == 'SEVERE' and 'favicon' not in x.get('message','').lower()]
         if severe:
