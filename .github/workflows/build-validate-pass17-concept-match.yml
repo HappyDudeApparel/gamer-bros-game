@@ -1,0 +1,58 @@
+name: Build + Validate Pass 17 Concept Match
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'PASS17_CONCEPT_MATCH_BUILD_SPEC.md'
+      - 'pass17-world1/**'
+      - 'scripts/build_pass17_concept_match.py'
+      - 'scripts/test_pass17_browser.py'
+      - '.github/workflows/build-validate-pass17-concept-match.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build Pass 17
+        run: python scripts/build_pass17_concept_match.py
+      - name: Validate JavaScript
+        run: |
+          node --check pass17-world1/app.js
+          node --check pass17-world1/world.js
+          node --check pass17-world1/enemies.js
+          node --check pass17-world1/concept-bro.js
+          node --check pass17-world1/power.js
+          node --check pass17-world1/assets.js
+      - name: Validate concept-match markers
+        run: |
+          grep -q "pass17-prism-valley-v2" pass17-world1/world.js
+          grep -q "continuous-visible" pass17-world1/world.js
+          grep -q "createConceptBro" pass17-world1/app.js
+          grep -q "patrol" pass17-world1/enemies.js
+          grep -q "spiker" pass17-world1/enemies.js
+          grep -q "flyer" pass17-world1/enemies.js
+          grep -q "crystal-library-v2-tube" pass17-world1/app.js
+      - name: Browser dependencies
+        run: pip install selenium
+      - name: Real desktop and Android smoke
+        run: |
+          python -m http.server 8000 >/tmp/pass17-http.log 2>&1 &
+          sleep 2
+          python scripts/test_pass17_browser.py
+      - name: Commit generated Pass 17 candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass17-world1
+          if git diff --cached --quiet; then
+            echo 'No generated changes'
+          else
+            git commit -m 'Build Pass 17 concept-match candidate'
+            git pull --rebase origin main
+            git push
+          fi
