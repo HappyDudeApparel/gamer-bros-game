@@ -1,5 +1,7 @@
 # Gamer Bros Recovery Map
 
+> **UNIVERSAL RECOVERY NOTICE:** This file preserves historical no-regression/system lineage. It is not the current-stage handoff. For any new chat/window or future numbered pass, read `PROJECT_CONTINUITY.md` and then `CURRENT_WORK.md` first. The user does not need a fixed recovery phrase.
+
 This file defines the no-regression source map for the unified playable recovery build.
 
 ## Non-negotiable recovery rule
@@ -78,10 +80,12 @@ These remain available as dressing/supplemental assets. A good asset library doe
 - `/room01-v1/` — integration experiment only; its tube is not canonical.
 - `/playground-v2/` — Gamer Bro/gameplay component source; not canonical world art.
 
-## Current build order
+## Historical build order preserved for lineage only
 1. Prove Pass 8 fundamentals before adding content: movement, walk/run animation, jump, visible-geometry collision, camera visibility, exact Crystal Library v2 tube/transition and no first-use hitch.
 2. If the authored Concept Arena itself is not good enough, keep the proven Pass 8 shell and swap only the map for a stronger finished commercially compatible outdoor level.
 3. Do not reintroduce enemies until the baseline world/control/tube test is accepted.
 4. Then add enemy behavior as a separate validated system: normalized scale, immediate hit reaction, one clear defeat/disappearance, no duplicate respawn bug.
 5. Add one chosen collectible family and persistent tally.
 6. Enable Level 1 completion and Citrus unlock only after the world/combat/portal round is stable.
+
+For the **current** branch/stage/next task, ignore this historical build order and use `CURRENT_WORK.md`.
