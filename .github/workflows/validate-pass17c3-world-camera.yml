@@ -27,7 +27,7 @@ concurrency:
 jobs:
   checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -54,10 +54,11 @@ jobs:
           grep -q "riverworks-main-pipe" pass17-world1/world.js
           grep -q "dungeon:wall_arched.gltf.glb" pass17-world1/world.js
           grep -q "__pass17ConceptLandmarksReady" pass17-world1/world.js
+          grep -q "checkpointDecor" pass17-world1/world.js
           grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
           grep -q "camPitch=.18" pass17-world1/app.js
           grep -q "cameraInfo" pass17-world1/app.js
-          grep -q "ensureDecor" pass17-world1/app.js
+          grep -q "checkpointDecor" pass17-world1/app.js
 
       - name: Browser dependency
         run: pip install selenium
@@ -67,11 +68,17 @@ jobs:
           python -m http.server 8000 >/tmp/pass17c3-http.log 2>&1 &
           sleep 2
 
-      - name: Desktop world camera streaming checkpoint
-        run: timeout 150s python -u scripts/test_pass17c3_world_camera.py --target desktop
+      - name: Desktop production streaming checkpoint
+        run: timeout 160s python -u scripts/test_pass17c3_world_camera.py --target desktop --mode stream
 
-      - name: Android world camera streaming checkpoint
-        run: timeout 150s python -u scripts/test_pass17c3_world_camera.py --target android
+      - name: Android production streaming checkpoint
+        run: timeout 160s python -u scripts/test_pass17c3_world_camera.py --target android --mode stream
+
+      - name: Desktop camera and landmark proof
+        run: timeout 160s python -u scripts/test_pass17c3_world_camera.py --target desktop --mode visual
+
+      - name: Android camera and landmark proof
+        run: timeout 160s python -u scripts/test_pass17c3_world_camera.py --target android --mode visual
 
       - name: Upload Pass 17C-3 proof
         if: always()
