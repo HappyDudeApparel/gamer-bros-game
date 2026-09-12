@@ -25,13 +25,14 @@ def run(label,mobile=False):
             if d.execute_script("return document.documentElement.dataset.enemyStreamError||document.documentElement.dataset.decorStreamError||''"):
                 raise RuntimeError('stream failure '+repr(d.get_log('browser')))
             landmarks=d.execute_script("return window.__pass17ConceptLandmarksReady===true")
+            meadow=d.execute_script("return window.__pass17PortalMeadowDressed===true")
             enemies=int(d.execute_script("return document.documentElement.dataset.enemies||'0'"))
             decor=d.execute_script("return document.documentElement.dataset.decor==='1'")
-            if landmarks and enemies>=5 and decor:break
+            if landmarks and meadow and enemies>=5 and decor:break
             time.sleep(.35)
         if not landmarks:raise RuntimeError('concept landmarks did not load '+repr(d.get_log('browser')))
-        names=d.execute_script("return {pipes:document.querySelectorAll('canvas').length, marker:document.documentElement.dataset.conceptLandmarks}")
-        scene_checks=d.execute_script("return {landmarks:window.__pass17ConceptLandmarksReady, terrain:window.__pass17ContinuousTerrain, decor:window.__pass17DecorReady}")
+        if not meadow:raise RuntimeError('Portal Meadow concept dressing did not load '+repr(d.get_log('browser')))
+        scene_checks=d.execute_script("return {landmarks:window.__pass17ConceptLandmarksReady,meadow:window.__pass17PortalMeadowDressed,terrain:window.__pass17ContinuousTerrain,decor:window.__pass17DecorReady,conceptHero:document.documentElement.dataset.conceptHero==='1'}")
         if not all(scene_checks.values()):raise RuntimeError('missing scene flags '+repr(scene_checks))
         print(label,'PASS17B READY',round(time.time()-started,2),'main',val['main']['samples'],'optional',val['optional']['samples'],'enemies',enemies,'flags',scene_checks)
     finally:d.quit()
