@@ -1,4 +1,3 @@
-import os
 import time
 from pathlib import Path
 
@@ -26,6 +25,7 @@ def browser(width=1280, height=720, mobile=False):
     d = webdriver.Chrome(options=o)
     d.set_window_size(width, height)
     d.set_script_timeout(40)
+    d.set_page_load_timeout(35)
     return d
 
 
@@ -99,7 +99,7 @@ def title_layout(label, width, height, mobile):
 
 
 def wait_streams(d, label):
-    end = time.time() + 125
+    end = time.time() + 70
     state = None
     while time.time() < end:
         assert_no_fatal(d, label)
@@ -121,6 +121,16 @@ def wait_streams(d, label):
             return state
         time.sleep(.35)
     raise RuntimeError(f'{label} streams incomplete: {state} {logs(d)!r}')
+
+
+def warm_portal(d, label):
+    warm = d.execute_async_script("""
+      const done=arguments[0];
+      window.__pass17CTest.portalWarm().then(v=>done(v)).catch(e=>done({error:String(e)}));
+    """)
+    if warm.get('error') or not warm.get('prewarmed') or warm.get('state') != 'idle':
+        raise RuntimeError(f'{label} production-order portal prewarm failed: {warm} {logs(d)!r}')
+    print(label, 'PORTAL PREWARM PASS')
 
 
 def power_gate(d, label):
@@ -188,7 +198,7 @@ def portal_gate(d, label):
       window.__pass17CTest.portalPrime().then(v=>done(v)).catch(e=>done({error:String(e)}));
     """)
     if prime.get('error') or not prime.get('prewarmed'):
-        raise RuntimeError(f'{label} portal prewarm failed: {prime} {logs(d)!r}')
+        raise RuntimeError(f'{label} portal prime failed: {prime} {logs(d)!r}')
     wait_js(d, "return window.__pass17PortalState && window.__pass17PortalState!=='idle'", 5, f'{label} portal trigger')
     time.sleep(2.2)
     shot(d, f'{label}-portal-active.png')
@@ -236,6 +246,10 @@ def game_gate(label, width, height, mobile, hero):
             raise RuntimeError(f'{label} route regression: {validation}')
         if d.execute_script('return window.__characterReady') != hero:
             raise RuntimeError(f'{label} wrong hero ready')
+
+        # Production prewarms the canonical tube before heavy decor streams. Mirror that order
+        # so the test measures the same path instead of compiling the fully decorated scene.
+        warm_portal(d, label)
         streams = wait_streams(d, label)
         camera_gate(d, label)
         shot(d, f'{label}-{hero}-spawn.png')
@@ -247,14 +261,10 @@ def game_gate(label, width, height, mobile, hero):
 
 
 def main():
-    # Title composition must survive both phone orientations before any promotion.
     title_layout('android-portrait', 412, 915, True)
     title_layout('android-landscape', 915, 412, True)
-
-    # Exercise both playable Gamer Bros and the full production sequence on desktop + Android UA.
     game_gate('desktop', 1280, 720, False, 'gb1')
     game_gate('android', 915, 412, True, 'gb2')
-
     print('PASS 17C END-TO-END GATE GREEN')
     print('proof:', PROOF)
 
