@@ -1,0 +1,80 @@
+name: Validate Pass 18-2 Golden Slice
+
+on:
+  push:
+    branches: [pass18-rebuild]
+    paths:
+      - 'data/pass18/golden-slice-creek.json'
+      - 'src/pass18/golden-slice.js'
+      - 'src/pass18/asset-catalog.js'
+      - 'src/pass18/asset-registry.js'
+      - 'src/pass18/asset-placement.js'
+      - 'src/pass18/world-language.js'
+      - 'pass18-golden-slice/**'
+      - 'scripts/test_pass18_2_golden_slice.py'
+      - '.github/workflows/validate-pass18-2-golden-slice.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass18-2-golden-slice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  golden-slice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout isolated Pass 18 branch
+        uses: actions/checkout@v4
+      - name: Verify authored Golden Slice architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "pass18-rebuild"
+          node --check src/pass18/golden-slice.js
+          node --check src/pass18/asset-registry.js
+          node --check src/pass18/asset-placement.js
+          python -m py_compile scripts/test_pass18_2_golden_slice.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('data/pass18/golden-slice-creek.json').read_text())
+          assert d['version']=='18-2.0'
+          assert d['worldLanguage']=='18-0B.2'
+          assert d['reviewStatus']=='PENDING_USER'
+          assert d['anchorSection']=='B'
+          assert len(d['placements'])>=70
+          assert any(p['asset']=='nature.bridge.stone' for p in d['placements'])
+          assert any(p['asset']=='nature.cliff.waterfall' for p in d['placements'])
+          assert any(p['asset']=='nature.cliff.waterfallTop' for p in d['placements'])
+          assert sum(p['role']=='vegetation' for p in d['placements'])>=30
+          assert sum(p['role']=='fence' for p in d['placements'])>=6
+          assert sum(p['role']=='path' for p in d['placements'])>=5
+          print('Golden Slice authored density',len(d['placements']))
+          PY
+          grep -q 'Pass18AssetRegistry' src/pass18/golden-slice.js
+          grep -q 'golden-slice-creek.json' src/pass18/golden-slice.js
+          ! grep -q 'patch_pass18' src/pass18/golden-slice.js
+          ! grep -q 'pass17-world1' src/pass18/golden-slice.js
+          ! grep -q 'PlaneGeometry(200' src/pass18/golden-slice.js
+      - name: Browser dependency
+        run: pip install selenium
+      - name: Start local static server
+        run: |
+          python -m http.server 8000 >/tmp/pass18-2-http.log 2>&1 &
+          sleep 2
+      - name: Desktop Golden Slice proof
+        run: timeout 240s python -u scripts/test_pass18_2_golden_slice.py --target desktop
+      - name: Android landscape Golden Slice proof
+        run: timeout 240s python -u scripts/test_pass18_2_golden_slice.py --target android
+      - name: Upload concept-view screenshots and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass18-2-golden-slice-proof
+          path: artifacts/pass18-2-golden-slice
+          if-no-files-found: warn
+          retention-days: 21
