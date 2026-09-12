@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#a9def2"><title>Gamer Bros — Pass 18-1 Prism Valley Structure</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#10212d;background:#a9def2}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}#world{position:fixed;inset:0;width:100%;height:100%;display:block}.panel{position:fixed;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:5;width:min(380px,45vw);background:#f8fff3e8;border:1px solid #ffffffdd;border-radius:16px;box-shadow:0 10px 34px #15364435;backdrop-filter:blur(10px);padding:11px 12px}.panel h1{font-size:14px;margin:0 0 3px}.panel p{font-size:9px;margin:0 0 8px;opacity:.74}.views{display:flex;gap:5px;flex-wrap:wrap}.views button{border:1px solid #476f7844;background:#effbf3;border-radius:999px;padding:5px 8px;font-size:8px;font-weight:900;color:#173840}.views button.active{background:#174c5b;color:white}.metrics{font:800 8px/1.3 ui-monospace,Consolas,monospace;margin-top:8px;background:#ffffffb8;border-radius:8px;padding:6px 8px}.legend{position:fixed;left:max(10px,env(safe-area-inset-left));bottom:max(10px,env(safe-area-inset-bottom));z-index:4;background:#10212ddd;color:white;border-radius:12px;padding:8px 10px;font-size:8px;line-height:1.45;box-shadow:0 8px 24px #10212d30}.legend b{display:block;margin-bottom:3px}.dot{display:inline-block;width:8px;height:3px;border-radius:99px;margin:0 4px 1px 0}.main{background:#ffd45a}.spring{background:#58e6ff}.pipe{background:#52d6a5}.mastery{background:#e686ff}.bypass{background:#98c8ff}.high{background:#ff8ac7}.badge{position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));z-index:4;background:#10212ddd;color:white;border-radius:999px;padding:8px 10px;font-size:8px;font-weight:900}@media(max-width:720px){.panel{width:min(390px,68vw);padding:8px 9px}.panel h1{font-size:10px}.panel p,.metrics{font-size:7px}.views button{font-size:6px;padding:4px 6px}.legend{font-size:6px;padding:6px 8px}.badge{font-size:6px;padding:6px 8px}}
+</style>
+<script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js","three/addons/":"../vendor/three/addons/"}}</script>
+</head><body>
+<canvas id="world"></canvas>
+<section class="panel"><h1>PASS 18-1 · PRISM VALLEY STRUCTURE</h1><p id="status">Loading A→F structural world…</p><div class="views" id="views"></div><div class="metrics" id="metrics">Waiting for structural metrics…</div></section>
+<div class="legend"><b>ROUTE STRUCTURE</b><span class="dot main"></span>Main &nbsp; <span class="dot spring"></span>Spring &nbsp; <span class="dot pipe"></span>Pipe Loop<br><span class="dot mastery"></span>Clover High &nbsp; <span class="dot bypass"></span>Lower Bypass &nbsp; <span class="dot high"></span>Ruin High</div>
+<div class="badge">STRUCTURE ONLY · NO ART-DENSITY PASS</div>
+<script type="module" src="../src/pass18/world-skeleton.js?v=18-1.0"></script>
+</body></html>
