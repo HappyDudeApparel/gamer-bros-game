@@ -1,1 +1,3361 @@
-{"version":"18-2.0","title":"Prism Valley V2 Golden Slice — Creek Crossing","worldLanguage":"18-0B.2","reviewStatus":"PENDING_USER","structuralReference":"data/pass18/world-skeleton.json","anchorSection":"B","intent":"In-situ concept-resemblance proof before any full A-F art build.","placements":[{"id":"cliffL1","role":"cliff","asset":"nature.cliff.large","position":[-10,0.0,20],"rotationY":0.25,"targetMax":8.2,"section":"B"},{"id":"cliffL2","role":"cliff","asset":"nature.cliff.corner","position":[-12,-0.1,14],"rotationY":0.7,"targetMax":8.0,"section":"B"},{"id":"cliffL3","role":"cliff","asset":"nature.cliff.large","position":[-11,0.2,8],"rotationY":0.05,"targetMax":8.6,"section":"B"},{"id":"cliffL4","role":"cliff","asset":"nature.cliff.steps","position":[-8,0.5,4],"rotationY":0.25,"targetMax":7.5,"section":"B"},{"id":"cliffR1","role":"cliff","asset":"nature.cliff.large","position":[10,0.0,20],"rotationY":-0.2,"targetMax":8.4,"section":"B"},{"id":"cliffR2","role":"cliff","asset":"nature.cliff.corner","position":[12,-0.1,15],"rotationY":-0.72,"targetMax":8.0,"section":"B"},{"id":"cliffR3","role":"cliff","asset":"nature.cliff.waterfall","position":[10,0.15,9],"rotationY":-0.12,"targetMax":8.8,"section":"B"},{"id":"cliffR4","role":"cliff","asset":"nature.cliff.waterfallTop","position":[10,3.4,6.2],"rotationY":-0.12,"targetMax":7.8,"section":"B"},{"id":"cliffR5","role":"cliff","asset":"nature.cliff.large","position":[12,1.0,3.3],"rotationY":-0.35,"targetMax":8.2,"section":"B"},{"id":"shelfL1","role":"terrain","asset":"nature.platform.grass","position":[-7,2.0,21],"rotationY":0.1,"targetMax":7.2,"section":"B"},{"id":"shelfL2","role":"terrain","asset":"nature.platform.grass","position":[-9,2.7,12],"rotationY":-0.15,"targetMax":6.8,"section":"B"},{"id":"shelfR1","role":"terrain","asset":"nature.platform.grass","position":[7,2.0,21],"rotationY":-0.1,"targetMax":7.2,"section":"B"},{"id":"shelfR2","role":"terrain","asset":"nature.platform.grass","position":[9,3.2,12],"rotationY":0.12,"targetMax":7.0,"section":"B"},{"id":"bridgeApproachL","role":"terrain","asset":"nature.ground.grass","position":[-5,0.3,18],"rotationY":0.08,"targetMax":8.5,"section":"B"},{"id":"bridgeApproachR","role":"terrain","asset":"nature.ground.grass","position":[5,0.3,18],"rotationY":-0.08,"targetMax":8.5,"section":"B"},{"id":"bridge","role":"bridge","asset":"nature.bridge.stone","position":[0,0.7,16],"rotationY":1.5708,"targetMax":11.2,"section":"B"},{"id":"path1","role":"path","asset":"nature.path.bend","position":[-6.5,1.25,30],"rotationY":-0.35,"targetMax":5.8,"section":"A"},{"id":"path2","role":"path","asset":"nature.path.bend","position":[-5.1,1.15,27],"rotationY":-0.28,"targetMax":5.8,"section":"A"},{"id":"path3","role":"path","asset":"nature.path.bend","position":[-3.7,1.05,24],"rotationY":-0.15,"targetMax":5.8,"section":"A"},{"id":"path4","role":"path","asset":"nature.path.bend","position":[-2.2,0.95,21.7],"rotationY":0.02,"targetMax":5.8,"section":"B"},{"id":"path5","role":"path","asset":"nature.path.bend","position":[-1,0.85,19.2],"rotationY":0.12,"targetMax":5.8,"section":"B"},{"id":"fence1","role":"fence","asset":"kaykit.barrier.green","position":[-8.1,1.4,29.2],"rotationY":-0.2,"targetMax":2.7,"section":"A"},{"id":"fence2","role":"fence","asset":"kaykit.barrier.green","position":[-6.9,1.3,26.1],"rotationY":-0.18,"targetMax":2.7,"section":"A"},{"id":"fence3","role":"fence","asset":"kaykit.barrier.green","position":[-5.5,1.18,23.5],"rotationY":-0.08,"targetMax":2.7,"section":"A"},{"id":"fence4","role":"fence","asset":"kaykit.barrier.green","position":[-4.2,1,20.9],"rotationY":0.1,"targetMax":2.7,"section":"B"},{"id":"fence5","role":"fence","asset":"kaykit.barrier.green","position":[-3.7,1.35,30.8],"rotationY":-0.2,"targetMax":2.7,"section":"A"},{"id":"fence6","role":"fence","asset":"kaykit.barrier.green","position":[-2.7,1.25,27.8],"rotationY":-0.18,"targetMax":2.7,"section":"A"},{"id":"fence7","role":"fence","asset":"kaykit.barrier.green","position":[-1.8,1.08,25],"rotationY":-0.05,"targetMax":2.7,"section":"A"},{"id":"fence8","role":"fence","asset":"kaykit.barrier.green","position":[-0.3,0.92,22.2],"rotationY":0.12,"targetMax":2.7,"section":"B"},{"id":"rock1","role":"rock","asset":"nature.rock.largeA","position":[-10,1.1,27],"rotationY":0.1,"targetMax":3,"section":"B"},{"id":"rock2","role":"rock","asset":"nature.rock.largeC","position":[-7,0.7,17],"rotationY":0.8,"targetMax":2.6,"section":"B"},{"id":"rock3","role":"rock","asset":"nature.rock.largeA","position":[-12,0.8,5],"rotationY":0.2,"targetMax":3.2,"section":"B"},{"id":"rock4","role":"rock","asset":"nature.rock.largeC","position":[11,0.8,24],"rotationY":-0.2,"targetMax":3,"section":"B"},{"id":"rock5","role":"rock","asset":"nature.rock.largeA","position":[12,1.2,13],"rotationY":0.4,"targetMax":2.8,"section":"B"},{"id":"rock6","role":"rock","asset":"nature.rock.largeC","position":[8,0.5,5],"rotationY":1,"targetMax":2.4,"section":"B"},{"id":"rock7","role":"rock","asset":"nature.rock.largeA","position":[-5,0.6,11],"rotationY":0.3,"targetMax":2.2,"section":"B"},{"id":"rock8","role":"rock","asset":"nature.rock.largeC","position":[5,0.6,12],"rotationY":-0.5,"targetMax":2.2,"section":"B"},{"id":"tree1","role":"vegetation","asset":"nature.tree.default","position":[-15,1,28],"rotationY":0.2,"targetMax":4.8,"section":"B"},{"id":"tree2","role":"vegetation","asset":"nature.tree.tall","position":[-13,1,23],"rotationY":-0.2,"targetMax":4.2,"section":"B"},{"id":"tree3","role":"vegetation","asset":"nature.tree.oak","position":[-14,1.2,9],"rotationY":0.5,"targetMax":4.8,"section":"B"},{"id":"tree4","role":"vegetation","asset":"nature.tree.default","position":[-12,2,1],"rotationY":-0.2,"targetMax":4.6,"section":"B"},{"id":"tree5","role":"vegetation","asset":"nature.tree.tall","position":[14,1,27],"rotationY":-0.3,"targetMax":4.9,"section":"B"},{"id":"tree6","role":"vegetation","asset":"nature.tree.oak","position":[15,1.2,20],"rotationY":0.1,"targetMax":4.4,"section":"B"},{"id":"tree7","role":"vegetation","asset":"nature.tree.default","position":[15,2,6],"rotationY":-0.5,"targetMax":4.7,"section":"B"},{"id":"tree8","role":"vegetation","asset":"nature.tree.tall","position":[12,2.8,0],"rotationY":0.2,"targetMax":4.4,"section":"B"},{"id":"bush1","role":"vegetation","asset":"nature.bush.detailed","position":[-8,1,25],"rotationY":0.4,"targetMax":2.0,"section":"B"},{"id":"bush2","role":"vegetation","asset":"nature.bush.detailed","position":[-6,0.8,19],"rotationY":0.8,"targetMax":2.0,"section":"B"},{"id":"bush3","role":"vegetation","asset":"nature.bush.detailed","position":[-9,1,10],"rotationY":1.2,"targetMax":2.0,"section":"B"},{"id":"bush4","role":"vegetation","asset":"nature.bush.detailed","position":[8,0.9,24],"rotationY":1.6,"targetMax":2.0,"section":"B"},{"id":"bush5","role":"vegetation","asset":"nature.bush.detailed","position":[7,0.8,18],"rotationY":2.0,"targetMax":2.0,"section":"B"},{"id":"bush6","role":"vegetation","asset":"nature.bush.detailed","position":[9,1.2,8],"rotationY":2.4,"targetMax":2.0,"section":"B"},{"id":"flora1","role":"vegetation","asset":"nature.flower.purpleA","position":[-7.2,1.35,31],"rotationY":0.37,"targetMax":1.2,"section":"B"},{"id":"flora2","role":"vegetation","asset":"nature.grass","position":[-5.8,1.2,28.8],"rotationY":0.74,"targetMax":1.6,"section":"B"},{"id":"flora3","role":"vegetation","asset":"nature.grass.large","position":[-4.8,1.1,26],"rotationY":1.11,"targetMax":1.6,"section":"B"},{"id":"flora4","role":"vegetation","asset":"nature.flower.yellowB","position":[-3.8,1,23.5],"rotationY":1.48,"targetMax":1.2,"section":"B"},{"id":"flora5","role":"vegetation","asset":"nature.flower.purpleA","position":[-2.5,0.9,21],"rotationY":1.85,"targetMax":1.2,"section":"B"},{"id":"flora6","role":"vegetation","asset":"nature.grass","position":[-8.6,1,22],"rotationY":2.22,"targetMax":1.6,"section":"B"},{"id":"flora7","role":"vegetation","asset":"nature.grass.large","position":[-9.5,0.8,16],"rotationY":2.59,"targetMax":1.6,"section":"B"},{"id":"flora8","role":"vegetation","asset":"nature.flower.yellowB","position":[-7.5,0.8,14],"rotationY":2.96,"targetMax":1.2,"section":"B"},{"id":"flora9","role":"vegetation","asset":"nature.flower.purpleA","position":[6.2,0.8,22],"rotationY":3.33,"targetMax":1.2,"section":"B"},{"id":"flora10","role":"vegetation","asset":"nature.grass","position":[7.8,0.9,19],"rotationY":3.7,"targetMax":1.6,"section":"B"},{"id":"flora11","role":"vegetation","asset":"nature.grass.large","position":[8.8,1.1,15],"rotationY":4.07,"targetMax":1.6,"section":"B"},{"id":"flora12","role":"vegetation","asset":"nature.flower.yellowB","position":[6.7,0.7,12],"rotationY":4.44,"targetMax":1.2,"section":"B"},{"id":"flora13","role":"vegetation","asset":"nature.flower.purpleA","position":[11,1.3,25],"rotationY":4.81,"targetMax":1.2,"section":"B"},{"id":"flora14","role":"vegetation","asset":"nature.grass","position":[12.2,1.5,18],"rotationY":5.18,"targetMax":1.6,"section":"B"},{"id":"flora15","role":"vegetation","asset":"nature.grass.large","position":[-11.2,1.3,25],"rotationY":5.55,"targetMax":1.6,"section":"B"},{"id":"flora16","role":"vegetation","asset":"nature.flower.yellowB","position":[-12,1.4,18],"rotationY":5.92,"targetMax":1.2,"section":"B"},{"id":"flora17","role":"vegetation","asset":"nature.flower.purpleA","position":[-6,0.7,7],"rotationY":0.01,"targetMax":1.2,"section":"B"},{"id":"flora18","role":"vegetation","asset":"nature.grass","position":[6,0.7,8],"rotationY":0.38,"targetMax":1.6,"section":"B"},{"id":"flora19","role":"vegetation","asset":"nature.grass.large","position":[-3.5,0.6,12],"rotationY":0.75,"targetMax":1.6,"section":"B"},{"id":"flora20","role":"vegetation","asset":"nature.flower.yellowB","position":[3.5,0.6,13],"rotationY":1.12,"targetMax":1.2,"section":"B"},{"id":"farD1","role":"far-cliff","asset":"nature.cliff.large","position":[8,5.3,-8],"rotationY":0.2,"targetMax":10.5,"section":"D","castShadow":false},{"id":"farD2","role":"far-cliff","asset":"nature.platform.grass","position":[8,7.2,-11],"rotationY":-0.2,"targetMax":9,"section":"D","castShadow":false},{"id":"farE1","role":"far-ruin","asset":"fantasy.wall.arch","position":[2,9.8,-24],"rotationY":0,"targetMax":8,"section":"E","castShadow":false},{"id":"farE2","role":"far-ruin","asset":"fantasy.wall.corner","position":[-5,9.2,-26],"rotationY":0.3,"targetMax":7,"section":"E","castShadow":false},{"id":"ridgePlatform","role":"ridge","asset":"nature.platform.grass","position":[-2,14.4,-44],"rotationY":0,"targetMax":13,"section":"F","castShadow":false},{"id":"ridgeGate","role":"ridge","asset":"castle.gate","position":[-2,15,-43],"rotationY":0,"targetMax":13.5,"section":"F","castShadow":false},{"id":"ridgeFlagL","role":"ridge","asset":"castle.flag","position":[-7,15.2,-43],"rotationY":0.15,"targetMax":5.4,"section":"F","castShadow":false},{"id":"ridgeFlagR","role":"ridge","asset":"castle.flag","position":[3,15.2,-43],"rotationY":-0.15,"targetMax":5.4,"section":"F","castShadow":false},{"id":"ridgeStairs","role":"ridge","asset":"castle.stairs.stone","position":[-2,13,-38],"rotationY":0,"targetMax":7,"section":"F","castShadow":false}],"water":{"width":3.6,"color":4637897,"foamColor":15922680,"points":[[2.8,0.28,28],[2.0,0.22,23],[0.2,0.16,16],[-3.2,0.18,11],[-7.2,0.4,6],[-9.0,0.7,2.5]],"flowSpeed":0.38},"waterfalls":[{"id":"fall-right","position":[9.7,2.6,8.2],"width":3.0,"height":5.6,"rotationY":-0.12,"housing":["cliffR3","cliffR4"]},{"id":"fall-far","position":[-3.5,4.9,-12.2],"width":2.2,"height":4.0,"rotationY":0.06,"far":true}],"prismAccents":[{"position":[-4.8,20.0,-43],"scale":1.1,"color":65535},{"position":[0.8,20.6,-43],"scale":1.3,"color":16727295},{"position":[-2.0,22.0,-43],"scale":1.7,"color":9699583}],"cameraViews":{"concept":{"position":[14.8,8.4,31.5],"target":[-0.8,4.5,-10.0],"fovDesktop":46,"fovMobile":50},"bridge":{"position":[11.0,5.7,25.5],"target":[0.0,1.5,14.5],"fovDesktop":44,"fovMobile":50},"ridgeRead":{"position":[5.5,6.4,24.0],"target":[-2.0,15.7,-43.0],"fovDesktop":46,"fovMobile":50}},"acceptance":{"minRealPlacements":70,"minCliffs":8,"minVegetation":30,"minFences":6,"minPathPieces":5,"bridgeAsset":"nature.bridge.stone","minUniqueSources":12,"requiresRealWaterfallHousing":true,"requiresAnimatedWater":true,"requiresAnimatedWaterfall":true,"requiresRidgeInConceptFrustum":true,"visualApproval":"USER_REQUIRED"}}
+{
+  "version": "18-2.1",
+  "title": "Prism Valley V2 Golden Slice \u2014 Creek Crossing",
+  "worldLanguage": "18-0B.2",
+  "reviewStatus": "PENDING_USER",
+  "structuralReference": "data/pass18/world-skeleton.json",
+  "anchorSection": "B",
+  "intent": "In-situ concept-resemblance proof before any full A-F art build.",
+  "creekBanks": [
+    {
+      "id": "creekBank",
+      "groundAsset": "nature.ground.grass",
+      "cliffAsset": "nature.cliff.large",
+      "cliffCornerAsset": "nature.cliff.corner",
+      "fromZ": 6,
+      "toZ": 29,
+      "outerW": -11,
+      "outerE": 9,
+      "halfWidth": 1.8,
+      "y": 0.7,
+      "section": "B"
+    }
+  ],
+  "placements": [
+    {
+      "id": "meadow-fill--11-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -11,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--10-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -10,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--9-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -9,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--8-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -8,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--7-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -7,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--6-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -6,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--5-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--4-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--3-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--2-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--1-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-0-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-1-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-2-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        2,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-3-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        3,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-4-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        4,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-5-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        5,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-6-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        6,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-7-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        7,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-8-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        8,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-9-30",
+      "asset": "nature.ground.grass",
+      "position": [
+        9,
+        1.6,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--11-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -11,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--10-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -10,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--9-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -9,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--8-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -8,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--7-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -7,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--6-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -6,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--5-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--4-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--3-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--2-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--1-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-0-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-1-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-2-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        2,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-3-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        3,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-4-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        4,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-5-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        5,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-6-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        6,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-7-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        7,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-8-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        8,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-9-31",
+      "asset": "nature.ground.grass",
+      "position": [
+        9,
+        1.6,
+        31
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--11-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -11,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--10-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -10,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--9-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -9,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--8-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -8,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--7-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -7,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--6-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -6,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--5-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--4-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--3-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--2-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--1-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-0-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-1-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-2-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        2,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-3-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        3,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-4-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        4,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-5-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        5,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-6-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        6,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-7-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        7,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-8-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        8,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-9-32",
+      "asset": "nature.ground.grass",
+      "position": [
+        9,
+        1.6,
+        32
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--11-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -11,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--10-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -10,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--9-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -9,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--8-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -8,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--7-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -7,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--6-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -6,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--5-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--4-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--3-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--2-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill--1-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-0-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-1-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-2-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        2,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-3-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        3,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-4-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        4,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-5-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        5,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-6-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        6,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-7-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        7,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-8-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        8,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-fill-9-33",
+      "asset": "nature.ground.grass",
+      "position": [
+        9,
+        1.6,
+        33
+      ],
+      "rotationY": 0.0,
+      "role": "terrain",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--10",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -10,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--9",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -9,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--8",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -8,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--7",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -7,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--6",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -6,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--5",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -5,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--4",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -4,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--3",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -3,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--2",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -2,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser--1",
+      "asset": "nature.cliff.steps",
+      "position": [
+        -1,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-0",
+      "asset": "nature.cliff.steps",
+      "position": [
+        0,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-1",
+      "asset": "nature.cliff.steps",
+      "position": [
+        1,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-2",
+      "asset": "nature.cliff.steps",
+      "position": [
+        2,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-3",
+      "asset": "nature.cliff.steps",
+      "position": [
+        3,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-4",
+      "asset": "nature.cliff.steps",
+      "position": [
+        4,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-5",
+      "asset": "nature.cliff.steps",
+      "position": [
+        5,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-6",
+      "asset": "nature.cliff.steps",
+      "position": [
+        6,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-7",
+      "asset": "nature.cliff.steps",
+      "position": [
+        7,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "meadow-riser-8",
+      "asset": "nature.cliff.steps",
+      "position": [
+        8,
+        0.7,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "terrain-step",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z30",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        30
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z29",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        29
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z28",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        28
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z27",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        27
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z26",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        26
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z25",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        25
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z24",
+      "asset": "nature.path.straight",
+      "position": [
+        -2,
+        0.75,
+        24
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "A",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z23",
+      "asset": "nature.path.tile",
+      "position": [
+        -2,
+        0.75,
+        23
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z22",
+      "asset": "nature.path.tile",
+      "position": [
+        -2,
+        0.75,
+        22
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z21",
+      "asset": "nature.path.tile",
+      "position": [
+        -2,
+        0.75,
+        21
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z20",
+      "asset": "nature.path.tile",
+      "position": [
+        -3,
+        0.75,
+        20
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z19",
+      "asset": "nature.path.tile",
+      "position": [
+        -3,
+        0.75,
+        19
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z18",
+      "asset": "nature.path.tile",
+      "position": [
+        -3,
+        0.75,
+        18
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z17",
+      "asset": "nature.path.tile",
+      "position": [
+        -3,
+        0.75,
+        17
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z15",
+      "asset": "nature.path.tile",
+      "position": [
+        3,
+        0.75,
+        15
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z14",
+      "asset": "nature.path.tile",
+      "position": [
+        3,
+        0.75,
+        14
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z13",
+      "asset": "nature.path.tile",
+      "position": [
+        2,
+        0.75,
+        13
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z12",
+      "asset": "nature.path.tile",
+      "position": [
+        1,
+        0.75,
+        12
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z11",
+      "asset": "nature.path.tile",
+      "position": [
+        1,
+        0.75,
+        11
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z10",
+      "asset": "nature.path.straight",
+      "position": [
+        0,
+        0.75,
+        10
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z9",
+      "asset": "nature.path.straight",
+      "position": [
+        0,
+        0.75,
+        9
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z8",
+      "asset": "nature.path.straight",
+      "position": [
+        0,
+        0.75,
+        8
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "path-z7",
+      "asset": "nature.path.straight",
+      "position": [
+        0,
+        0.75,
+        7
+      ],
+      "rotationY": 0.0,
+      "role": "path",
+      "section": "B",
+      "kind": "tile"
+    },
+    {
+      "id": "bridge",
+      "asset": "nature.bridge.stone",
+      "position": [
+        0,
+        0.75,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B",
+      "targetMax": 1.04,
+      "scale": [
+        5.77,
+        1.3,
+        1.5
+      ],
+      "entry": [
+        -3.0,
+        0.75,
+        16
+      ],
+      "exit": [
+        3.0,
+        0.75,
+        16
+      ]
+    },
+    {
+      "id": "fence1",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -8.1,
+        0.72,
+        29.2
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "A",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence2",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -6.9,
+        0.72,
+        26.1
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "A",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence3",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -5.5,
+        0.72,
+        23.5
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "B",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence4",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -4.2,
+        0.72,
+        20.9
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "B",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence5",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -3.7,
+        0.72,
+        30.8
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "A",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence6",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -2.7,
+        0.72,
+        27.8
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "A",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence7",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -1.8,
+        0.72,
+        25.0
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "A",
+      "targetMax": 2.7
+    },
+    {
+      "id": "fence8",
+      "asset": "kaykit.barrier.green",
+      "position": [
+        -0.3,
+        0.72,
+        22.2
+      ],
+      "rotationY": -0.1,
+      "role": "fence",
+      "section": "B",
+      "targetMax": 2.7
+    },
+    {
+      "id": "rock1",
+      "asset": "nature.rock.largeA",
+      "position": [
+        -10,
+        0.72,
+        27
+      ],
+      "rotationY": 0.1,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 3.0
+    },
+    {
+      "id": "rock2",
+      "asset": "nature.rock.largeC",
+      "position": [
+        -7,
+        0.72,
+        17
+      ],
+      "rotationY": 0.8,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 2.6
+    },
+    {
+      "id": "rock3",
+      "asset": "nature.rock.largeA",
+      "position": [
+        -12,
+        0.72,
+        5
+      ],
+      "rotationY": 0.2,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 3.2
+    },
+    {
+      "id": "rock4",
+      "asset": "nature.rock.largeC",
+      "position": [
+        11,
+        0.72,
+        24
+      ],
+      "rotationY": -0.2,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 3.0
+    },
+    {
+      "id": "rock5",
+      "asset": "nature.rock.largeA",
+      "position": [
+        12,
+        0.72,
+        13
+      ],
+      "rotationY": 0.4,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 2.8
+    },
+    {
+      "id": "rock6",
+      "asset": "nature.rock.largeC",
+      "position": [
+        8,
+        0.72,
+        5
+      ],
+      "rotationY": 1.0,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 2.4
+    },
+    {
+      "id": "rock7",
+      "asset": "nature.rock.largeA",
+      "position": [
+        -5,
+        0.72,
+        11
+      ],
+      "rotationY": 0.3,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 2.2
+    },
+    {
+      "id": "rock8",
+      "asset": "nature.rock.largeC",
+      "position": [
+        5,
+        0.72,
+        12
+      ],
+      "rotationY": -0.5,
+      "role": "rock",
+      "section": "B",
+      "targetMax": 2.2
+    },
+    {
+      "id": "tree1",
+      "asset": "nature.tree.default",
+      "position": [
+        -15,
+        0.72,
+        28
+      ],
+      "rotationY": 0.2,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.8
+    },
+    {
+      "id": "tree2",
+      "asset": "nature.tree.tall",
+      "position": [
+        -13,
+        0.72,
+        23
+      ],
+      "rotationY": -0.2,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.2
+    },
+    {
+      "id": "tree3",
+      "asset": "nature.tree.oak",
+      "position": [
+        -14,
+        0.72,
+        9
+      ],
+      "rotationY": 0.5,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.8
+    },
+    {
+      "id": "tree4",
+      "asset": "nature.tree.default",
+      "position": [
+        -12,
+        0.72,
+        1
+      ],
+      "rotationY": -0.2,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.6
+    },
+    {
+      "id": "tree5",
+      "asset": "nature.tree.tall",
+      "position": [
+        14,
+        0.72,
+        27
+      ],
+      "rotationY": -0.3,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.9
+    },
+    {
+      "id": "tree6",
+      "asset": "nature.tree.oak",
+      "position": [
+        15,
+        0.72,
+        20
+      ],
+      "rotationY": 0.1,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.4
+    },
+    {
+      "id": "tree7",
+      "asset": "nature.tree.default",
+      "position": [
+        15,
+        0.72,
+        6
+      ],
+      "rotationY": -0.5,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.7
+    },
+    {
+      "id": "tree8",
+      "asset": "nature.tree.tall",
+      "position": [
+        12,
+        0.72,
+        0
+      ],
+      "rotationY": 0.2,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 4.4
+    },
+    {
+      "id": "bush1",
+      "asset": "nature.bush.detailed",
+      "position": [
+        -8,
+        0.72,
+        25
+      ],
+      "rotationY": 0.4,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "bush2",
+      "asset": "nature.bush.detailed",
+      "position": [
+        -6,
+        0.72,
+        19
+      ],
+      "rotationY": 0.8,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "bush3",
+      "asset": "nature.bush.detailed",
+      "position": [
+        -9,
+        0.72,
+        10
+      ],
+      "rotationY": 1.2000000000000002,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "bush4",
+      "asset": "nature.bush.detailed",
+      "position": [
+        8,
+        0.72,
+        24
+      ],
+      "rotationY": 1.6,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "bush5",
+      "asset": "nature.bush.detailed",
+      "position": [
+        7,
+        0.72,
+        18
+      ],
+      "rotationY": 2.0,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "bush6",
+      "asset": "nature.bush.detailed",
+      "position": [
+        9,
+        0.72,
+        8
+      ],
+      "rotationY": 2.4000000000000004,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 2.0
+    },
+    {
+      "id": "flora1",
+      "asset": "nature.flower.purpleA",
+      "position": [
+        -7.2,
+        0.72,
+        31
+      ],
+      "rotationY": 0.37,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora2",
+      "asset": "nature.grass",
+      "position": [
+        -5.8,
+        0.72,
+        28.8
+      ],
+      "rotationY": 0.74,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora3",
+      "asset": "nature.grass.large",
+      "position": [
+        -4.8,
+        0.72,
+        26
+      ],
+      "rotationY": 1.1099999999999999,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora4",
+      "asset": "nature.flower.yellowB",
+      "position": [
+        -3.8,
+        0.72,
+        23.5
+      ],
+      "rotationY": 1.48,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora5",
+      "asset": "nature.flower.purpleA",
+      "position": [
+        -2.5,
+        0.72,
+        21
+      ],
+      "rotationY": 1.85,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora6",
+      "asset": "nature.grass",
+      "position": [
+        -8.6,
+        0.72,
+        22
+      ],
+      "rotationY": 2.2199999999999998,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora7",
+      "asset": "nature.grass.large",
+      "position": [
+        -9.5,
+        0.72,
+        16
+      ],
+      "rotationY": 2.59,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora8",
+      "asset": "nature.flower.yellowB",
+      "position": [
+        -7.5,
+        0.72,
+        14
+      ],
+      "rotationY": 2.96,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora9",
+      "asset": "nature.flower.purpleA",
+      "position": [
+        6.2,
+        0.72,
+        22
+      ],
+      "rotationY": 3.33,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora10",
+      "asset": "nature.grass",
+      "position": [
+        7.8,
+        0.72,
+        19
+      ],
+      "rotationY": 3.7,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora11",
+      "asset": "nature.grass.large",
+      "position": [
+        8.8,
+        0.72,
+        15
+      ],
+      "rotationY": 4.07,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora12",
+      "asset": "nature.flower.yellowB",
+      "position": [
+        6.7,
+        0.72,
+        12
+      ],
+      "rotationY": 4.4399999999999995,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora13",
+      "asset": "nature.flower.purpleA",
+      "position": [
+        11,
+        0.72,
+        25
+      ],
+      "rotationY": 4.81,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora14",
+      "asset": "nature.grass",
+      "position": [
+        12.2,
+        0.72,
+        18
+      ],
+      "rotationY": 5.18,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora15",
+      "asset": "nature.grass.large",
+      "position": [
+        -11.2,
+        0.72,
+        25
+      ],
+      "rotationY": 5.55,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora16",
+      "asset": "nature.flower.yellowB",
+      "position": [
+        -12,
+        0.72,
+        18
+      ],
+      "rotationY": 5.92,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora17",
+      "asset": "nature.flower.purpleA",
+      "position": [
+        -6,
+        0.72,
+        7
+      ],
+      "rotationY": 0.009999999999999787,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "flora18",
+      "asset": "nature.grass",
+      "position": [
+        6,
+        0.72,
+        8
+      ],
+      "rotationY": 0.3799999999999999,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora19",
+      "asset": "nature.grass.large",
+      "position": [
+        -3.5,
+        0.72,
+        12
+      ],
+      "rotationY": 0.75,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.6
+    },
+    {
+      "id": "flora20",
+      "asset": "nature.flower.yellowB",
+      "position": [
+        3.5,
+        0.72,
+        13
+      ],
+      "rotationY": 1.12,
+      "role": "vegetation",
+      "section": "B",
+      "targetMax": 1.2
+    },
+    {
+      "id": "farD-cliff-6",
+      "asset": "nature.cliff.large",
+      "position": [
+        6,
+        6.5,
+        -9
+      ],
+      "rotationY": 0.0,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farD-cliff-7",
+      "asset": "nature.cliff.large",
+      "position": [
+        7,
+        6.5,
+        -9
+      ],
+      "rotationY": 0.0,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farD-cliff-8",
+      "asset": "nature.cliff.large",
+      "position": [
+        8,
+        6.5,
+        -9
+      ],
+      "rotationY": 0.0,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farD-cliff-9",
+      "asset": "nature.cliff.large",
+      "position": [
+        9,
+        6.5,
+        -9
+      ],
+      "rotationY": 0.0,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farD-corner-1",
+      "asset": "nature.cliff.corner",
+      "position": [
+        10,
+        6.5,
+        -9
+      ],
+      "rotationY": -1.5708,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farD-corner-2",
+      "asset": "nature.cliff.corner",
+      "position": [
+        5,
+        6.5,
+        -9
+      ],
+      "rotationY": 1.5708,
+      "role": "far-cliff",
+      "section": "D",
+      "kind": "tile"
+    },
+    {
+      "id": "farE-arch",
+      "asset": "fantasy.wall.arch",
+      "position": [
+        1,
+        10.5,
+        -25
+      ],
+      "rotationY": 0.0,
+      "role": "far-ruin",
+      "section": "E",
+      "kind": "tile"
+    },
+    {
+      "id": "farE-corner-1",
+      "asset": "fantasy.wall.corner",
+      "position": [
+        2,
+        10.5,
+        -25
+      ],
+      "rotationY": 1.5708,
+      "role": "far-ruin",
+      "section": "E",
+      "kind": "tile"
+    },
+    {
+      "id": "farE-corner-2",
+      "asset": "fantasy.wall.corner",
+      "position": [
+        0,
+        10.5,
+        -25
+      ],
+      "rotationY": -1.5708,
+      "role": "far-ruin",
+      "section": "E",
+      "kind": "tile"
+    },
+    {
+      "id": "farE-wall",
+      "asset": "fantasy.wall",
+      "position": [
+        -1,
+        10.5,
+        -25
+      ],
+      "rotationY": 0.0,
+      "role": "far-ruin",
+      "section": "E",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--46",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--45",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -45
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--44",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--43",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -43
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--42",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -42
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--5--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        -5,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--4--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        -4,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--3--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        -3,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--2--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        -2,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza--1--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        -1,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-0--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        0,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-plaza-1--41",
+      "asset": "nature.ground.grass",
+      "position": [
+        1,
+        17.0,
+        -41
+      ],
+      "rotationY": 0.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge1",
+      "asset": "nature.platform.grass",
+      "position": [
+        -5,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.2,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge2",
+      "asset": "nature.platform.grass",
+      "position": [
+        1,
+        17.0,
+        -46
+      ],
+      "rotationY": -0.3,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge3",
+      "asset": "nature.platform.grass",
+      "position": [
+        -5,
+        17.0,
+        -41
+      ],
+      "rotationY": 1.1,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge4",
+      "asset": "nature.platform.grass",
+      "position": [
+        1,
+        17.0,
+        -41
+      ],
+      "rotationY": -1.0,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge5",
+      "asset": "nature.platform.grass",
+      "position": [
+        -2,
+        17.0,
+        -46
+      ],
+      "rotationY": 0.5,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridge-ledge6",
+      "asset": "nature.platform.grass",
+      "position": [
+        -2,
+        17.0,
+        -41
+      ],
+      "rotationY": -0.6,
+      "role": "ridge-plaza",
+      "section": "F",
+      "kind": "tile"
+    },
+    {
+      "id": "ridgeGate",
+      "asset": "castle.gate",
+      "position": [
+        -2,
+        17.5,
+        -44
+      ],
+      "rotationY": 0.0,
+      "role": "ridgeLandmark",
+      "section": "F",
+      "targetMax": 5.0
+    },
+    {
+      "id": "ridgeFlagL",
+      "asset": "castle.flag",
+      "position": [
+        -4.5,
+        17.8,
+        -44
+      ],
+      "rotationY": 0.15,
+      "role": "ridgeLandmark",
+      "section": "F",
+      "targetMax": 4.0
+    },
+    {
+      "id": "ridgeFlagR",
+      "asset": "castle.flag",
+      "position": [
+        0.5,
+        17.8,
+        -44
+      ],
+      "rotationY": -0.15,
+      "role": "ridgeLandmark",
+      "section": "F",
+      "targetMax": 4.0
+    },
+    {
+      "id": "ridgeStairs",
+      "asset": "castle.stairs.stone",
+      "position": [
+        -2,
+        17.0,
+        -40
+      ],
+      "rotationY": 0.0,
+      "role": "ridgeLandmark",
+      "section": "F",
+      "targetMax": 4.5
+    },
+    {
+      "id": "fallHousingLower",
+      "kind": "tile",
+      "asset": "nature.cliff.waterfall",
+      "position": [
+        4,
+        0.7,
+        20
+      ],
+      "rotationY": -1.5708,
+      "role": "cliff",
+      "section": "B"
+    },
+    {
+      "id": "fallHousingUpper",
+      "kind": "tile",
+      "asset": "nature.cliff.waterfallTop",
+      "position": [
+        4,
+        1.7,
+        20
+      ],
+      "rotationY": -1.5708,
+      "role": "cliff",
+      "section": "B"
+    }
+  ],
+  "route": {
+    "id": "creekCrossingMain",
+    "nodes": [
+      "path-z30",
+      "path-z29",
+      "path-z28",
+      "path-z27",
+      "path-z26",
+      "path-z25",
+      "path-z24",
+      "path-z23",
+      "path-z22",
+      "path-z21",
+      "path-z20",
+      "path-z19",
+      "path-z18",
+      "path-z17",
+      "bridge",
+      "path-z15",
+      "path-z14",
+      "path-z13",
+      "path-z12",
+      "path-z11",
+      "path-z10",
+      "path-z9",
+      "path-z8",
+      "path-z7"
+    ],
+    "endpoints": {
+      "from": "meadowEdge",
+      "to": "riverworksEdge"
+    }
+  },
+  "water": {
+    "width": 3.6,
+    "color": 4637897,
+    "foamColor": 15922680,
+    "points": [
+      [
+        2.8,
+        0.28,
+        28
+      ],
+      [
+        2.0,
+        0.22,
+        23
+      ],
+      [
+        0.2,
+        0.16,
+        16
+      ],
+      [
+        -3.2,
+        0.18,
+        11
+      ],
+      [
+        -7.2,
+        0.4,
+        6
+      ],
+      [
+        -9.0,
+        0.7,
+        2.5
+      ]
+    ],
+    "flowSpeed": 0.38
+  },
+  "waterfalls": [
+    {
+      "id": "fall-east-bank",
+      "position": [
+        4.0,
+        2.6,
+        20.0
+      ],
+      "width": 3.0,
+      "height": 5.6,
+      "rotationY": -1.5708,
+      "housing": [
+        "nature.cliff.waterfall",
+        "nature.cliff.waterfallTop"
+      ]
+    },
+    {
+      "id": "fall-far",
+      "position": [
+        -3.5,
+        4.9,
+        -12.2
+      ],
+      "width": 2.2,
+      "height": 4.0,
+      "rotationY": 0.06,
+      "far": true
+    }
+  ],
+  "prismAccents": [
+    {
+      "position": [
+        -4.8,
+        20.0,
+        -43
+      ],
+      "scale": 1.1,
+      "color": 65535
+    },
+    {
+      "position": [
+        0.8,
+        20.6,
+        -43
+      ],
+      "scale": 1.3,
+      "color": 16727295
+    },
+    {
+      "position": [
+        -2.0,
+        22.0,
+        -43
+      ],
+      "scale": 1.7,
+      "color": 9699583
+    }
+  ],
+  "cameraViews": {
+    "concept": {
+      "position": [
+        14.8,
+        8.4,
+        31.5
+      ],
+      "target": [
+        -0.8,
+        4.5,
+        -10.0
+      ],
+      "fovDesktop": 46,
+      "fovMobile": 50
+    },
+    "bridge": {
+      "position": [
+        11.0,
+        5.7,
+        25.5
+      ],
+      "target": [
+        0.0,
+        1.5,
+        14.5
+      ],
+      "fovDesktop": 44,
+      "fovMobile": 50
+    },
+    "ridgeRead": {
+      "position": [
+        5.5,
+        6.4,
+        24.0
+      ],
+      "target": [
+        -2.0,
+        15.7,
+        -43.0
+      ],
+      "fovDesktop": 46,
+      "fovMobile": 50
+    }
+  },
+  "acceptance": {
+    "minRealPlacements": 120,
+    "minVegetation": 20,
+    "minFences": 6,
+    "minPathPieces": 20,
+    "bridgeAsset": "nature.bridge.stone",
+    "minUniqueSources": 12,
+    "requiresRealWaterfallHousing": true,
+    "requiresAnimatedWater": true,
+    "requiresAnimatedWaterfall": true,
+    "requiresRidgeInConceptFrustum": true,
+    "maxRouteNodeGap": 1.45,
+    "visualApproval": "USER_REQUIRED"
+  }
+}
