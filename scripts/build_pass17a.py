@@ -28,11 +28,11 @@ export function createPrismValleyWorld({scene,assets,mobile=false,setPhase=()=>{
  function creekX(z){return 7*Math.sin((z-20)*.036)}
  function terrainHeight(x,z){
    let h=.48+.10*Math.sin(x*.09)+.08*Math.cos(z*.075)+.05*Math.sin((x+z)*.055);
-   h+=1.45*g(x-29,z+5,27);              // Riverworks shoulder
-   h+=5.15*g(x+30,z+31,29);             // Clover Cliffs
-   h+=6.45*g(x-20,z+39,27);             // Ruin Courtyard
-   h+=9.55*g(x-5,z+68,25);              // Prism Ridge
-   h+=1.00*g(x+46,z-51,24);             // Portal Meadow softness
+   h+=1.45*g(x-29,z+5,27);
+   h+=5.15*g(x+30,z+31,29);
+   h+=6.45*g(x-20,z+39,27);
+   h+=9.55*g(x-5,z+68,25);
+   h+=1.00*g(x+46,z-51,24);
    const cx=creekX(z),channel=g(x-cx,0,5.7)*g(0,z+4,68);
    h-=3.15*channel;
    return h;
@@ -50,29 +50,25 @@ export function createPrismValleyWorld({scene,assets,mobile=false,setPhase=()=>{
    setPhase('Shaping continuous Prism Valley terrain…',12);buildTerrain();
    await assets.prewarm(['platform-fortified.glb','block-grass-overhang-large.glb','spring.glb']);
    setPhase('Blocking the approved Prism Valley V2 map…',28);
-   // B — Creek Crossing: one actual crossing over the carved creek.
    const bankL={x:-12,z:20},bankR={x:11,z:18};const bridgeY=Math.max(terrainHeight(bankL.x,bankL.z),terrainHeight(bankR.x,bankR.z))+.34;
    await place('platform-fortified.glb',{x:0,z:19,topY:bridgeY,targetXZ:26,rotationY:Math.PI/2});
    const s1=await decor('spring.glb',{x:-17,z:13,topY:terrainHeight(-17,13)+.10,targetXZ:2.5});springs.push({root:s1.root,x:-17,z:13,target:{x:-25,z:2},strengthY:7.2,strengthForward:8.8,mandatory:false});
-   // D high mastery shelves; real overhang pieces sit above the continuous terrain.
    const dShelf=terrainHeight(-31,-31)+4.7;
    await place('block-grass-overhang-large.glb',{x:-31,z:-31,topY:dShelf,targetXZ:15});
    await place('block-grass-overhang-large.glb',{x:-38,z:-39,topY:dShelf+.25,targetXZ:14});
    await place('block-grass-overhang-large.glb',{x:-31,z:-49,topY:dShelf+.45,targetXZ:14});
    const s2=await decor('spring.glb',{x:-29,z:-24,topY:terrainHeight(-29,-24)+.10,targetXZ:2.5});springs.push({root:s2.root,x:-29,z:-24,target:{x:-31,z:-31},strengthY:8.5,strengthForward:7.7,mandatory:false});
-   // Main safe route follows the map A -> B -> C -> E -> F.
    route([
     {x:-49,z:57},{x:-44,z:50},{x:-38,z:43},{x:-32,z:36},{x:-25,z:29},{x:-18,z:23},{x:-12,z:20},
     {x:0,z:19,y:bridgeY},{x:11,z:18},{x:17,z:13},{x:24,z:8},{x:30,z:2},{x:34,z:-6},{x:31,z:-14},{x:27,z:-21},
     {x:25,z:-27},{x:23,z:-33},{x:21,z:-39},{x:19,z:-44},{x:17,z:-50},{x:14,z:-56},{x:10,z:-62},{x:6,z:-69}
    ]);
-   // Clover Cliffs high-world branch exactly occupies the left side of the map and reconnects toward Ruins.
-   route([
-    {x:-16,z:20},{x:-20,z:12},{x:-23,z:4},{x:-27,z:-5},{x:-30,z:-14},{x:-30,z:-23},{x:-31,z:-31,y:dShelf},{x:-38,z:-39,y:dShelf+.25},{x:-31,z:-49,y:dShelf+.45},{x:-20,z:-45},{x:-8,z:-42},{x:5,z:-40},{x:18,z:-39}
-   ],true);
-   // Riverworks pipe-loop placeholder corridor, grounded now and dressed in 17B.
+   // Clover Cliffs: ground approach to the spring and elevated landing route are validated separately.
+   // The airborne spring arc is intentionally not treated as a walkable ground segment.
+   route([{x:-16,z:20},{x:-20,z:12},{x:-23,z:4},{x:-27,z:-5},{x:-30,z:-14},{x:-29,z:-24}],true);
+   route([{x:-31,z:-31,y:dShelf},{x:-38,z:-39,y:dShelf+.25},{x:-31,z:-49,y:dShelf+.45}],true);
+   route([{x:-31,z:-49,y:dShelf+.45},{x:-20,z:-45},{x:-8,z:-42},{x:5,z:-40},{x:18,z:-39}],true);
    route([{x:30,z:2},{x:39,z:0},{x:44,z:-8},{x:40,z:-17},{x:32,z:-22},{x:27,z:-21}],true);
-   // Ruin Courtyard lower bypass and high ledge route.
    route([{x:24,z:-34},{x:31,z:-39},{x:33,z:-47},{x:27,z:-53},{x:18,z:-50}],true);
    route([{x:21,z:-39},{x:28,z:-43},{x:31,z:-49},{x:24,z:-56},{x:15,z:-57}],true);
    refreshBounds();
