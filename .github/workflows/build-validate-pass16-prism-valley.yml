@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/build_pass16_prism_valley.py'
       - 'scripts/fix_pass16_runtime.py'
+      - 'scripts/fix_pass16_layered_ground.py'
       - 'scripts/test_pass16_browser.py'
       - '.github/workflows/build-validate-pass16-prism-valley.yml'
   workflow_dispatch:
@@ -21,6 +22,7 @@ jobs:
         run: |
           python scripts/build_pass16_prism_valley.py
           python scripts/fix_pass16_runtime.py
+          python scripts/fix_pass16_layered_ground.py
       - name: Validate JavaScript
         run: |
           node --check pass16-world1/app.js
@@ -32,6 +34,7 @@ jobs:
         run: |
           grep -q "pass16-prism-valley" pass16-world1/world.js
           grep -q "window.__pass16Ready" pass16-world1/app.js
+          grep -q "groundHits" pass16-world1/world.js
           grep -q "ZOOM 1/3" pass16-world1/index.html
           grep -q "PRISM VALLEY" pass16-world1/app.js
       - name: Browser dependencies
