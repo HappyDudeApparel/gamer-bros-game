@@ -26,7 +26,7 @@ def browser(width, height, mobile=False):
     d = webdriver.Chrome(options=o)
     d.set_window_size(width, height)
     d.set_page_load_timeout(30)
-    d.set_script_timeout(15)
+    d.set_script_timeout(90)
     return d
 
 
@@ -61,8 +61,18 @@ def shot(d, name):
         raise RuntimeError(f'failed screenshot {p}')
 
 
+def ensure_decor(d, label):
+    result = d.execute_async_script("""
+      const done=arguments[0];
+      window.__pass17CTest.ensureDecor().then(v=>done(v)).catch(e=>done({error:String(e)}));
+    """)
+    if result.get('error') or not all(result.get(k) for k in ('decor','landmarks','meadow')):
+        raise RuntimeError(f'{label} deterministic decor trigger failed: {result}; logs={logs(d)!r}')
+    print(label, 'DECOR PASS', result, flush=True)
+
+
 def wait_streams(d, label):
-    end = time.time() + 45
+    end = time.time() + 25
     last = None
     while time.time() < end:
         no_fatal(d, label)
@@ -146,6 +156,7 @@ def run(label, width, height, mobile):
         if route['main']['samples'] < 250 or route['optional']['samples'] < 300:
             raise RuntimeError(f'{label} route sample coverage unexpectedly low: {route}')
 
+        ensure_decor(d, label)
         streams = wait_streams(d, label)
         print(label, 'STREAM PASS', streams, flush=True)
         camera_gate(d, label)
