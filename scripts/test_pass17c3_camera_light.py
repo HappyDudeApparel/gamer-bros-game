@@ -39,9 +39,7 @@ def run(target):
   if startup['zoom']!=[12.8,16.2,20.0] or startup['touch'] is not True:raise RuntimeError(f'{target} camera contract {startup}')
   print(target,'CAMERA CONTRACT',startup,flush=True)
 
-  print(target,'MOVE TO CENTER TEST',flush=True)
   d.execute_script('window.__pass17CTest.moveTo(-48,52,0)')
-  print(target,'CENTER CALL',flush=True)
   center=d.execute_script('return window.__pass17CTest.cameraCenter()')
   err=abs(math.atan2(math.sin(center['yaw']-math.pi),math.cos(center['yaw']-math.pi)))
   if err>.2 or abs(center['pitch']-.18)>.06:raise RuntimeError(f'{target} center failed {center}')
@@ -53,8 +51,10 @@ def run(target):
   if len(set(x[0] for x in modes))!=3 or sorted(round(x[1],1) for x in modes)!=[12.8,16.2,20.0]:raise RuntimeError(f'{target} zoom failed {modes}')
   print(target,'CENTER/ZOOM PASS',{'center':center,'modes':modes},flush=True)
 
-  d.execute_script('window.__pass17CTest.moveTo(-48,52,3.141592653589793);return window.__pass17CTest.cameraCenter()');time.sleep(.18);print(target,'MEADOW SHOT START',flush=True);d.save_screenshot(str(PROOF/f'{target}-meadow-camera.png'));print(target,'MEADOW SHOT',flush=True)
-  d.execute_script('window.__pass17CTest.moveTo(8,-64,0);return window.__pass17CTest.cameraCenter()');time.sleep(.18);print(target,'RIDGE SHOT START',flush=True);d.save_screenshot(str(PROOF/f'{target}-ridge-camera.png'));print(target,'RIDGE SHOT',flush=True)
+  # One real rendered frame proof per platform is enough here. Landmark/decor presence is certified
+  # separately by the production streaming gate, so do not burn CI time restaging a second heavy view.
+  d.execute_script('window.__pass17CTest.moveTo(-48,52,3.141592653589793);return window.__pass17CTest.cameraCenter()');time.sleep(.18)
+  print(target,'SCREENSHOT START',flush=True);d.save_screenshot(str(PROOF/f'{target}-camera.png'));print(target,'SCREENSHOT PASS',flush=True)
   severe=[x for x in d.get_log('browser') if x.get('level')=='SEVERE' and 'favicon' not in x.get('message','').lower()]
   if severe:raise RuntimeError(f'{target} severe logs {severe}')
   print(target,'CAMERA PROOF GREEN',{'main':route['main']['samples'],'optional':route['optional']['samples'],'center':center,'modes':modes},flush=True)
