@@ -3,16 +3,16 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-def run(label,mobile=False):
+def run(label,path,mobile=False):
     o=Options();o.add_argument('--headless=new');o.add_argument('--no-sandbox');o.add_argument('--disable-dev-shm-usage');o.add_argument('--disable-gpu');o.add_argument('--window-size=1280,720');o.set_capability('goog:loggingPrefs',{'browser':'ALL'})
     if mobile:o.add_argument('--user-agent=Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36')
     d=webdriver.Chrome(options=o)
     try:
-        d.get('http://127.0.0.1:8000/pass16-title-preview/')
+        d.get('http://127.0.0.1:8000/'+path)
         end=time.time()+15
         while time.time()<end and not d.execute_script('return window.__pass16TitleReady===true'):time.sleep(.1)
         if not d.execute_script('return window.__pass16TitleReady===true'):
-            raise RuntimeError('Title did not become ready: '+repr(d.get_log('browser')))
+            raise RuntimeError(label+' title did not become ready: '+repr(d.get_log('browser')))
         roster=d.execute_script('return window.__playableRoster')
         if roster!=['gb1','gb2']:raise RuntimeError('Unexpected roster '+repr(roster))
         cards=d.find_elements(By.CSS_SELECTOR,'.heroWindow')
@@ -31,4 +31,6 @@ def run(label,mobile=False):
         if any(w<20 or h<20 for w,h in sizes):raise RuntimeError('Hero canvases did not render '+repr(sizes))
         print(label,'TITLE READY','roster',roster,'target',href,'canvas',sizes)
     finally:d.quit()
-run('desktop');run('android',True)
+for path,name in [('pass16-title-preview/','preview'),('','root')]:
+    run(name+' desktop',path,False)
+    run(name+' android',path,True)
