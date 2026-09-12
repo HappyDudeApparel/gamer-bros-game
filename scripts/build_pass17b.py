@@ -4,7 +4,9 @@ import shutil
 ROOT=Path(__file__).resolve().parents[1]
 world=ROOT/'pass17-world1'/'world.js'
 assets=ROOT/'pass17-world1'/'assets.js'
+enemies=ROOT/'pass17-world1'/'enemies.js'
 shutil.copyfile(ROOT/'src'/'pass17-asset-library.js', assets)
+shutil.copyfile(ROOT/'src'/'pass17-enemies.js', enemies)
 s=world.read_text()
 
 old="import * as THREE from 'three';\n"
@@ -36,7 +38,6 @@ insert=r''' function route(points,opt=false){for(let i=0;i<points.length-1;i++)a
    ];
    await assets.prewarm(dungeon);
 
-   // C — RIVERWORKS. Signature pipes are actual production meshes, with real KayKit scaffolds and props.
    const wy=groundAt(35,-8)??terrainHeight(35,-8),wy2=groundAt(41,-14)??terrainHeight(41,-14);
    addSceneObject(createStraightPipe({start:[27,wy+1.35,-3],end:[43,wy+1.35,-3],radius:.72}),'riverworks-main-pipe');
    addSceneObject(createElbowPipe({start:[43,wy+1.35,-3],corner:[47,wy+1.35,-3],end:[47,wy2+1.35,-10],radius:.72}),'riverworks-elbow');
@@ -44,14 +45,13 @@ insert=r''' function route(points,opt=false){for(let i=0;i<points.length-1;i++)a
    addSceneObject(createTJunction({center:[33,wy+1.35,-3],mainLength:5,branchLength:4,radius:.72,yaw:0}),'riverworks-junction');
    for(const p of [[30,wy,-3],[38,wy,-3],[47,wy2,-12],[47,wy2,-18]])addSceneObject(createPipeSupport({position:p,height:1.25,width:2.8}),'riverworks-pipe-support');
    const rw=createWalkway({length:11,width:3.2});rw.position.set(38,wy+2.55,-9);rw.rotation.y=-.36;addSceneObject(rw,'riverworks-high-walkway');
-   await decor('dungeon:wall_scaffold.gltf.glb',{x:34,z:-11,bottomY:groundAt(34,-11)+.02,targetXZ:5.5,rotationY:.25});
-   await decor('dungeon:wall_open_scaffold.gltf.glb',{x:41,z:-15,bottomY:groundAt(41,-15)+.02,targetXZ:5.5,rotationY:-.35});
-   await decor('dungeon:crates_stacked.gltf.glb',{x:32,z:-5,bottomY:groundAt(32,-5)+.02,targetXZ:2.6});
-   await decor('dungeon:barrel_large.gltf.glb',{x:39,z:-19,bottomY:groundAt(39,-19)+.02,targetXZ:1.8});
-   await decor('dungeon:torch_lit.gltf.glb',{x:35,z:-10,bottomY:groundAt(35,-10)+.02,targetXZ:1.2});
+   await decor('dungeon:wall_scaffold.gltf.glb',{x:34,z:-11,bottomY:(groundAt(34,-11)??terrainHeight(34,-11))+.02,targetXZ:5.5,rotationY:.25});
+   await decor('dungeon:wall_open_scaffold.gltf.glb',{x:41,z:-15,bottomY:(groundAt(41,-15)??terrainHeight(41,-15))+.02,targetXZ:5.5,rotationY:-.35});
+   await decor('dungeon:crates_stacked.gltf.glb',{x:32,z:-5,bottomY:(groundAt(32,-5)??terrainHeight(32,-5))+.02,targetXZ:2.6});
+   await decor('dungeon:barrel_large.gltf.glb',{x:39,z:-19,bottomY:(groundAt(39,-19)??terrainHeight(39,-19))+.02,targetXZ:1.8});
+   await decor('dungeon:torch_lit.gltf.glb',{x:35,z:-10,bottomY:(groundAt(35,-10)??terrainHeight(35,-10))+.02,targetXZ:1.2});
    addWaterfall(43,(groundAt(43,-18)??wy2)+.4,-19,3.3,5.8,0);
 
-   // E — RUIN COURTYARD. Verified KayKit arched walls, broken walls, pillars, stairs, banners and gold reward.
    const rg=(x,z)=>groundAt(x,z)??terrainHeight(x,z);
    await decor('dungeon:wall_arched.gltf.glb',{x:21,z:-41,bottomY:rg(21,-41)+.02,targetXZ:8.5,rotationY:0});
    await decor('dungeon:wall_arched.gltf.glb',{x:29,z:-45,bottomY:rg(29,-45)+.02,targetXZ:7.5,rotationY:Math.PI/2});
@@ -65,8 +65,6 @@ insert=r''' function route(points,opt=false){for(let i=0;i<points.length-1;i++)a
    await decor('dungeon:torch_lit.gltf.glb',{x:25,z:-45,bottomY:rg(25,-45)+.02,targetXZ:1.2});
    await decor('dungeon:chest_gold.glb',{x:31,z:-49,bottomY:rg(31,-49)+.12,targetXZ:2.1});
 
-   // F — PRISM RIDGE. Ceremonial framing only; the canonical portal object/behavior remains owned by app.js.
-   const py=rg(7,-66);
    await decor('dungeon:stairs_wide.gltf.glb',{x:9,z:-62,bottomY:rg(9,-62)+.02,targetXZ:8,rotationY:Math.PI});
    await decor('dungeon:wall_pillar.gltf.glb',{x:1,z:-68,bottomY:rg(1,-68)+.02,targetXZ:5.2});
    await decor('dungeon:wall_pillar.gltf.glb',{x:13,z:-68,bottomY:rg(13,-68)+.02,targetXZ:5.2});
@@ -76,7 +74,6 @@ insert=r''' function route(points,opt=false){for(let i=0;i<points.length-1;i++)a
    await decor('dungeon:torch_lit.gltf.glb',{x:12,z:-64,bottomY:rg(12,-64)+.02,targetXZ:1.3});
    addCrystalCluster(-1,rg(-1,-69)+.05,-69,1.15);addCrystalCluster(15,rg(15,-69)+.05,-69,1.0);
 
-   // D — CLOVER CLIFFS gets curved/corner grass silhouettes around, not on top of, the validated route.
    for(const q of [
     ['block-grass-curve-low.glb',-45,-29,12,0],['block-grass-corner-overhang-low.glb',-42,-45,11,.4],
     ['block-grass-curve-half.glb',-20,-58,11,-.4],['block-grass-corner-low.glb',-47,-12,10,.25]
