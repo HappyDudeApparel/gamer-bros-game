@@ -1,0 +1,69 @@
+name: Validate Pass 18-0C Asset Runtime
+
+on:
+  push:
+    branches: [pass18-rebuild]
+    paths:
+      - 'src/pass18/asset-catalog.js'
+      - 'src/pass18/asset-registry.js'
+      - 'src/pass18/spatial-grid.js'
+      - 'src/pass18/budget-hud.js'
+      - 'src/pass18/gallery.js'
+      - 'pass18-assets/**'
+      - 'scripts/test_pass18_0c_assets.py'
+      - '.github/workflows/validate-pass18-0c-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass18-0c-assets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  asset-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout isolated Pass 18 branch
+        uses: actions/checkout@v4
+      - name: Verify clean authored architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "pass18-rebuild"
+          node --check src/pass18/asset-catalog.js
+          node --check src/pass18/asset-registry.js
+          node --check src/pass18/spatial-grid.js
+          node --check src/pass18/budget-hud.js
+          node --check src/pass18/gallery.js
+          python -m py_compile scripts/test_pass18_0c_assets.py
+          test -f assets/world-kit/kenney/nature-kit/cliff_large_rock.glb
+          test -f assets/world-kit/kenney/nature-kit/bridge_stone.glb
+          test -f assets/world-kit/kenney/fantasy-town-kit/wall-arch.glb
+          test -f assets/world-kit/kenney/castle-kit/gate-complex.glb
+          test -f 'assets/world-kit/kenney/platformer-kit/Models/GLB format/block-grass-large-slope.glb'
+          test -f assets/world-kit/kaykit/platformer-pack/KayKit_Platformer_Pack_1.0_FREE/Assets/gltf/green/arch_green.gltf
+          test -f assets/world-kit/kaykit/dungeon-remastered/addons/kaykit_dungeon_remastered/Assets/gltf/banner_blue.gltf.glb
+          grep -q 'THREE.BatchedMesh' src/pass18/asset-registry.js
+          grep -q 'THREE.InstancedMesh' src/pass18/asset-registry.js
+          ! grep -q 'patch_pass18' src/pass18/gallery.js
+      - name: Browser dependency
+        run: pip install selenium
+      - name: Start local static server
+        run: |
+          python -m http.server 8000 >/tmp/pass18-0c-http.log 2>&1 &
+          sleep 2
+      - name: Desktop asset runtime proof
+        run: timeout 150s python -u scripts/test_pass18_0c_assets.py --target desktop
+      - name: Android landscape asset runtime proof
+        run: timeout 150s python -u scripts/test_pass18_0c_assets.py --target android
+      - name: Upload gallery proof and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass18-0c-asset-runtime-proof
+          path: artifacts/pass18-0c-asset-runtime
+          if-no-files-found: warn
+          retention-days: 21
