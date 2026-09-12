@@ -7,7 +7,7 @@ Production branch: `main` (DO NOT MODIFY during rebuild)
 
 **18-0B — Look Calibration**
 
-Status: **IN PROGRESS**
+Status: **COMPLETE / GREEN**
 
 Production baseline remains:
 - `main` / Pass 17C: `97834f6d21e0d4e6af0d9d36ad355215126ceda0`
@@ -36,28 +36,76 @@ Verified permanent library:
 
 `ASSET_DECISIONS.md` remains controlling: no custom geometry may be committed without a documented kit search and specific reason a real asset does not fit.
 
-## 18-0B work already committed
+## 18-0B certification
 
-- `src/pass18/world-language.js` — first authored runtime visual-language constants; no generated patch layer.
-- `src/pass18/calibration.js` — tiny clean Three.js calibration scene using real Kenney Nature Kit assets.
-- `pass18-calibration/index.html` — dedicated calibration browser surface.
-- `data/pass18/cameras.json` — fixed desktop and Android-landscape proof camera poses.
+18-0B is now **COMPLETE / GREEN**.
 
-Current calibration design intentionally uses real Nature Kit ground/cliff/waterfall-housing/bridge/tree/rock/bush/flower/grass/mushroom assets as the visible proof. It does not use proxy world terrain.
+Controlling authored files:
+- `src/pass18/world-language.js` — runtime visual-language constants, version `18-0B.2`.
+- `src/pass18/calibration.js` — clean real-asset calibration scene; no generated JS/patch stack.
+- `pass18-calibration/index.html` — browser proof surface.
+- `data/pass18/cameras.json` — matched desktop and Android-landscape camera poses.
+- `WORLD_LANGUAGE.md` — frozen human-readable world-language rules.
+- `VISUAL_APPROVALS.md` — durable distinction between look-language acceptance and later concept-match approval.
+- `checkpoints/PASS18_0B_LOOK_CALIBRATION.md` — complete checkpoint evidence.
 
-## 18-0B values under test
-
+Accepted visual/runtime language:
 - Three.js r180 retained.
-- ACES filmic tone mapping; exposure 1.12.
+- ACES Filmic tone mapping; exposure **1.14**.
 - sRGB output.
-- Hemisphere environment light plus directional sun and light fill.
-- Desktop shadow map 2048; mobile 1024.
-- Desktop DPR cap 1.5; mobile DPR cap 1.25.
-- Desktop FOV 48; mobile landscape FOV 52.
-- Atmospheric fog near/far 42 / 112.
-- Real authored kit materials are preserved rather than globally recolored.
+- Hemisphere intensity **1.78**; sun **2.35**; fill **0.52**.
+- Desktop shadow map **2048**; mobile **1024**.
+- Desktop DPR cap **1.5**; mobile DPR cap **1.25**.
+- Desktop calibration FOV **46**; mobile-landscape FOV **50**.
+- Atmospheric fog near/far **38 / 105**.
+- Real authored kit materials preserved rather than globally recolored.
+- Modular terrain composition required; giant block cliff backdrops rejected.
 
-These values are NOT certified until the browser proof workflow succeeds and the screenshots are visually inspected.
+### Visual-review result
+
+The first 18-0B.1 scene passed automation but was **rejected visually** because it used giant rear cliff blocks, sparse staging, a high camera and hard shadowing.
+
+18-0B.2 was then recomposed with smaller real path/river/grass/cliff/platform modules, more vegetation, lower scenic framing and softer/brighter lighting. Desktop and Android-landscape screenshots were inspected and accepted as the **look-calibration foundation**.
+
+This is deliberately **not** a claim that the calibration scene itself matches the approved Prism Valley V2 concept pack. The first real concept-resemblance gate remains **18-2 Golden Slice**, followed by 18-2B hard visual freeze.
+
+### Latest validation evidence
+
+Validated implementation/workflow head:
+- `47e1e4c648632b27008e514cd10ca9049ea954d6`
+
+Latest green workflow:
+- `Validate Pass 18-0B Look Calibration`
+- run `34680335274`
+- job `103517714890`
+- conclusion: **SUCCESS**
+
+Latest proof artifact:
+- artifact ID `10293628292`
+- digest `sha256:8edd746afc655fe56d1163631808764a7cb9a35d55ad070fcdff55a8596cb304`
+
+Desktop proof:
+- 25 placements / 25 unique real assets
+- 53 render calls
+- 2,617 triangles
+- DPR 1.0 in CI
+- FOV 46
+- 2048 shadow map
+- SwiftShader smoke: 33.55 ms / 29.8 fps
+
+Android-landscape proof:
+- 25 placements / 25 unique real assets
+- 53 render calls
+- 2,617 triangles
+- emulated DPR 2.75 capped to 1.25
+- FOV 50
+- 1024 shadow map
+- SwiftShader smoke: 20.73 ms / 48.2 fps
+
+SwiftShader numbers are regression smoke only, not physical-device performance claims.
+
+Documentation checkpoint immediately preceding this status update:
+- `2faab9b5533bddadbc356ea8cdace2d62c9d01c6` — seeded durable visual-approval ledger after the 18-0B checkpoint documentation.
 
 ## Durable recovery files
 
@@ -65,7 +113,9 @@ A future chat must read:
 1. `PASS18_START_HERE.md`
 2. `PASS18_STATUS.md`
 3. `ASSET_DECISIONS.md`
-4. the most recent file in `checkpoints/` for the current Pass 18 stage
+4. `WORLD_LANGUAGE.md`
+5. `VISUAL_APPROVALS.md`
+6. the most recent file in `checkpoints/` for the current Pass 18 stage
 
 Exact recovery command:
 
@@ -73,11 +123,19 @@ Exact recovery command:
 
 ## NEXT TASK
 
-**Finish 18-0B only:**
-1. Add the browser validation/performance proof and workflow.
-2. Validate the calibration scene on desktop and Android-landscape profiles.
-3. Capture matched screenshots and inspect them for brightness, depth, real-asset readability, shadows, framing and mobile crop.
-4. Repair the authored calibration module/constants if the proof is weak; do not stack patch scripts.
-5. Freeze accepted values in `WORLD_LANGUAGE.md` and the 18-0B checkpoint record.
-6. Update this file to `18-0B COMPLETE / GREEN` with the exact final branch SHA and workflow evidence.
-7. STOP. Do NOT begin 18-0C without the user's next GO.
+**18-0C — AssetRegistry + gallery + budget HUD**
+
+Goal: establish the reusable asset/runtime architecture and visibility/performance instrumentation needed before the whole A→F map is authored.
+
+Scope when explicitly authorized:
+- replace duplicate Pass 17 asset loaders with one Pass 18 AssetRegistry;
+- expose the approved real asset packs through one catalog/API;
+- dedupe geometry/material/texture resources;
+- provide explicit single/instance/batch placement paths;
+- build a browser asset gallery for actual pack inspection;
+- add `?debug=1` metrics/budget HUD;
+- establish dense-world collision/visibility architecture before art density rises;
+- preserve the 18-0B world-language constants and visual proof surface;
+- add real-browser validation and update durable checkpoint files.
+
+**Do not begin 18-0C until the user explicitly says GO.**
