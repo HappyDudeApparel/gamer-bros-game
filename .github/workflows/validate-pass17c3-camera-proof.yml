@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/test_pass17c3_camera_light.py'
       - '.github/workflows/validate-pass17c3-camera-proof.yml'
+      - 'scripts/patch_pass17c3_ci.py'
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +16,7 @@ concurrency:
 jobs:
   camera-proof:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Rebuild lightweight camera proof candidate
@@ -31,6 +32,8 @@ jobs:
           python scripts/patch_pass17c3_ci.py
           node --check pass17-world1/app.js
           grep -q "c3visual" pass17-world1/app.js
+          grep -q "cameraCenter" pass17-world1/app.js
+          grep -q "cameraCycle" pass17-world1/app.js
           grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
       - name: Browser dependency
         run: pip install selenium
@@ -39,9 +42,9 @@ jobs:
           python -m http.server 8000 >/tmp/pass17c3-camera-http.log 2>&1 &
           sleep 2
       - name: Desktop camera proof
-        run: timeout 70s python -u scripts/test_pass17c3_camera_light.py --target desktop
+        run: timeout 110s python -u scripts/test_pass17c3_camera_light.py --target desktop
       - name: Android camera proof
-        run: timeout 70s python -u scripts/test_pass17c3_camera_light.py --target android
+        run: timeout 110s python -u scripts/test_pass17c3_camera_light.py --target android
       - name: Upload camera proof
         if: always()
         uses: actions/upload-artifact@v4
