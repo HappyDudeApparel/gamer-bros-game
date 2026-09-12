@@ -10,6 +10,7 @@ on:
       - 'scripts/fix_pass17a_bridge.py'
       - 'scripts/fix_pass17a_clover.py'
       - 'scripts/build_pass17b.py'
+      - 'scripts/patch_pass17_concept_hero.py'
       - 'scripts/test_pass17b_browser.py'
       - '.github/workflows/build-validate-pass17b.yml'
   workflow_dispatch:
@@ -28,6 +29,7 @@ jobs:
           python scripts/fix_pass17a_bridge.py
           python scripts/fix_pass17a_clover.py
           python scripts/build_pass17b.py
+          python scripts/patch_pass17_concept_hero.py
       - name: Validate JavaScript
         run: |
           node --check pass17-world1/app.js
@@ -36,6 +38,8 @@ jobs:
           node --check pass17-world1/enemies.js
           node --check pass17-world1/power.js
           node --check src/pass17-riverworks-kit.js
+          node --check src/pass17-concept-hero.js
+          node --check src/pass17-gamer-bro.js
       - name: Validate concept-match markers
         run: |
           grep -q "riverworks-main-pipe" pass17-world1/world.js
@@ -44,6 +48,7 @@ jobs:
           grep -q "prism-crystal-cluster" pass17-world1/world.js
           grep -q "__pass17ConceptLandmarksReady" pass17-world1/world.js
           grep -q "platformerBlue" pass17-world1/assets.js
+          grep -q "pass17-gamer-bro.js" pass17-world1/index.html
       - name: Browser dependencies
         run: pip install selenium
       - name: Real desktop and Android concept smoke
