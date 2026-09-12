@@ -1,0 +1,89 @@
+name: Build + Validate Pass 17C Production Gate
+
+on:
+  push:
+    branches: [pass17-concept-match]
+    paths:
+      - 'scripts/patch_pass17c.py'
+      - 'scripts/test_pass17c_browser.py'
+      - '.github/workflows/build-validate-pass17c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild locked Pass 17B production foundation
+        run: |
+          python scripts/build_pass17a.py
+          python scripts/fix_pass17a_bridge.py
+          python scripts/fix_pass17a_clover.py
+          python scripts/build_pass17b.py
+          python scripts/patch_pass17_concept_hero.py
+          python scripts/patch_pass17_camera.py
+          python scripts/patch_pass17_meadow.py
+
+      - name: Apply Pass 17C portal combat and diagnostics polish
+        run: python scripts/patch_pass17c.py
+
+      - name: Validate JavaScript and locked production markers
+        run: |
+          node --check pass17-world1/app.js
+          node --check pass17-world1/world.js
+          node --check pass17-world1/assets.js
+          node --check pass17-world1/enemies.js
+          node --check pass17-world1/power.js
+          node --check src/pass17-riverworks-kit.js
+          node --check src/pass17-concept-hero.js
+          node --check src/pass17-gamer-bro.js
+          node --check src/crystal-library-tube-v2.js
+          grep -q "__pass17CVersion='17C1'" pass17-world1/app.js
+          grep -q "__pass17PortalWatchdog" pass17-world1/app.js
+          grep -q "portalPrime" pass17-world1/app.js
+          grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
+          grep -q "impactRings" pass17-world1/power.js
+          grep -q "MAX CHARGE" pass17-world1/power.js
+          grep -q "portal-meadow-dirt-path" pass17-world1/world.js
+          grep -q "riverworks-main-pipe" pass17-world1/world.js
+          grep -q "__pass17ConceptLandmarksReady" pass17-world1/world.js
+          grep -q "version:'17-hero-2'" src/pass17-concept-hero.js
+          grep -q "component:'crystal-library-v2-tube'" src/crystal-library-tube-v2.js
+
+      - name: Browser dependencies
+        run: pip install selenium
+
+      - name: Real desktop and Android Pass 17C end-to-end gate
+        run: |
+          python -m http.server 8000 >/tmp/pass17c-http.log 2>&1 &
+          sleep 2
+          python scripts/test_pass17c_browser.py
+
+      - name: Upload Pass 17C proof shots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass17c-proof
+          path: artifacts/pass17c-proof
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit generated Pass 17C only after green gate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass17-world1
+          if git diff --cached --quiet; then
+            echo 'No generated Pass 17C changes'
+          else
+            git commit -m 'Build Pass 17C production gate'
+            git pull --rebase origin pass17-concept-match
+            git push origin HEAD:pass17-concept-match
+          fi
