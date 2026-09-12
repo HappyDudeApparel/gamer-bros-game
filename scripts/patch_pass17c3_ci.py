@@ -14,7 +14,7 @@ def replace_once(text, old, new, label):
 
 app = APP.read_text()
 old_hook = "      cameraInfo:()=>({index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}),\n      portalWarm:"
-new_hook = "      cameraInfo:()=>({index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}),\n      ensureDecor:()=>world.decorate({}),\n      checkpointDecor:()=>world.checkpointDecor(),\n      portalWarm:"
+new_hook = "      cameraInfo:()=>({index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}),\n      cameraCenter:()=>{centerCamera();return {index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}},\n      cameraCycle:()=>{cycleCameraZoom();return {index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}},\n      ensureDecor:()=>world.decorate({}),\n      checkpointDecor:()=>world.checkpointDecor(),\n      portalWarm:"
 if new_hook not in app:
     app = replace_once(app, old_hook, new_hook, 'Pass 17C-3 test hook')
 
