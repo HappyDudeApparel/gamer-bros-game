@@ -1,0 +1,49 @@
+name: Patch Pass 14 Camera + Portal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/patch_pass14_camera_portal.py'
+      - '.github/workflows/patch-pass14-camera-portal.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Pass 14 camera and portal patch
+        run: python3 scripts/patch_pass14_camera_portal.py
+
+      - name: Validate JavaScript
+        run: node --check pass14-level-lab/app.js
+
+      - name: Validate required markers
+        run: |
+          grep -q "tube?.update(elapsed,dt)" pass14-level-lab/app.js
+          grep -q "__pass14TouchCamera=true" pass14-level-lab/app.js
+          grep -q "__pass14PortalTimingFix=true" pass14-level-lab/app.js
+          grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass14-level-lab/app.js
+          grep -q 'id="zoom"' pass14-level-lab/index.html
+          grep -q 'id="cameraCenter"' pass14-level-lab/index.html
+          grep -q 'app.js?v=14.1.0' pass14-level-lab/index.html
+
+      - name: Commit generated patch
+        run: |
+          if git diff --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pass14-level-lab/app.js pass14-level-lab/index.html
+          git commit -m "Fix Pass 14 portal and add camera controls"
+          git push
