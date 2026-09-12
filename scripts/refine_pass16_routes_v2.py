@@ -19,7 +19,7 @@ ruins="""  // E: Ruin Courtyard occupies west/northwest, with broad fight space 
   addRoute({x:-42,z:-30,y:ruin},{x:-42,z:-10,y:ruin});
   addRoute({x:-42,z:-10,y:ruin},{x:-31,z:2,y:ruin});
 """
-new_s,n=re.subn(r"  // E: Ruin Courtyard.*?(?=  // Lower bypass)",ruins,s,flags=re.S)
+new_s,n=re.subn(r"  // E: Ruin courtyard.*?(?=  // Lower bypass)",ruins,s,flags=re.S|re.I)
 if n!=1: raise SystemExit(f'Expected one Ruin section, replaced {n}')
 p.write_text(new_s)
 print('PASS16_RUIN_HANDOFF_V2_OK')
