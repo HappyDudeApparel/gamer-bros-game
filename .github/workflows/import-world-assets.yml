@@ -45,38 +45,6 @@ jobs:
               -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o \
               -iname '*.ogg' -o -iname '*.wav' -o -iname '*.mp3' \
             \) -print0)
-            for meta in LICENSE LICENSE.md LICENSE.txt License.txt README.md README.txt; do
-              if [ -f "$src/$meta" ]; then cp "$src/$meta" "$dst/$meta"; fi
-            done
-          }
-
-          download_kenney_pack() {
-            slug="$1"; dst="$2"; key="$3"
-            mkdir -p "$TMP/$key" "$dst"
-            PAGE="https://kenney.nl/assets/$slug"
-            OUT="$TMP/$key-url.txt"
-            python3 - "$PAGE" "$OUT" <<'PY'
-          import html, re, sys, urllib.request, pathlib, urllib.parse
-          page, out = sys.argv[1], pathlib.Path(sys.argv[2])
-          req=urllib.request.Request(page,headers={'User-Agent':'Mozilla/5.0'})
-          text=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
-          text=html.unescape(text)
-          candidates=[]
-          candidates += re.findall(r'https?://[^\"\'<> ]+?\.zip(?:\?[^\"\'<> ]*)?',text,re.I)
-          candidates += re.findall(r'(?:href|data-url|data-download)=[\"\']([^\"\']+?\.zip(?:\?[^\"\']*)?)[\"\']',text,re.I)
-          normalized=[]
-          for u in candidates:
-              normalized.append(urllib.parse.urljoin(page,u))
-          if not normalized:
-              raise SystemExit(f'No ZIP URL discovered on {page}')
-          out.write_text(normalized[0])
-          print(normalized[0])
-          PY
-            ZIP_URL="$(cat "$OUT")"
-            curl -fL --retry 3 "$ZIP_URL" -o "$TMP/$key.zip"
-            unzip -t "$TMP/$key.zip" >/dev/null
-            unzip -q "$TMP/$key.zip" -d "$TMP/$key"
-            copy_browser_assets "$TMP/$key" "$dst"
           }
 
           echo '--- Existing permanent reusable sources ---'
@@ -87,39 +55,43 @@ jobs:
 
           git clone --depth 1 https://github.com/KenneyNL/Starter-Kit-Basic-Scene.git "$TMP/kenney-basic"
           copy_browser_assets "$TMP/kenney-basic" "$ROOT/kenney/basic-scene"
+          cp "$TMP/kenney-basic/LICENSE.md" "$ROOT/kenney/basic-scene/LICENSE.md" || true
+          cp "$TMP/kenney-basic/README.md" "$ROOT/kenney/basic-scene/README.md" || true
 
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0.git "$TMP/kay-city"
           copy_browser_assets "$TMP/kay-city" "$ROOT/kaykit/city-builder-bits"
+          cp "$TMP/kay-city/LICENSE" "$ROOT/kaykit/city-builder-bits/LICENSE" 2>/dev/null || true
+          cp "$TMP/kay-city/LICENSE.txt" "$ROOT/kaykit/city-builder-bits/LICENSE.txt" 2>/dev/null || true
 
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0.git "$TMP/kay-medieval"
           copy_browser_assets "$TMP/kay-medieval" "$ROOT/kaykit/medieval-hexagon"
+          cp "$TMP/kay-medieval/LICENSE" "$ROOT/kaykit/medieval-hexagon/LICENSE" 2>/dev/null || true
+          cp "$TMP/kay-medieval/LICENSE.txt" "$ROOT/kaykit/medieval-hexagon/LICENSE.txt" 2>/dev/null || true
 
           git clone --depth 1 https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0.git "$TMP/kay-dungeon"
           copy_browser_assets "$TMP/kay-dungeon" "$ROOT/kaykit/dungeon-remastered"
+          cp "$TMP/kay-dungeon/LICENSE" "$ROOT/kaykit/dungeon-remastered/LICENSE" 2>/dev/null || true
+          cp "$TMP/kay-dungeon/LICENSE.txt" "$ROOT/kaykit/dungeon-remastered/LICENSE.txt" 2>/dev/null || true
 
-          echo '--- Kenney Platformer Kit ---'
-          if ! download_kenney_pack 'platformer-kit' "$ROOT/kenney/platformer-kit" 'kenney-platformer'; then
-            echo 'Platformer download failed; preserving previously vendored pack.'
-          fi
+          # Kenney's asset pages no longer expose stable ZIP links in page HTML. For CI delivery,
+          # use the public CC0 all-in-one mirror verified during the Pass 18 audit, while keeping
+          # Kenney's official asset pages as the canonical source/license references in SOURCES.md.
+          echo '--- Pass 18 Kenney concept-match kits via verified CC0 mirror ---'
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/shorepine/kenney.git "$TMP/kenney-mirror"
+          git -C "$TMP/kenney-mirror" sparse-checkout set 3d/nature 3d/fantasy-town 3d/castle
 
-          echo '--- KayKit Platformer Pack FREE ---'
-          mkdir -p "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
-          curl -fL --retry 3 'https://www.patreon.com/file?h=122994247&m=426916688' -o "$TMP/kay-platformer.zip" || true
-          if unzip -t "$TMP/kay-platformer.zip" >/dev/null 2>&1; then
-            unzip -q "$TMP/kay-platformer.zip" -d "$TMP/kay-platformer"
-            copy_browser_assets "$TMP/kay-platformer" "$ROOT/kaykit/platformer-pack"
-          else
-            echo 'KayKit Platformer official archive could not be unpacked; keeping previously imported sources.'
-          fi
+          copy_browser_assets "$TMP/kenney-mirror/3d/nature" "$ROOT/kenney/nature-kit"
+          copy_browser_assets "$TMP/kenney-mirror/3d/fantasy-town" "$ROOT/kenney/fantasy-town-kit"
+          copy_browser_assets "$TMP/kenney-mirror/3d/castle" "$ROOT/kenney/castle-kit"
+          cp "$TMP/kenney-mirror/LICENSE.txt" "$ROOT/kenney/nature-kit/LICENSE.txt" || true
+          cp "$TMP/kenney-mirror/LICENSE.txt" "$ROOT/kenney/fantasy-town-kit/LICENSE.txt" || true
+          cp "$TMP/kenney-mirror/LICENSE.txt" "$ROOT/kenney/castle-kit/LICENSE.txt" || true
 
-          echo '--- Pass 18 required Kenney Nature Kit ---'
-          download_kenney_pack 'nature-kit' "$ROOT/kenney/nature-kit" 'kenney-nature'
-
-          echo '--- Pass 18 approved Kenney Fantasy Town Kit ---'
-          download_kenney_pack 'fantasy-town-kit' "$ROOT/kenney/fantasy-town-kit" 'kenney-fantasy-town'
-
-          echo '--- Pass 18 approved Kenney Castle Kit ---'
-          download_kenney_pack 'castle-kit' "$ROOT/kenney/castle-kit" 'kenney-castle'
+          # Preserve the already-vendored Kenney Platformer and KayKit Platformer packs. Their
+          # official download endpoints are not stable enough for every CI run, so 18-0A verifies
+          # the committed copies instead of silently replacing or deleting them.
+          test -d "$ROOT/kenney/platformer-kit"
+          test -d "$ROOT/kaykit/platformer-pack"
 
           cat > "$ROOT/SOURCES.md" <<'EOF'
           # Gamer Bros reusable world asset library
@@ -128,16 +100,18 @@ jobs:
 
           ## Approved sources
 
-          - Kenney Platformer Kit — https://kenney.nl/assets/platformer-kit — CC0.
-          - Kenney Nature Kit — https://kenney.nl/assets/nature-kit — CC0. Pass 18 primary terrain/nature/bridge/fence kit.
-          - Kenney Fantasy Town Kit — https://kenney.nl/assets/fantasy-town-kit — CC0. Pass 18 ruins/woodwork/Riverworks support.
-          - Kenney Castle Kit — https://kenney.nl/assets/castle-kit — CC0. Pass 18 ceremonial/bridge-gate/Prism Ridge support.
+          - Kenney Platformer Kit — https://kenney.nl/assets/platformer-kit — CC0. Previously vendored and retained.
+          - Kenney Nature Kit — https://kenney.nl/assets/nature-kit — CC0. Pass 18 primary terrain/nature/bridge/fence kit. CI delivery mirror: https://github.com/shorepine/kenney/tree/main/3d/nature
+          - Kenney Fantasy Town Kit — https://kenney.nl/assets/fantasy-town-kit — CC0. Pass 18 ruins/woodwork/Riverworks support. CI delivery mirror: https://github.com/shorepine/kenney/tree/main/3d/fantasy-town
+          - Kenney Castle Kit — https://kenney.nl/assets/castle-kit — CC0. Pass 18 ceremonial/bridge-gate/Prism Ridge support. CI delivery mirror: https://github.com/shorepine/kenney/tree/main/3d/castle
           - Kenney Starter Kit City Builder — https://github.com/KenneyNL/Starter-Kit-City-Builder — code MIT; included assets CC0.
           - Kenney Starter Kit Basic Scene — https://github.com/KenneyNL/Starter-Kit-Basic-Scene — support/reference scene assets.
-          - KayKit Platformer Pack FREE — https://kaylousberg.itch.io/kaykit-platformer and official free attachment https://www.patreon.com/file?h=122994247&m=426916688 — CC0.
+          - KayKit Platformer Pack FREE — https://kaylousberg.itch.io/kaykit-platformer — CC0. Previously vendored and retained.
           - KayKit City Builder Bits — https://github.com/KayKit-Game-Assets/KayKit-City-Builder-Bits-1.0 — CC0.
           - KayKit Medieval Hexagon Pack — https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0 — CC0.
           - KayKit Dungeon Remastered — https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0 — CC0.
+
+          The `shorepine/kenney` mirror is used only as a reproducible CI delivery path for the three Pass 18 Kenney packs. Kenney's official pages remain the canonical source/license references.
 
           Only browser-useful runtime files are vendored here. Godot import caches/editor metadata are intentionally excluded.
 
@@ -171,16 +145,26 @@ jobs:
           echo "Imported file count: $(find "$ROOT" -type f | wc -l)"
           du -sh "$ROOT" || true
 
-          # 18-0A hard evidence: required packs must have usable 3D files.
+          # 18-0A hard evidence: every required foundation pack contains usable 3D files.
           for required in \
             "$ROOT/kenney/nature-kit" \
             "$ROOT/kenney/fantasy-town-kit" \
             "$ROOT/kenney/castle-kit" \
-            "$ROOT/kaykit/platformer-pack"; do
+            "$ROOT/kenney/platformer-kit" \
+            "$ROOT/kaykit/platformer-pack" \
+            "$ROOT/kaykit/medieval-hexagon" \
+            "$ROOT/kaykit/dungeon-remastered"; do
             count=$(find "$required" -type f \( -iname '*.glb' -o -iname '*.gltf' \) | wc -l)
             echo "$required: $count 3D files"
             test "$count" -gt 0
           done
+
+          # Spot-check concept-critical assets so a wrong upstream directory cannot pass merely
+          # because it contains unrelated GLBs.
+          test -f "$ROOT/kenney/nature-kit/bridge_stone.glb"
+          test -f "$ROOT/kenney/nature-kit/cliff_waterfall_rock.glb"
+          test -f "$ROOT/kenney/fantasy-town-kit/wall-arch.glb"
+          test -f "$ROOT/kenney/castle-kit/bridge-straight-pillar.glb"
 
       - name: Commit imported asset library to the active branch only
         shell: bash
@@ -192,5 +176,6 @@ jobs:
             echo 'No asset changes to commit.'
           else
             git commit -m 'Pass 18-0A: import approved concept-match asset kits'
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
