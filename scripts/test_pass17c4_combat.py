@@ -26,7 +26,7 @@ def browser(width, height, mobile=False):
     d = webdriver.Chrome(options=o)
     d.set_window_size(width, height)
     d.set_page_load_timeout(20)
-    d.set_script_timeout(28)
+    d.set_script_timeout(20)
     return d
 
 
@@ -60,101 +60,66 @@ def run(target):
         except TimeoutException:
             print(target, 'EAGER NAVIGATION TIMEOUT - CONTINUING', flush=True)
 
-        wait_js(
-            d,
-            "return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true",
-            38,
-            target + ' runtime ready',
-        )
+        wait_js(d, "return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true", 38, target + ' runtime ready')
         if d.execute_script("return document.getElementById('fatal')?.classList.contains('show')===true"):
             err = d.execute_script("return document.getElementById('error')?.textContent||''")
             raise RuntimeError(f'{target} fatal screen: {err}')
-
-        wait_js(
-            d,
-            "return Number(document.documentElement.dataset.enemies||0)>=5 || document.documentElement.dataset.enemyStreamError==='1'",
-            30,
-            target + ' enemies',
-        )
+        wait_js(d, "return Number(document.documentElement.dataset.enemies||0)>=5 || document.documentElement.dataset.enemyStreamError==='1'", 30, target + ' enemies')
         if d.execute_script("return document.documentElement.dataset.enemyStreamError==='1'"):
             raise RuntimeError(f'{target} enemy stream error; logs={logs(d)!r}')
 
         route = d.execute_script('return window.__pass17RouteValidation')
-        if not route or not route['main']['ok'] or not route['optional']['ok']:
-            raise RuntimeError(f'{target} route regression: {route}')
         before = d.execute_script('return window.__pass17CTest.combatInfo()')
-        if before['living'] < 5 or before['hearts'] != 5:
-            raise RuntimeError(f'{target} bad initial combat state: {before}')
+        if not route or not route['main']['ok'] or not route['optional']['ok'] or before['living'] < 5 or before['hearts'] != 5:
+            raise RuntimeError(f'{target} bad combat startup: route={route} combat={before}')
         print(target, 'COMBAT READY', {'main': route['main']['samples'], 'optional': route['optional']['samples'], 'state': before}, flush=True)
 
-        # Exercise the real hostile state machine inside the page so software-WebGL Selenium
-        # round trips cannot hide the alert -> telegraph/windup -> lunge -> player-hit sequence.
-        attack = d.execute_async_script("""
-          const done=arguments[0], t=window.__pass17CTest;
-          const staged=t.stageEnemyAttack();
-          if(!staged){done({error:'no enemy to stage'});return;}
-          const id=staged.enemy.id, seen=[], started=performance.now();let telegraph=false;
-          const tick=()=>{
-            const e=t.enemyInfo(id), c=t.combatInfo();
-            if(!e){done({error:'enemy disappeared',seen,combat:c});return;}
+        # Deterministically advance the same production enemy update() function. This avoids
+        # software-WebGL render stalls changing wall-clock timing while still exercising the
+        # real patrol -> alert -> windup/telegraph -> lunge -> contact-damage state machine.
+        attack = d.execute_script("""
+          const t=window.__pass17CTest, staged=t.stageEnemyAttack();
+          if(!staged)return {error:'no enemy to stage'};
+          const id=staged.enemy.id, seen=[staged.enemy.state];let telegraph=false;
+          for(let i=0;i<48 && t.combatInfo().hearts===5;i++){
+            t.combatStep(.04);
+            const e=t.enemyInfo(id);if(!e)return {error:'enemy disappeared',id,seen};
             if(!seen.includes(e.state))seen.push(e.state);
             telegraph=telegraph||e.telegraph===true;
-            if(c.hearts<5){done({id,seen,telegraph,combat:c,enemy:e,ms:Math.round(performance.now()-started)});return;}
-            if(performance.now()-started>6500){done({error:'attack timeout',id,seen,telegraph,combat:c,enemy:e});return;}
-            setTimeout(tick,35);
-          };
-          tick();
+          }
+          return {id,seen,telegraph,combat:t.combatInfo(),enemy:t.enemyInfo(id)};
         """)
-        if attack.get('error'):
-            raise RuntimeError(f'{target} hostile attack failed: {attack}')
-        if 'windup' not in attack['seen'] or 'lunge' not in attack['seen'] or not attack['telegraph']:
-            raise RuntimeError(f'{target} missing telegraph/lunge sequence: {attack}')
-        if attack['combat']['hearts'] != 4:
-            raise RuntimeError(f'{target} enemy contact did not remove exactly one heart: {attack}')
+        if attack.get('error') or 'windup' not in attack['seen'] or 'lunge' not in attack['seen'] or not attack['telegraph'] or attack['combat']['hearts'] != 4:
+            raise RuntimeError(f'{target} hostile attack contract failed: {attack}')
         print(target, 'ENEMY ATTACK PASS', attack, flush=True)
 
         reset = d.execute_script('return window.__pass17CTest.combatReset()')
         if reset['hearts'] != 5:
             raise RuntimeError(f'{target} combat reset failed: {reset}')
 
-        # Drive a max-charge hit followed by a second finishing shot. This validates charge,
-        # projectile collision, HP, death, living-count reduction, and the existing kill reward.
-        power = d.execute_async_script("""
-          const done=arguments[0], t=window.__pass17CTest;
-          const base=t.combatInfo(), stage=t.stageCombat(4);
-          if(!stage){done({error:'no enemy for power test',base});return;}
-          const id=stage.enemy.id, hp0=stage.enemy.hp, started=performance.now();
-          if(!t.powerStart()){done({error:'first powerStart rejected',base,stage,power:t.powerInfo()});return;}
-          setTimeout(()=>{
-            const peak=t.powerInfo();
-            const released=t.powerRelease();
-            if(!released){done({error:'first release rejected',peak});return;}
-            const waitFirst=()=>{
-              const e=t.enemyInfo(id);
-              if(e && e.hp===hp0-1){
-                setTimeout(()=>{
-                  const restaged=t.stageCombat(4);
-                  if(!restaged || restaged.enemy.id!==id){done({error:'could not restage damaged target',id,e,restaged});return;}
-                  if(!t.powerStart()){done({error:'second powerStart rejected',power:t.powerInfo(),enemy:t.enemyInfo(id)});return;}
-                  setTimeout(()=>{
-                    const secondPeak=t.powerInfo(), secondReleased=t.powerRelease();
-                    if(!secondReleased){done({error:'second release rejected',secondPeak});return;}
-                    const waitDead=()=>{
-                      const q=t.enemyInfo(id), combat=t.combatInfo();
-                      if(q && q.alive===false){done({id,hp0,peak,afterFirst:e,secondPeak,final:q,base,combat,ms:Math.round(performance.now()-started)});return;}
-                      if(performance.now()-started>8500){done({error:'kill timeout',id,hp0,peak,afterFirst:e,secondPeak,final:q,base,combat});return;}
-                      setTimeout(waitDead,35);
-                    };
-                    waitDead();
-                  },320);
-                },720);
-                return;
-              }
-              if(performance.now()-started>4500){done({error:'first hit timeout',id,hp0,peak,enemy:e,combat:t.combatInfo()});return;}
-              setTimeout(waitFirst,35);
-            };
-            waitFirst();
-          },1120);
+        # Charge and fire twice using the production Prism Breaker update/projectile/collision
+        # functions. One full-charge hit must take HP 2 -> 1; a second shot must kill, reduce
+        # the living count, and award +2 coins / +1 gem through the production callback.
+        power = d.execute_script("""
+          const t=window.__pass17CTest, base=t.combatInfo(), stage=t.stageCombat(4);
+          if(!stage)return {error:'no enemy for power test',base};
+          const id=stage.enemy.id, hp0=stage.enemy.hp;
+          if(!t.powerStart())return {error:'first powerStart rejected',base,stage,power:t.powerInfo()};
+          for(let i=0;i<30;i++)t.combatStep(.04);
+          const peak=t.powerInfo();
+          if(!t.powerRelease())return {error:'first release rejected',peak};
+          let afterFirst=null;
+          for(let i=0;i<14;i++){t.combatStep(.04);const e=t.enemyInfo(id);if(e&&e.hp===hp0-1){afterFirst=e;break;}}
+          if(!afterFirst)return {error:'first hit missing',id,hp0,peak,enemy:t.enemyInfo(id),combat:t.combatInfo()};
+          for(let i=0;i<20;i++)t.combatStep(.04);
+          const restaged=t.stageCombat(4);
+          if(!restaged||restaged.enemy.id!==id)return {error:'restage failed',id,afterFirst,restaged};
+          if(!t.powerStart())return {error:'second powerStart rejected',power:t.powerInfo(),enemy:t.enemyInfo(id)};
+          for(let i=0;i<8;i++)t.combatStep(.04);
+          const secondPeak=t.powerInfo();
+          if(!t.powerRelease())return {error:'second release rejected',secondPeak};
+          for(let i=0;i<18;i++){t.combatStep(.04);const e=t.enemyInfo(id);if(e&&e.alive===false)break;}
+          return {id,hp0,peak,afterFirst,secondPeak,final:t.enemyInfo(id),base,combat:t.combatInfo()};
         """)
         if power.get('error'):
             raise RuntimeError(f'{target} Prism Breaker sequence failed: {power}')
@@ -163,11 +128,11 @@ def run(target):
         if power['peak']['charge'] < .90:
             raise RuntimeError(f'{target} max charge was not reached: {power}')
         if power['combat']['living'] != power['base']['living'] - 1:
-            raise RuntimeError(f'{target} living-count did not decrease by one: {power}')
+            raise RuntimeError(f'{target} living-count contract failed: {power}')
         if power['combat']['coins'] != power['base']['coins'] + 2 or power['combat']['gems'] != power['base']['gems'] + 1:
-            raise RuntimeError(f'{target} kill reward wrong: {power}')
+            raise RuntimeError(f'{target} kill reward contract failed: {power}')
         if power['combat']['coinsText'] != str(power['combat']['coins']) or power['combat']['gemsText'] != str(power['combat']['gems']):
-            raise RuntimeError(f'{target} reward HUD did not update: {power}')
+            raise RuntimeError(f'{target} reward HUD contract failed: {power}')
         print(target, 'PRISM BREAKER PASS', power, flush=True)
 
         shot = PROOF / f'{target}-combat.png'
