@@ -1661,34 +1661,6 @@
       "kind": "tile"
     },
     {
-      "id": "bridge",
-      "asset": "nature.bridge.stone",
-      "position": [
-        0,
-        0.75,
-        16
-      ],
-      "rotationY": 0.0,
-      "role": "bridge",
-      "section": "B",
-      "targetMax": 1.04,
-      "scale": [
-        5.77,
-        1.3,
-        1.5
-      ],
-      "entry": [
-        -3.0,
-        0.75,
-        16
-      ],
-      "exit": [
-        3.0,
-        0.75,
-        16
-      ]
-    },
-    {
       "id": "fence1",
       "asset": "kaykit.barrier.green",
       "position": [
@@ -3169,6 +3141,71 @@
       "rotationY": -1.5708,
       "role": "cliff",
       "section": "B"
+    },
+    {
+      "id": "bridge-pillar-0",
+      "kind": "tile",
+      "asset": "castle.bridge.pillar",
+      "position": [
+        -1.86,
+        -0.2,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B"
+    },
+    {
+      "id": "bridge-arch-1",
+      "kind": "tile",
+      "asset": "castle.bridge.straight",
+      "position": [
+        -0.93,
+        -0.2,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B"
+    },
+    {
+      "id": "bridge-arch-2",
+      "kind": "tile",
+      "asset": "castle.bridge.straight",
+      "position": [
+        0.0,
+        -0.2,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B"
+    },
+    {
+      "id": "bridge-arch-3",
+      "kind": "tile",
+      "asset": "castle.bridge.straight",
+      "position": [
+        0.93,
+        -0.2,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B"
+    },
+    {
+      "id": "bridge-pillar-4",
+      "kind": "tile",
+      "asset": "castle.bridge.pillar",
+      "position": [
+        1.86,
+        -0.2,
+        16
+      ],
+      "rotationY": 0.0,
+      "role": "bridge",
+      "section": "B"
     }
   ],
   "route": {
@@ -3349,7 +3386,7 @@
     "minVegetation": 20,
     "minFences": 6,
     "minPathPieces": 20,
-    "bridgeAsset": "nature.bridge.stone",
+    "bridgeAsset": "castle.bridge.straight",
     "minUniqueSources": 12,
     "requiresRealWaterfallHousing": true,
     "requiresAnimatedWater": true,
@@ -3358,5 +3395,27 @@
     "maxRouteNodeGap": 1.45,
     "visualApproval": "USER_REQUIRED",
     "minCliffs": 60
+  },
+  "bridge": {
+    "asset": "castle.bridge.straight",
+    "pillarAsset": "castle.bridge.pillar",
+    "modulePitch": 0.93,
+    "segments": [
+      "bridge-pillar-0",
+      "bridge-arch-1",
+      "bridge-arch-2",
+      "bridge-arch-3",
+      "bridge-pillar-4"
+    ],
+    "entry": [
+      -2.325,
+      0.7,
+      16
+    ],
+    "exit": [
+      2.325,
+      0.7,
+      16
+    ]
   }
 }

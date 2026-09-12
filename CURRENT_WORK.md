@@ -32,13 +32,33 @@ the creek's own meander at ground level in several rows.
 A full terrain-rebuild design was produced and geometry-verified (real
 glTF vertex/triangle decode, not bounding-box guesses) covering: creek-
 following bank tiling, real multi-primitive `InstancedMesh` batching,
-same-side west/east cliff-corner generation, an explicit route with a
-single-instance `nature.bridge.stone` prop oriented on its verified local-X
-walking axis, and corrected ridge classification (`nature.platform.grass`
-reclassified from prop to tile). Implementation of that design is
-**in progress on this branch** — see the checkpoint written alongside it
-once complete, and do not treat any resulting green CI run as visual
-approval until a human has looked at the actual screenshots.
+same-side west/east cliff-corner generation, an explicit route, and
+corrected ridge classification (`nature.platform.grass` reclassified from
+prop to tile). That design was implemented on this branch (through
+`2eb7513`) and rendered on both desktop and Android.
+
+**Bridge history:** the first implementation used a single `nature.bridge.stone`
+prop, non-uniformly scaled `[5.77,1.3,1.5]` to span the crossing. A required
+visual inspection (isolated top-down/side renders, not just the concept
+camera) showed this badly deformed the model — its corner posts and rails
+flattened into an unreadable grey slab. Rather than guess new scale numbers,
+that attempt was replaced with the Castle Kit's modular
+`castle.bridge.straight`/`castle.bridge.pillar` system: 5 native-scale
+modules (pillar–arch–arch–arch–pillar) at verified pitch 0.93, spanning
+4.65 units, fitting cleanly inside the existing retaining-wall gap at the
+z=16 crossing row (walls at x=−3/+3, bridge footprint x=[−2.325,2.325]).
+Re-inspected the same way (isolated top-down render): reads as a real,
+undeformed stone bridge with battlements and visible arches. The bridge's
+entry/exit and per-module data now live under a top-level `manifest.bridge`
+object (`asset`, `pillarAsset`, `modulePitch`, `segments`, `entry`, `exit`)
+rather than a single placement record — `route.nodes` still references the
+literal id `'bridge'`, resolved specially by both the runtime metrics and
+`scripts/test_pass18_2_terrain_contract.py`.
+
+Do not treat any resulting green CI run as visual approval until a human
+has looked at the actual screenshots and confirmed the rest of the scene
+(cliff-corner handedness at all 20 generated transitions, ridge-plaza
+readability, etc.) independently of this bridge fix.
 
 ## Historical: 18-1B — In-browser world authoring tool
 

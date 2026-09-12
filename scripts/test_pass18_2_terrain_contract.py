@@ -71,13 +71,20 @@ def assert_manifest_contract(d):
     assert tiles, 'no authored tile placements'
     assert all('targetMax' not in p for p in tiles), \
         'tile placements must not carry a prop-style targetMax'
-    assert all('targetMax' in p or p['id'] == 'bridge' for p in props), \
-        'every non-tile placement needs a targetMax (the bridge supplies its own explicit scale instead)'
+    assert all('targetMax' in p for p in props), \
+        'every non-tile placement needs a targetMax'
 
-    bridge = next(p for p in d['placements'] if p['id'] == 'bridge')
+    # The bridge is a modular assembly (Castle Kit arch/pillar segments,
+    # each a plain kind:'tile' placement) with an explicit entry/exit
+    # declared at the manifest's top level, not a single placement.
+    bridge = d['bridge']
     assert bridge['asset'] == d['acceptance']['bridgeAsset']
     assert 'entry' in bridge and 'exit' in bridge, \
         'bridge must declare explicit entry/exit points, not rely on an inferred AABB touch'
+    by_id_check = {p['id']: p for p in d['placements']}
+    for seg_id in bridge['segments']:
+        seg = by_id_check[seg_id]
+        assert seg['role'] == 'bridge' and seg.get('kind') == 'tile'
 
     path_count = sum(1 for p in d['placements'] if p['role'] == 'path')
     assert path_count >= d['acceptance']['minPathPieces'], path_count
@@ -126,14 +133,14 @@ def assert_terrain_and_route_contract(d):
     # generic node-to-node gap ceiling.
     nodes = d['route']['nodes']
     assert nodes, 'no route authored'
+    bridge = d['bridge']
     expanded = []
     for node_id in nodes:
-        rec = by_id[node_id]
-        if rec['id'] == 'bridge':
-            expanded.append(('bridge-entry', rec['entry']))
-            expanded.append(('bridge-exit', rec['exit']))
+        if node_id == 'bridge':
+            expanded.append(('bridge-entry', bridge['entry']))
+            expanded.append(('bridge-exit', bridge['exit']))
         else:
-            expanded.append((node_id, rec['position']))
+            expanded.append((node_id, by_id[node_id]['position']))
 
     max_gap = d['acceptance']['maxRouteNodeGap']
     for (a_id, a_pos), (b_id, b_pos) in zip(expanded, expanded[1:]):
@@ -142,11 +149,25 @@ def assert_terrain_and_route_contract(d):
         gap = math.dist((a_pos[0], a_pos[2]), (b_pos[0], b_pos[2]))
         assert gap <= max_gap, f'route gap too large between {a_id} and {b_id}: {gap:.3f}u (max {max_gap})'
 
-    bridge = by_id['bridge']
     entry_span = abs(bridge['entry'][0] - bridge['exit'][0])
-    scale_span = bridge['targetMax'] * bridge['scale'][0]
-    assert abs(entry_span - scale_span) <= 0.3, \
-        f'bridge entry/exit span {entry_span:.2f} does not match its authored footprint {scale_span:.2f}'
+    expected_span = len(bridge['segments']) * bridge['modulePitch']
+    assert abs(entry_span - expected_span) <= 0.05, \
+        f'bridge entry/exit span {entry_span:.2f} does not match {len(bridge["segments"])} modules at pitch {bridge["modulePitch"]} ({expected_span:.2f})'
+
+    # Bridge segments must not overlap either retaining-wall cell at their row.
+    for bank in d['creekBanks']:
+        fill, west_edge, east_edge = expand_bank(bank, water_points)
+        wall_x = {z: (w, e) for (z, w), (_, e) in zip(west_edge, east_edge)}
+        for seg_id in bridge['segments']:
+            seg = by_id[seg_id]
+            x, _, z = seg['position']
+            rz = round(z)
+            if rz not in wall_x:
+                continue
+            wall_w, wall_e = wall_x[rz]
+            lo, hi = x - bridge['modulePitch'] / 2, x + bridge['modulePitch'] / 2
+            assert lo > wall_w + 0.5 and hi < wall_e - 0.5, \
+                f'bridge segment {seg_id} overlaps a retaining-wall cell at z={rz} (walls at {wall_w}/{wall_e})'
 
 
 if __name__ == '__main__':

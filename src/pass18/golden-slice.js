@@ -144,7 +144,7 @@ function roleCounts() {
 function getMetrics() {
   const snap=registry.snapshot(); return {
     version:manifest.version, worldLanguage:manifest.worldLanguage, reviewStatus:manifest.reviewStatus, currentView,
-    realPlacements:manifest.__allPlacements.length, roles:roleCounts(), bridgeAsset:manifest.placements.find(p=>p.id==='bridge')?.asset,
+    realPlacements:manifest.__allPlacements.length, roles:roleCounts(), bridgeAsset:manifest.bridge?.asset,
     waterfallHousingCount:manifest.__allPlacements.filter(p=>p.asset==='nature.cliff.waterfall'||p.asset==='nature.cliff.waterfallTop').length,
     waterReady, waterfallsReady, prismAccents:manifest.prismAccents.length, ridge:ridgeProjection(), registry:snap,
     render:{calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures},
