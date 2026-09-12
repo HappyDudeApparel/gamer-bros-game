@@ -91,7 +91,7 @@ async function build() {
   const displayIds = [
     'nature.cliff.large','nature.cliff.corner','nature.cliff.steps','nature.bridge.stone',
     'nature.tree.oak','nature.rock.largeA','fantasy.wall.arch','fantasy.wall.corner',
-    'castle.bridge.pillar','castle.gate.complex','castle.stairs.stone','kenney.platform.slope'
+    'castle.bridge.pillar','castle.gate','castle.stairs.stone','kenney.platform.slope'
   ];
   for (let i = 0; i < displayIds.length; i += 1) {
     const col = i % 4, row = Math.floor(i / 4);
@@ -133,9 +133,8 @@ async function build() {
 }
 
 buildFilters();
-let last = performance.now();
 function animate(now) {
-  requestAnimationFrame(animate); hud.update(now); renderer.render(scene, camera); last = now;
+  requestAnimationFrame(animate); hud.update(now); renderer.render(scene, camera);
 }
 requestAnimationFrame(animate);
 
