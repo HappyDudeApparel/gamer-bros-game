@@ -24,6 +24,7 @@ new_stage = """      stageCombat:(distance=4)=>{const e=enemies.living()[0];if(!
       enemyInfo:(id)=>{const e=enemies.enemies.find(q=>q.id===id);return e?{id:e.id,hp:e.hp,alive:e.alive,role:e.role,state:e.state,telegraph:e.telegraph.visible,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}:null},
       combatInfo:()=>({hearts:player.hearts,coins,gems,living:enemies.living().length,healthText:healthEl.textContent,coinsText:coinsEl.textContent,gemsText:gemsEl.textContent}),
       combatReset:()=>{player.hearts=5;player.damageCooldown=0;updateHUD();return {hearts:player.hearts,coins,gems,living:enemies.living().length}},
+      combatStep:(dt=.04)=>{elapsed+=dt;player.damageCooldown=Math.max(0,player.damageCooldown-dt);power.update(dt,elapsed);enemies.update(dt,elapsed);return {hearts:player.hearts,coins,gems,living:enemies.living().length,charge:power.charge,cooldown:power.cooldown}},
       powerInfo:()=>({charging:power.charging,charge:power.charge,cooldown:power.cooldown,cameraKick:power.cameraKick,recoil:power.recoil}),"""
 app = replace_once(app, old_stage, new_stage, 'Pass 17C-4 combat hooks')
 
