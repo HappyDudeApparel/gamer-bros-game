@@ -39,13 +39,19 @@ jobs:
           node --check src/pass18/budget-hud.js
           node --check src/pass18/gallery.js
           python -m py_compile scripts/test_pass18_0c_assets.py
-          test -f assets/world-kit/kenney/nature-kit/cliff_large_rock.glb
-          test -f assets/world-kit/kenney/nature-kit/bridge_stone.glb
-          test -f assets/world-kit/kenney/fantasy-town-kit/wall-arch.glb
-          test -f assets/world-kit/kenney/castle-kit/gate-complex.glb
-          test -f 'assets/world-kit/kenney/platformer-kit/Models/GLB format/block-grass-large-slope.glb'
-          test -f assets/world-kit/kaykit/platformer-pack/KayKit_Platformer_Pack_1.0_FREE/Assets/gltf/green/arch_green.gltf
-          test -f assets/world-kit/kaykit/dungeon-remastered/addons/kaykit_dungeon_remastered/Assets/gltf/banner_blue.gltf.glb
+          required_assets=(
+            'assets/world-kit/kenney/nature-kit/cliff_large_rock.glb'
+            'assets/world-kit/kenney/nature-kit/bridge_stone.glb'
+            'assets/world-kit/kenney/fantasy-town-kit/wall-arch.glb'
+            'assets/world-kit/kenney/castle-kit/gate.glb'
+            'assets/world-kit/kenney/platformer-kit/Models/GLB format/block-grass-large-slope.glb'
+            'assets/world-kit/kaykit/platformer-pack/KayKit_Platformer_Pack_1.0_FREE/Assets/gltf/green/arch_green.gltf'
+            'assets/world-kit/kaykit/dungeon-remastered/addons/kaykit_dungeon_remastered/Assets/gltf/banner_blue.gltf.glb'
+          )
+          for asset in "${required_assets[@]}"; do
+            echo "VERIFY ASSET: ${asset}"
+            test -f "${asset}" || { echo "MISSING ASSET: ${asset}"; exit 1; }
+          done
           grep -q 'THREE.BatchedMesh' src/pass18/asset-registry.js
           grep -q 'THREE.InstancedMesh' src/pass18/asset-registry.js
           ! grep -q 'patch_pass18' src/pass18/gallery.js
