@@ -5,7 +5,7 @@ on:
     paths:
       - 'scripts/build_pass16_prism_valley.py'
       - 'scripts/fix_pass16_runtime.py'
-      - 'scripts/fix_pass16_layered_ground.py'
+      - 'scripts/author_pass16_world_v2.py'
       - 'scripts/test_pass16_browser.py'
       - '.github/workflows/build-validate-pass16-prism-valley.yml'
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
         run: |
           python scripts/build_pass16_prism_valley.py
           python scripts/fix_pass16_runtime.py
-          python scripts/fix_pass16_layered_ground.py
+          python scripts/author_pass16_world_v2.py
       - name: Validate JavaScript
         run: |
           node --check pass16-world1/app.js
