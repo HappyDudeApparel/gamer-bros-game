@@ -4,8 +4,6 @@ on:
     branches: [pass17-concept-match]
     paths:
       - 'PASS17_EXECUTION_PLAN.md'
-      - 'index.html'
-      - 'title-v5.js'
       - 'scripts/build_pass17a.py'
       - 'scripts/fix_pass17a_bridge.py'
       - 'scripts/fix_pass17a_clover.py'
@@ -13,19 +11,18 @@ on:
       - '.github/workflows/build-validate-pass17a.yml'
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   build-validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Build Pass 17A
+      - name: Build isolated Pass 17A validation candidate
         run: |
           python scripts/build_pass17a.py
           python scripts/fix_pass17a_bridge.py
           python scripts/fix_pass17a_clover.py
+          python scripts/patch_pass17_concept_hero.py
       - name: Validate JavaScript
         run: |
           node --check title-v5.js
@@ -34,6 +31,8 @@ jobs:
           node --check pass17-world1/assets.js
           node --check pass17-world1/enemies.js
           node --check pass17-world1/power.js
+          node --check src/pass17-concept-hero.js
+          node --check src/pass17-gamer-bro.js
       - name: Validate concept-match markers
         run: |
           grep -q "pass17-prism-valley-v2" pass17-world1/world.js
@@ -43,22 +42,11 @@ jobs:
           grep -q "__pass17ContinuousTerrain" pass17-world1/world.js
           grep -q "pass17-world1" title-v5.js
           grep -q "PRISM VALLEY V2" index.html
+          grep -q "pass17-gamer-bro.js" pass17-world1/index.html
       - name: Browser dependencies
         run: pip install selenium
-      - name: Desktop and Android production smoke
+      - name: Desktop and Android foundation smoke
         run: |
           python -m http.server 8000 >/tmp/pass17-http.log 2>&1 &
           sleep 2
           python scripts/test_pass17a_browser.py
-      - name: Commit generated Pass 17A
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add pass17-world1
-          if git diff --cached --quiet; then
-            echo 'No generated changes'
-          else
-            git commit -m 'Build Pass 17A continuous Prism Valley V2'
-            git pull --rebase origin pass17-concept-match
-            git push origin HEAD:pass17-concept-match
-          fi
