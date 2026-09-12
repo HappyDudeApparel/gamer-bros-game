@@ -29,6 +29,9 @@ export function createAssetLibrary({mobile=false}={}){
  async function instantiateAnimated(spec,opts={}){
    const r=resolve(spec),{x=0,y=0,z=0,height=2.25,rotationY=0,parent=null}=opts,gltf=await load(r),root=gltf.scene;root.rotation.y=rotationY;root.updateMatrixWorld(true);let box=new THREE.Box3().setFromObject(root),size=box.getSize(new THREE.Vector3());root.scale.multiplyScalar(height/Math.max(size.y,.001));root.updateMatrixWorld(true);box=new THREE.Box3().setFromObject(root);const ctr=box.getCenter(new THREE.Vector3());root.position.x+=x-ctr.x;root.position.z+=z-ctr.z;root.position.y+=y-box.min.y;root.updateMatrixWorld(true);tune(root,{animated:true});parent?.add(root);root.userData.assetPack=r.pack;root.userData.assetName=r.name;return{root,animations:gltf.animations||[],name:r.name,pack:r.pack};
  }
- async function prewarm(items){await Promise.all([...new Map(items.map(v=>{const r=resolve(v);return[r.pack+':'+r.name,r]})).values()].map(load))}
+ async function prewarm(items){
+   const unique=[...new Map(items.map(v=>{const r=resolve(v);return[r.pack+':'+r.name,r]})).values()];
+   await Promise.all(unique.map(r=>load(r)));
+ }
  return{ROOTS,url,load,prewarm,instantiateStatic,instantiateAnimated};
 }
