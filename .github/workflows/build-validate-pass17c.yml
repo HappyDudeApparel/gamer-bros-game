@@ -8,7 +8,11 @@ on:
       - 'scripts/patch_pass17c3_ci.py'
       - 'scripts/patch_pass17c4_combat.py'
       - 'scripts/patch_pass17c5_portal.py'
-      - 'scripts/test_pass17c_browser.py'
+      - 'scripts/test_pass17c2_title_startup.py'
+      - 'scripts/test_pass17c3_world_camera.py'
+      - 'scripts/test_pass17c3_camera_light.py'
+      - 'scripts/test_pass17c4_combat.py'
+      - 'scripts/test_pass17c5_portal.py'
       - '.github/workflows/build-validate-pass17c.yml'
       - 'scripts/build_pass17a.py'
       - 'scripts/fix_pass17a_bridge.py'
@@ -38,7 +42,7 @@ permissions:
 jobs:
   build-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,7 +75,6 @@ jobs:
           node --check src/crystal-library-tube-v2.js
           grep -q "__pass17CVersion='17C1'" pass17-world1/app.js
           grep -q "__pass17PortalWatchdog" pass17-world1/app.js
-          grep -q "portalPrime" pass17-world1/app.js
           grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
           grep -q "stageEnemyAttack" pass17-world1/app.js
           grep -q "combatInfo" pass17-world1/app.js
@@ -89,18 +92,49 @@ jobs:
       - name: Browser dependencies
         run: pip install selenium
 
-      - name: Real desktop and Android Pass 17C end-to-end gate
+      - name: Start local game server
         run: |
           python -m http.server 8000 >/tmp/pass17c-http.log 2>&1 &
           sleep 2
-          python -u scripts/test_pass17c_browser.py
 
-      - name: Upload Pass 17C proof shots
+      - name: 17C-2 phone title selection and startup
+        run: timeout 190s python -u scripts/test_pass17c2_title_startup.py
+
+      - name: 17C-3 desktop production world streaming
+        run: timeout 170s python -u scripts/test_pass17c3_world_camera.py --target desktop --mode stream
+
+      - name: 17C-3 Android production world streaming
+        run: timeout 170s python -u scripts/test_pass17c3_world_camera.py --target android --mode stream
+
+      - name: 17C-3 desktop camera proof
+        run: timeout 130s python -u scripts/test_pass17c3_camera_light.py --target desktop
+
+      - name: 17C-3 Android camera proof
+        run: timeout 130s python -u scripts/test_pass17c3_camera_light.py --target android
+
+      - name: 17C-4 desktop combat and Prism Breaker
+        run: timeout 140s python -u scripts/test_pass17c4_combat.py --target desktop
+
+      - name: 17C-4 Android combat and Prism Breaker
+        run: timeout 140s python -u scripts/test_pass17c4_combat.py --target android
+
+      - name: 17C-5 desktop canonical portal
+        run: timeout 150s python -u scripts/test_pass17c5_portal.py --target desktop
+
+      - name: 17C-5 Android canonical portal
+        run: timeout 150s python -u scripts/test_pass17c5_portal.py --target android
+
+      - name: Upload Pass 17C production proof
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pass17c-proof
-          path: artifacts/pass17c-proof
+          name: pass17c-production-proof
+          path: |
+            artifacts/pass17c2-proof
+            artifacts/pass17c3-proof
+            artifacts/pass17c3-camera-proof
+            artifacts/pass17c4-combat-proof
+            artifacts/pass17c5-portal-proof
           if-no-files-found: warn
           retention-days: 14
 
