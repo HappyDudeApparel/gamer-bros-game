@@ -36,17 +36,24 @@ jobs:
           node --check src/pass18/calibration.js
           python -m py_compile scripts/test_pass18_0b_look.py
           python -m json.tool data/pass18/cameras.json >/dev/null
+          test -f assets/world-kit/kenney/nature-kit/ground_pathBend.glb
+          test -f assets/world-kit/kenney/nature-kit/ground_riverStraight.glb
+          test -f assets/world-kit/kenney/nature-kit/ground_riverBend.glb
           test -f assets/world-kit/kenney/nature-kit/ground_grass.glb
-          test -f assets/world-kit/kenney/nature-kit/cliff_block_rock.glb
-          test -f assets/world-kit/kenney/nature-kit/cliff_top_rock.glb
-          test -f assets/world-kit/kenney/nature-kit/cliff_waterfall_rock.glb
+          test -f assets/world-kit/kenney/nature-kit/platform_grass.glb
+          test -f assets/world-kit/kenney/nature-kit/cliff_large_rock.glb
+          test -f assets/world-kit/kenney/nature-kit/cliff_cornerLarge_rock.glb
+          test -f assets/world-kit/kenney/nature-kit/cliff_steps_rock.glb
+          test -f assets/world-kit/kenney/nature-kit/cliff_waterfallTop_rock.glb
           test -f assets/world-kit/kenney/nature-kit/bridge_stone.glb
           test -f assets/world-kit/kenney/nature-kit/tree_default.glb
+          test -f assets/world-kit/kenney/nature-kit/tree_oak.glb
           test -f assets/world-kit/kenney/nature-kit/rock_largeA.glb
+          grep -q "version: '18-0B.2'" src/pass18/world-language.js
           grep -q "ACESFilmicToneMapping" src/pass18/world-language.js
           grep -q "pixelRatioMobileMax: 1.25" src/pass18/world-language.js
           grep -q "pixelRatioDesktopMax: 1.5" src/pass18/world-language.js
-          grep -q "Every visible landform/prop below is a real Kenney Nature Kit asset" src/pass18/calibration.js
+          grep -q "giant block backdrops are rejected" src/pass18/calibration.js
 
       - name: Browser dependency
         run: pip install selenium
