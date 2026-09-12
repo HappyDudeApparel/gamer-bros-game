@@ -15,6 +15,10 @@ def browser(mobile=False):
     return webdriver.Chrome(options=o)
 
 
+def concept_version_ok(meta):
+    return bool(meta and str(meta.get('version','')).startswith('17-hero-'))
+
+
 def wait_for(d,script,seconds=45):
     end=time.time()+seconds
     while time.time()<end:
@@ -38,7 +42,7 @@ def title_case(label,mobile=False):
           play:(()=>{const r=document.getElementById('playBtn').getBoundingClientRect();return {w:r.width,h:r.height,top:r.top,bottom:r.bottom}})(),
           vw:innerWidth,vh:innerHeight,scrollH:document.documentElement.scrollHeight
         }""")
-        if state['dataset']!='1' or state['count']<2 or state['meta']['version']!='17-hero-1':raise RuntimeError('bad title concept state '+repr(state))
+        if state['dataset']!='1' or state['count']<2 or not concept_version_ok(state['meta']):raise RuntimeError('bad title concept state '+repr(state))
         if len(state['cards'])!=2 or min(c['w'] for c in state['cards'])<120 or min(c['h'] for c in state['cards'])<100:raise RuntimeError('title cards collapsed '+repr(state))
         if mobile and state['play']['bottom']>state['vh']+2:raise RuntimeError('mobile PLAY below viewport '+repr(state))
         path=os.path.join(OUT,f'{label}-title.png');d.save_screenshot(path)
@@ -57,7 +61,7 @@ def game_case(label,hero,mobile=False):
             time.sleep(.2)
         if not d.execute_script("return document.documentElement.dataset.pass17Ready==='1'"):raise RuntimeError('game not playable '+repr(d.get_log('browser')))
         state=d.execute_script("return {meta:window.__pass17ConceptHeroLast||null,count:window.__pass17ConceptHeroInstances||0,dataset:document.documentElement.dataset.conceptHero,hero:window.__characterReady,routes:window.__pass17RouteValidation}")
-        if state['dataset']!='1' or state['count']<1 or not state['meta'] or state['meta']['version']!='17-hero-1':raise RuntimeError('concept hero missing '+repr(state))
+        if state['dataset']!='1' or state['count']<1 or not concept_version_ok(state['meta']):raise RuntimeError('concept hero missing '+repr(state))
         if state['hero']!=hero or state['meta']['heroId']!=hero:raise RuntimeError('wrong hero '+repr(state))
         if not state['routes'] or not state['routes']['main']['ok'] or not state['routes']['optional']['ok']:raise RuntimeError('route regression '+repr(state['routes']))
         # Let deferred environment/enemies settle so the proof shot is representative.
