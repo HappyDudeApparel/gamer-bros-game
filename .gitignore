@@ -1,0 +1,15 @@
+# Prism Kit local cache/scratch — checkpoints, failure capsules, downloaded
+# tool binaries (e.g. a matching chromedriver), in-progress renders. Fully
+# disposable; `npm run prism:clean` removes it. Never commit this directory.
+.prism-cache/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node (tooling only — the browser game itself is not built/bundled)
+node_modules/
+
+# OS cruft
+.DS_Store
+Thumbs.db

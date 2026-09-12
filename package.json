@@ -1,0 +1,15 @@
+{
+  "name": "prism-kit-tools",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Local CLI tooling for the Pass 18 Prism Kit custom asset production pipeline (M0). This is a build-time tool only — the browser game itself has no build step and is unaffected by this file.",
+  "type": "module",
+  "scripts": {
+    "prism:doctor": "node tools/prism-kit/cli.mjs doctor",
+    "prism:build": "node tools/prism-kit/cli.mjs build",
+    "prism:proof": "node tools/prism-kit/cli.mjs proof",
+    "prism:test": "node tools/prism-kit/cli.mjs test",
+    "prism:clean": "node tools/prism-kit/cli.mjs clean",
+    "prism:resume": "node tools/prism-kit/cli.mjs resume"
+  }
+}
