@@ -1,4 +1,5 @@
 name: Build + Validate Pass 17B Concept Match
+# Production rebuild gate: re-run after the legacy 17A writer was made non-destructive.
 on:
   push:
     branches: [pass17-concept-match]
