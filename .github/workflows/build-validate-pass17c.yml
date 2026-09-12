@@ -9,6 +9,10 @@ on:
       - '.github/workflows/build-validate-pass17c.yml'
   workflow_dispatch:
 
+concurrency:
+  group: pass17c-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -64,7 +68,7 @@ jobs:
         run: |
           python -m http.server 8000 >/tmp/pass17c-http.log 2>&1 &
           sleep 2
-          python scripts/test_pass17c_browser.py
+          python -u scripts/test_pass17c_browser.py
 
       - name: Upload Pass 17C proof shots
         if: always()
