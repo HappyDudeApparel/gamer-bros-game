@@ -1,5 +1,5 @@
 import {createGamerBro as createBaseGamerBro} from '../playground-v2/gamer-bro.js?v=pass17-base';
-import {applyPass17ConceptHero} from './pass17-concept-hero.js?v=17-hero-1';
+import {applyPass17ConceptHero} from './pass17-concept-hero.js?v=17-hero-2';
 
 // Drop-in Pass 17 wrapper. It preserves the proven Gamer Bro controller API while
 // applying the Prism Valley V2 concept-match presentation shell to every GB1/GB2
