@@ -1,0 +1,57 @@
+name: Build + Validate Pass 17A Concept Match
+on:
+  push:
+    branches: [pass17-concept-match]
+    paths:
+      - 'PASS17_EXECUTION_PLAN.md'
+      - 'index.html'
+      - 'title-v5.js'
+      - 'scripts/build_pass17a.py'
+      - 'scripts/test_pass17a_browser.py'
+      - '.github/workflows/build-validate-pass17a.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build Pass 17A
+        run: python scripts/build_pass17a.py
+      - name: Validate JavaScript
+        run: |
+          node --check title-v5.js
+          node --check pass17-world1/app.js
+          node --check pass17-world1/world.js
+          node --check pass17-world1/assets.js
+          node --check pass17-world1/enemies.js
+          node --check pass17-world1/power.js
+      - name: Validate concept-match markers
+        run: |
+          grep -q "pass17-prism-valley-v2" pass17-world1/world.js
+          grep -q "continuous-prism-valley-terrain" pass17-world1/world.js
+          grep -q "__pass17ContinuousTerrain" pass17-world1/world.js
+          grep -q "pass17-world1" title-v5.js
+          grep -q "PRISM VALLEY V2" index.html
+      - name: Browser dependencies
+        run: pip install selenium
+      - name: Desktop and Android production smoke
+        run: |
+          python -m http.server 8000 >/tmp/pass17-http.log 2>&1 &
+          sleep 2
+          python scripts/test_pass17a_browser.py
+      - name: Commit generated Pass 17A
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pass17-world1
+          if git diff --cached --quiet; then
+            echo 'No generated changes'
+          else
+            git commit -m 'Build Pass 17A continuous Prism Valley V2'
+            git pull --rebase origin pass17-concept-match
+            git push origin HEAD:pass17-concept-match
+          fi
