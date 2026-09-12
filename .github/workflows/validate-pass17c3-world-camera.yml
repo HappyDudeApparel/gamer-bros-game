@@ -26,7 +26,7 @@ concurrency:
 jobs:
   checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
 
@@ -59,11 +59,16 @@ jobs:
       - name: Browser dependency
         run: pip install selenium
 
-      - name: Desktop and Android world camera streaming checkpoint
+      - name: Start local game server
         run: |
           python -m http.server 8000 >/tmp/pass17c3-http.log 2>&1 &
           sleep 2
-          python -u scripts/test_pass17c3_world_camera.py
+
+      - name: Desktop world camera streaming checkpoint
+        run: timeout 110s python -u scripts/test_pass17c3_world_camera.py --target desktop
+
+      - name: Android world camera streaming checkpoint
+        run: timeout 110s python -u scripts/test_pass17c3_world_camera.py --target android
 
       - name: Upload Pass 17C-3 proof
         if: always()
