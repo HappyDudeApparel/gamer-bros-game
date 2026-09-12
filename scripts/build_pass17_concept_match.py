@@ -29,8 +29,15 @@ html=html.replace('__pass16','__pass17')
 html=html.replace('./app.js?v=16.0.0','./app.js?v=17.0.0')
 (dst/'index.html').write_text(html,encoding='utf-8')
 
-# Normalize the compact ternary spelling in the authored concept modules so
-# syntax checks and minifiers see the intent unambiguously.
+# ShapeGeometry is authored in XY. +90 degrees maps its second coordinate to
+# world +Z; DoubleSide keeps the upward raycast face available regardless of
+# shape winding. This keeps visible tops and cliff skirts in the same X/Z map.
+wp=dst/'world.js'
+ws=wp.read_text(encoding='utf-8')
+ws=ws.replace('top.rotation.x=-Math.PI/2;top.position.y=y;','top.rotation.x=Math.PI/2;top.material.side=THREE.DoubleSide;top.position.y=y;')
+wp.write_text(ws,encoding='utf-8')
+
+# Normalize compact ternary spelling in authored concept modules.
 for name in ('concept-bro.js','enemies.js'):
     p=dst/name
     s=p.read_text(encoding='utf-8')
