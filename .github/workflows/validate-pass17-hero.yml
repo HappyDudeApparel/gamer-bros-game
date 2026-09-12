@@ -8,7 +8,9 @@ on:
       - 'index.html'
       - 'title-v5.js'
       - 'pass17-world1/index.html'
+      - 'pass17-world1/app.js'
       - 'scripts/patch_pass17_concept_hero.py'
+      - 'scripts/patch_pass17_camera.py'
       - 'scripts/test_pass17_hero_browser.py'
       - '.github/workflows/validate-pass17-hero.yml'
   workflow_dispatch:
