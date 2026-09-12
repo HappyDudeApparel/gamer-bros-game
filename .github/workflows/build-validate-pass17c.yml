@@ -5,8 +5,27 @@ on:
     branches: [pass17-concept-match]
     paths:
       - 'scripts/patch_pass17c.py'
+      - 'scripts/patch_pass17c3_ci.py'
+      - 'scripts/patch_pass17c4_combat.py'
+      - 'scripts/patch_pass17c5_portal.py'
       - 'scripts/test_pass17c_browser.py'
       - '.github/workflows/build-validate-pass17c.yml'
+      - 'scripts/build_pass17a.py'
+      - 'scripts/fix_pass17a_bridge.py'
+      - 'scripts/fix_pass17a_clover.py'
+      - 'scripts/build_pass17b.py'
+      - 'scripts/patch_pass17_concept_hero.py'
+      - 'scripts/patch_pass17_camera.py'
+      - 'scripts/patch_pass17_meadow.py'
+      - 'src/pass17-riverworks-kit.js'
+      - 'src/pass17-enemies.js'
+      - 'src/pass17-asset-library.js'
+      - 'src/pass17-concept-hero.js'
+      - 'src/pass17-gamer-bro.js'
+      - 'src/crystal-library-tube-v2.js'
+      - 'pass16-world1/power.js'
+      - 'index.html'
+      - 'title-v5.js'
   workflow_dispatch:
 
 concurrency:
@@ -19,13 +38,13 @@ permissions:
 jobs:
   build-validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Rebuild locked Pass 17B production foundation
+      - name: Rebuild locked Pass 17 production candidate
         run: |
           python scripts/build_pass17a.py
           python scripts/fix_pass17a_bridge.py
@@ -34,9 +53,10 @@ jobs:
           python scripts/patch_pass17_concept_hero.py
           python scripts/patch_pass17_camera.py
           python scripts/patch_pass17_meadow.py
-
-      - name: Apply Pass 17C portal combat and diagnostics polish
-        run: python scripts/patch_pass17c.py
+          python scripts/patch_pass17c.py
+          python scripts/patch_pass17c3_ci.py
+          python scripts/patch_pass17c4_combat.py
+          python scripts/patch_pass17c5_portal.py
 
       - name: Validate JavaScript and locked production markers
         run: |
@@ -53,6 +73,11 @@ jobs:
           grep -q "__pass17PortalWatchdog" pass17-world1/app.js
           grep -q "portalPrime" pass17-world1/app.js
           grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
+          grep -q "stageEnemyAttack" pass17-world1/app.js
+          grep -q "combatInfo" pass17-world1/app.js
+          grep -q "portalColdTrigger" pass17-world1/app.js
+          grep -q "portalEnter" pass17-world1/app.js
+          grep -q "portalStep" pass17-world1/app.js
           grep -q "impactRings" pass17-world1/power.js
           grep -q "MAX CHARGE" pass17-world1/power.js
           grep -q "portal-meadow-dirt-path" pass17-world1/world.js
