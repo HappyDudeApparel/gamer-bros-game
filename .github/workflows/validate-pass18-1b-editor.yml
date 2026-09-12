@@ -1,0 +1,69 @@
+name: Validate Pass 18-1B World Authoring Tool
+
+on:
+  push:
+    branches: [pass18-rebuild]
+    paths:
+      - 'src/pass18/editor.js'
+      - 'src/pass18/editor-state.js'
+      - 'src/pass18/asset-placement.js'
+      - 'src/pass18/asset-catalog.js'
+      - 'src/pass18/asset-registry.js'
+      - 'src/pass18/world-language.js'
+      - 'data/pass18/world-skeleton.json'
+      - 'pass18-editor/**'
+      - 'scripts/test_pass18_1b_editor.py'
+      - '.github/workflows/validate-pass18-1b-editor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pass18-1b-editor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  editor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout isolated Pass 18 branch
+        uses: actions/checkout@v4
+      - name: Verify clean authoring architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "pass18-rebuild"
+          node --check src/pass18/editor.js
+          node --check src/pass18/editor-state.js
+          node --check src/pass18/asset-placement.js
+          python -m py_compile scripts/test_pass18_1b_editor.py
+          grep -q "PASS18_EDITOR_SCHEMA = '18-1B.0'" src/pass18/editor-state.js
+          grep -q 'Pass18AssetRegistry' src/pass18/editor.js
+          grep -q 'world-skeleton.json' src/pass18/editor.js
+          grep -q 'pass18-world-authoring' src/pass18/editor-state.js
+          grep -q 'kaykit.barrier.green' src/pass18/editor.js
+          grep -q 'nature.path.bend' src/pass18/editor.js
+          ! grep -q 'patch_pass18' src/pass18/editor.js
+          ! grep -q 'pass17-world1' src/pass18/editor.js
+          ! grep -q 'eval(' src/pass18/editor.js
+          test -f pass18-editor/index.html
+      - name: Browser dependency
+        run: pip install selenium
+      - name: Start local static server
+        run: |
+          python -m http.server 8000 >/tmp/pass18-1b-http.log 2>&1 &
+          sleep 2
+      - name: Desktop authoring proof
+        run: timeout 210s python -u scripts/test_pass18_1b_editor.py --target desktop
+      - name: Android landscape authoring proof
+        run: timeout 210s python -u scripts/test_pass18_1b_editor.py --target android
+      - name: Upload editor screenshots, metrics and exported JSON proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass18-1b-editor-proof
+          path: artifacts/pass18-1b-editor
+          if-no-files-found: warn
+          retention-days: 21
