@@ -20,6 +20,8 @@ function item(id, pack, file, category, label, options = {}) {
 export const PASS18_ASSETS = Object.freeze([
   item('nature.ground.grass', 'kenneyNature', 'ground_grass.glb', 'Terrain', 'Grass Ground', { repeatable: true }),
   item('nature.path.bend', 'kenneyNature', 'ground_pathBend.glb', 'Terrain', 'Path Bend'),
+  item('nature.path.straight', 'kenneyNature', 'ground_pathStraight.glb', 'Terrain', 'Path Straight', { repeatable: true }),
+  item('nature.path.tile', 'kenneyNature', 'ground_pathTile.glb', 'Terrain', 'Path Tile', { repeatable: true }),
   item('nature.river.straight', 'kenneyNature', 'ground_riverStraight.glb', 'Water/River', 'River Straight'),
   item('nature.river.bend', 'kenneyNature', 'ground_riverBend.glb', 'Water/River', 'River Bend'),
   item('nature.platform.grass', 'kenneyNature', 'platform_grass.glb', 'Terrain', 'Grass Platform'),
