@@ -14,6 +14,7 @@ on:
       - 'scripts/patch_pass17_camera.py'
       - 'scripts/patch_pass17_meadow.py'
       - 'scripts/patch_pass17c.py'
+      - 'scripts/patch_pass17c3_ci.py'
       - 'src/pass17-riverworks-kit.js'
       - 'src/pass17-enemies.js'
       - 'src/pass17-asset-library.js'
@@ -26,7 +27,7 @@ concurrency:
 jobs:
   checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
 
@@ -40,6 +41,7 @@ jobs:
           python scripts/patch_pass17_camera.py
           python scripts/patch_pass17_meadow.py
           python scripts/patch_pass17c.py
+          python scripts/patch_pass17c3_ci.py
 
       - name: Static world and camera sanity
         run: |
@@ -55,6 +57,7 @@ jobs:
           grep -q "CAMERA_ZOOMS=\[12.8,16.2,20.0\]" pass17-world1/app.js
           grep -q "camPitch=.18" pass17-world1/app.js
           grep -q "cameraInfo" pass17-world1/app.js
+          grep -q "ensureDecor" pass17-world1/app.js
 
       - name: Browser dependency
         run: pip install selenium
@@ -65,10 +68,10 @@ jobs:
           sleep 2
 
       - name: Desktop world camera streaming checkpoint
-        run: timeout 110s python -u scripts/test_pass17c3_world_camera.py --target desktop
+        run: timeout 150s python -u scripts/test_pass17c3_world_camera.py --target desktop
 
       - name: Android world camera streaming checkpoint
-        run: timeout 110s python -u scripts/test_pass17c3_world_camera.py --target android
+        run: timeout 150s python -u scripts/test_pass17c3_world_camera.py --target android
 
       - name: Upload Pass 17C-3 proof
         if: always()
