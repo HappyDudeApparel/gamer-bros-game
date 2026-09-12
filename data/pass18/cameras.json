@@ -1,16 +1,16 @@
 {
-  "version": "18-0B.1",
+  "version": "18-0B.2",
   "purpose": "Matched proof cameras for Prism Valley look calibration. These are calibration poses, not final gameplay camera presets.",
   "desktop": {
     "viewport": [1280, 720],
-    "fov": 48,
-    "position": [17.0, 9.6, 24.0],
-    "target": [0.0, 2.8, -8.5]
+    "fov": 46,
+    "position": [15.0, 6.6, 18.0],
+    "target": [0.0, 1.7, -10.0]
   },
   "androidLandscape": {
     "viewport": [915, 412],
-    "fov": 52,
-    "position": [18.5, 10.4, 25.5],
-    "target": [0.2, 2.9, -8.2]
+    "fov": 50,
+    "position": [16.5, 7.1, 20.0],
+    "target": [0.0, 1.9, -10.0]
   }
 }
