@@ -1,3 +1,4 @@
+import argparse
 import math
 import time
 from pathlib import Path
@@ -24,8 +25,8 @@ def browser(width, height, mobile=False):
         o.add_argument(f'--user-agent={ANDROID_UA}')
     d = webdriver.Chrome(options=o)
     d.set_window_size(width, height)
-    d.set_page_load_timeout(35)
-    d.set_script_timeout(20)
+    d.set_page_load_timeout(30)
+    d.set_script_timeout(15)
     return d
 
 
@@ -61,7 +62,7 @@ def shot(d, name):
 
 
 def wait_streams(d, label):
-    end = time.time() + 75
+    end = time.time() + 45
     last = None
     while time.time() < end:
         no_fatal(d, label)
@@ -93,7 +94,6 @@ def camera_gate(d, label):
     if startup['touch'] is not True:
         raise RuntimeError(f'{label} touch camera contract missing: {startup}')
 
-    # Lock a deterministic player yaw so CENTER has a deterministic target yaw of pi.
     d.execute_script('window.__pass17CTest.moveTo(-48,52,0)')
     time.sleep(.35)
     d.find_element(By.ID, 'cameraCenter').click()
@@ -109,16 +109,14 @@ def camera_gate(d, label):
         seen.append((info['index'], round(info['distance'], 2)))
         d.find_element(By.ID, 'zoom').click()
         time.sleep(.12)
-    indexes = [x[0] for x in seen]
-    if len(set(indexes)) != 3:
+    if len(set(x[0] for x in seen)) != 3:
         raise RuntimeError(f'{label} did not expose all 3 zoom modes: {seen}')
     if sorted(round(x[1], 1) for x in seen) != [12.8, 16.2, 20.0]:
         raise RuntimeError(f'{label} zoom distances wrong: {seen}')
-    print(label, 'CAMERA PASS', {'center':centered,'zoom_modes':seen})
+    print(label, 'CAMERA PASS', {'center':centered,'zoom_modes':seen}, flush=True)
 
 
 def landmark_proofs(d, label):
-    # Controlled visual proof positions chosen from the authored concept-landmark coordinates.
     views = [
         ('meadow', -48, 52, math.pi),
         ('riverworks', 35, -8, 0),
@@ -130,7 +128,7 @@ def landmark_proofs(d, label):
         if not pos or not all(k in pos for k in ('x','y','z')):
             raise RuntimeError(f'{label} failed to stage {name}: {pos}')
         d.find_element(By.ID, 'cameraCenter').click()
-        time.sleep(.65)
+        time.sleep(.55)
         shot(d, f'{label}-{name}.png')
 
 
@@ -139,7 +137,7 @@ def run(label, width, height, mobile):
     try:
         started = time.time()
         d.get('http://127.0.0.1:8000/pass17-world1/?hero=gb2&ci=1')
-        wait_js(d, "return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true", 45, f'{label} runtime ready')
+        wait_js(d, "return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true", 35, f'{label} runtime ready')
         no_fatal(d, label)
 
         route = d.execute_script('return window.__pass17RouteValidation')
@@ -149,6 +147,7 @@ def run(label, width, height, mobile):
             raise RuntimeError(f'{label} route sample coverage unexpectedly low: {route}')
 
         streams = wait_streams(d, label)
+        print(label, 'STREAM PASS', streams, flush=True)
         camera_gate(d, label)
         landmark_proofs(d, label)
 
@@ -165,16 +164,20 @@ def run(label, width, height, mobile):
             'meadow':streams['meadow'],
             'terrain':streams['terrain'],
             'decor':streams['decor']
-        })
+        }, flush=True)
     finally:
         d.quit()
 
 
 def main():
-    run('desktop', 1280, 720, False)
-    run('android', 915, 412, True)
-    print('PASS 17C-3 WORLD / CAMERA / STREAMING CHECKPOINT GREEN')
-    print('proof:', PROOF)
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--target', choices=('desktop','android'), required=True)
+    args = ap.parse_args()
+    if args.target == 'desktop':
+        run('desktop', 1280, 720, False)
+    else:
+        run('android', 915, 412, True)
+    print(f'PASS 17C-3 {args.target.upper()} WORLD / CAMERA / STREAMING GREEN', flush=True)
 
 
 if __name__ == '__main__':
