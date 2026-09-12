@@ -12,12 +12,18 @@ PROOF = ROOT / 'artifacts' / 'pass18-0b-look-proof'
 PROOF.mkdir(parents=True, exist_ok=True)
 ANDROID_UA = 'Mozilla/5.0 (Linux; Android 15; SM-G998W) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36'
 REQUIRED_ASSETS = {
+    'ground_pathBend.glb',
+    'ground_riverStraight.glb',
     'ground_grass.glb',
-    'cliff_block_rock.glb',
-    'cliff_top_rock.glb',
-    'cliff_waterfall_rock.glb',
+    'ground_riverBend.glb',
     'bridge_stone.glb',
+    'platform_grass.glb',
+    'cliff_large_rock.glb',
+    'cliff_cornerLarge_rock.glb',
+    'cliff_steps_rock.glb',
+    'cliff_waterfallTop_rock.glb',
     'tree_default.glb',
+    'tree_oak.glb',
     'tree_tall.glb',
     'rock_largeA.glb',
     'plant_bushDetailed.glb',
@@ -88,15 +94,15 @@ def run(target):
             raise RuntimeError(f'{target} missing required real assets: {missing}')
         if metrics['failures']:
             raise RuntimeError(f"{target} asset failures: {metrics['failures']}")
-        if metrics['version'] != '18-0B.1':
+        if metrics['version'] != '18-0B.2':
             raise RuntimeError(f"{target} wrong world-language version: {metrics['version']}")
-        if metrics['loadedAssets'] is None or len(metrics['loadedAssets']) < 15:
-            raise RuntimeError(f"{target} too few real assets: {len(metrics['loadedAssets'] or [])}")
-        if metrics['toneMapping'] != 'ACESFilmicToneMapping' or abs(metrics['exposure'] - 1.12) > 0.001:
+        if metrics['loadedAssets'] is None or len(metrics['loadedAssets']) < 24:
+            raise RuntimeError(f"{target} too few real placements: {len(metrics['loadedAssets'] or [])}")
+        if metrics['toneMapping'] != 'ACESFilmicToneMapping' or abs(metrics['exposure'] - 1.14) > 0.001:
             raise RuntimeError(f'{target} tone mapping drift: {metrics}')
-        if metrics['fogNear'] != 42 or metrics['fogFar'] != 112:
+        if metrics['fogNear'] != 38 or metrics['fogFar'] != 105:
             raise RuntimeError(f'{target} fog drift: {metrics}')
-        expected_fov = 52 if mobile else 48
+        expected_fov = 50 if mobile else 46
         expected_shadow = 1024 if mobile else 2048
         max_dpr = 1.25 if mobile else 1.5
         if metrics['fov'] != expected_fov:
@@ -105,9 +111,9 @@ def run(target):
             raise RuntimeError(f'{target} shadow profile drift: {metrics}')
         if metrics['pixelRatio'] <= 0 or metrics['pixelRatio'] > max_dpr + 0.001:
             raise RuntimeError(f'{target} DPR cap failed: {metrics}')
-        if metrics['renderCalls'] <= 0 or metrics['renderCalls'] > 160:
+        if metrics['renderCalls'] <= 0 or metrics['renderCalls'] > 220:
             raise RuntimeError(f'{target} render-call budget failed: {metrics}')
-        if metrics['triangles'] <= 0 or metrics['triangles'] > 300000:
+        if metrics['triangles'] <= 0 or metrics['triangles'] > 350000:
             raise RuntimeError(f'{target} triangle budget failed: {metrics}')
         # SwiftShader CI is not a device benchmark. This is a gross regression tripwire only.
         if metrics['avgFrameMs'] <= 0 or metrics['avgFrameMs'] > 125:
@@ -122,7 +128,8 @@ def run(target):
             raise RuntimeError(f'{target} severe browser logs: {severe}')
 
         print(target, 'LOOK PROOF GREEN', json.dumps({
-            'assets': len(metrics['loadedAssets']),
+            'placements': len(metrics['loadedAssets']),
+            'uniqueAssets': len(metrics['uniqueAssets']),
             'renderCalls': metrics['renderCalls'],
             'triangles': metrics['triangles'],
             'avgFrameMs': metrics['avgFrameMs'],
