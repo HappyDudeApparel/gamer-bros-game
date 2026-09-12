@@ -22,8 +22,8 @@ scene.fog = new THREE.Fog(WL.palette.fog, WL.atmosphere.fogNear, WL.atmosphere.f
 
 const camera = new THREE.PerspectiveCamera(mobile ? WL.camera.mobileFov : WL.camera.desktopFov, window.innerWidth / window.innerHeight, WL.camera.near, WL.camera.far);
 const cameraPose = mobile
-  ? { position: [18.5, 10.4, 25.5], target: [0.2, 2.9, -8.2] }
-  : { position: [17.0, 9.6, 24.0], target: [0.0, 2.8, -8.5] };
+  ? { position: [16.5, 7.1, 20.0], target: [0.0, 1.9, -10.0] }
+  : { position: [15.0, 6.6, 18.0], target: [0.0, 1.7, -10.0] };
 camera.position.fromArray(cameraPose.position);
 camera.lookAt(...cameraPose.target);
 
@@ -41,8 +41,8 @@ Object.assign(sun.shadow.camera, WL.lighting.shadowCamera);
 sun.shadow.camera.updateProjectionMatrix();
 scene.add(sun);
 
-const fill = new THREE.DirectionalLight(0xcdeaff, 0.34);
-fill.position.set(-14, 8, 16);
+const fill = new THREE.DirectionalLight(0xd9f2ff, WL.lighting.fillIntensity);
+fill.position.set(-14, 9, 16);
 scene.add(fill);
 
 const loader = new GLTFLoader();
@@ -109,34 +109,48 @@ async function add(file, targetMax, position, rotationY = 0, options = {}) {
 }
 
 async function buildCalibrationScene() {
-  status.textContent = 'Loading final-family Nature Kit assets…';
+  status.textContent = 'Loading layered Nature Kit terrain…';
 
   // Every visible landform/prop below is a real Kenney Nature Kit asset. No proxy terrain.
-  await add('ground_grass.glb', 30, [0, -0.08, -5], 0, { cast: false, receive: true });
-  await add('cliff_block_rock.glb', 11.5, [-9.0, 0.0, -14.5], 0.08);
-  await add('cliff_top_rock.glb', 10.5, [1.5, 2.1, -18.0], -0.18);
-  await add('cliff_waterfall_rock.glb', 10.0, [10.0, 0.25, -16.0], 0.12);
-  await add('bridge_stone.glb', 7.8, [0.0, 0.6, -9.2], Math.PI * 0.48);
-  await add('tree_default.glb', 7.6, [-6.4, 0.0, -4.6], -0.35);
-  await add('tree_tall.glb', 6.8, [7.4, 0.0, -7.6], 0.42);
-  await add('rock_largeA.glb', 3.0, [5.2, 0.0, -1.9], -0.2);
-  await add('rock_largeC.glb', 2.1, [-3.2, 0.0, -1.2], 0.5);
-  await add('plant_bushDetailed.glb', 2.0, [-1.8, 0.0, -4.0], 0.25, { cast: false, receive: true });
+  // Four compatible ground modules form a small continuous valley vocabulary instead of one giant plane.
+  await add('ground_pathBend.glb', 12.2, [-6.0, -0.08, -4.0], 0, { cast: false, receive: true });
+  await add('ground_riverStraight.glb', 12.2, [6.0, -0.08, -4.0], 0, { cast: false, receive: true });
+  await add('ground_grass.glb', 12.2, [-6.0, -0.08, -16.0], 0, { cast: false, receive: true });
+  await add('ground_riverBend.glb', 12.2, [6.0, -0.08, -16.0], Math.PI, { cast: false, receive: true });
+
+  // Midground landmark and layered shelves. Keep terrain modules modest: giant block backdrops are rejected.
+  await add('bridge_stone.glb', 7.0, [5.7, 0.18, -6.0], Math.PI * 0.5);
+  await add('platform_grass.glb', 7.4, [-6.3, 0.55, -15.3], 0.12);
+  await add('cliff_large_rock.glb', 5.8, [-8.7, 0.0, -21.1], 0.18);
+  await add('cliff_cornerLarge_rock.glb', 5.6, [-1.0, 0.0, -22.1], -0.34);
+  await add('cliff_steps_rock.glb', 5.2, [7.1, 0.0, -21.0], 0.24);
+  await add('cliff_waterfallTop_rock.glb', 4.8, [11.0, 0.15, -19.8], -0.15);
+
+  // Vegetation and prop silhouette layers.
+  await add('tree_default.glb', 6.6, [-8.0, 0.0, -8.7], -0.35);
+  await add('tree_oak.glb', 5.8, [-2.4, 0.0, -16.0], 0.24);
+  await add('tree_tall.glb', 6.1, [8.6, 0.0, -12.6], 0.42);
+  await add('plant_bushDetailed.glb', 1.9, [-2.7, 0.0, -7.2], 0.25, { cast: false, receive: true });
+  await add('plant_bushLarge.glb', 2.3, [4.0, 0.0, -13.6], -0.18, { cast: false, receive: true });
+  await add('rock_largeA.glb', 2.4, [2.4, 0.0, -2.2], -0.2);
+  await add('rock_largeC.glb', 1.9, [-4.0, 0.0, -2.8], 0.5);
+  await add('fence_simple.glb', 3.3, [-5.6, 0.0, -6.8], Math.PI * 0.45, { cast: false, receive: true });
+  await add('path_stone.glb', 2.3, [-1.0, 0.0, -3.8], 0.2, { cast: false, receive: true });
 
   const small = [
-    ['flower_purpleA.glb', 0.8, [-4.3, 0.0, -2.6], 0.0],
-    ['flower_yellowB.glb', 0.75, [-3.7, 0.0, -2.1], 0.7],
-    ['flower_redC.glb', 0.72, [3.3, 0.0, -2.5], 0.2],
-    ['grass.glb', 1.0, [2.6, 0.0, -1.3], 0.0],
-    ['grass_large.glb', 1.25, [6.0, 0.0, -4.3], -0.3],
-    ['mushroom_redGroup.glb', 0.9, [-7.8, 0.0, -1.4], 0.0]
+    ['flower_purpleA.glb', 0.82, [-4.5, 0.0, -4.7], 0.0],
+    ['flower_yellowB.glb', 0.78, [-3.8, 0.0, -4.1], 0.7],
+    ['flower_redC.glb', 0.76, [3.0, 0.0, -9.3], 0.2],
+    ['grass.glb', 1.0, [1.8, 0.0, -1.8], 0.0],
+    ['grass_large.glb', 1.2, [6.5, 0.0, -10.1], -0.3],
+    ['mushroom_redGroup.glb', 0.88, [-7.8, 0.0, -3.0], 0.0]
   ];
   for (const [file, size, pos, rot] of small) await add(file, size, pos, rot, { cast: false, receive: true });
 
   if (failures.length) throw new Error(`Calibration asset failures: ${JSON.stringify(failures)}`);
-  if (loadedAssets.length < 15) throw new Error(`Expected >=15 real assets, loaded ${loadedAssets.length}`);
+  if (loadedAssets.length < 24) throw new Error(`Expected >=24 real asset placements, loaded ${loadedAssets.length}`);
 
-  status.textContent = mobile ? 'Android look profile — real asset proof' : 'Desktop look profile — real asset proof';
+  status.textContent = mobile ? 'Android look profile — layered real-asset proof' : 'Desktop look profile — layered real-asset proof';
   document.documentElement.dataset.pass18Ready = '1';
   window.__pass18CalibrationReady = true;
 }
@@ -157,7 +171,7 @@ function animate(now) {
     sampleStart = now;
     const avg = frameSamples.length ? frameSamples.reduce((a, b) => a + b, 0) / frameSamples.length : 0;
     const fps = avg ? 1000 / avg : 0;
-    metricsEl.textContent = `${mobile ? 'MOBILE' : 'DESKTOP'} · DPR ${pixelRatio.toFixed(2)} · ${loadedAssets.length} assets · ${renderer.info.render.calls} calls · ${fps.toFixed(1)} fps`;
+    metricsEl.textContent = `${mobile ? 'MOBILE' : 'DESKTOP'} · DPR ${pixelRatio.toFixed(2)} · ${loadedAssets.length} placements · ${renderer.info.render.calls} calls · ${fps.toFixed(1)} fps`;
   }
 }
 requestAnimationFrame(animate);
@@ -188,6 +202,7 @@ window.__pass18Calibration = {
       fogFar: scene.fog.far,
       shadowMapSize: sun.shadow.mapSize.x,
       loadedAssets: [...loadedAssets],
+      uniqueAssets: [...new Set(loadedAssets)],
       failures: [...failures],
       renderCalls: renderer.info.render.calls,
       triangles: renderer.info.render.triangles,
