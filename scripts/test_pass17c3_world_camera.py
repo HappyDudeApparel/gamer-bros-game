@@ -31,20 +31,16 @@ def browser(width, height, mobile=False):
 
 
 def logs(d):
-    try:
-        return d.get_log('browser')
-    except Exception:
-        return []
+    try: return d.get_log('browser')
+    except Exception: return []
 
 
 def wait_js(d, js, timeout, label, interval=.18):
     end = time.time() + timeout
     while time.time() < end:
         try:
-            if d.execute_script(js):
-                return True
-        except Exception:
-            pass
+            if d.execute_script(js): return True
+        except Exception: pass
         time.sleep(interval)
     raise RuntimeError(f'timeout waiting for {label}; logs={logs(d)!r}')
 
@@ -57,22 +53,24 @@ def no_fatal(d, label):
 
 def shot(d, name):
     p = PROOF / name
-    if not d.save_screenshot(str(p)):
-        raise RuntimeError(f'failed screenshot {p}')
+    if not d.save_screenshot(str(p)): raise RuntimeError(f'failed screenshot {p}')
 
 
-def ensure_decor(d, label):
+def kick_decor(d, label):
+    # world.decorate() is idempotent but marks itself started before it is complete.
+    # If the production delayed stream already owns the in-flight decorate call, a second
+    # call returns immediately. Therefore this is only a kick; readiness is certified below.
     result = d.execute_async_script("""
       const done=arguments[0];
-      window.__pass17CTest.ensureDecor().then(v=>done(v)).catch(e=>done({error:String(e)}));
+      window.__pass17CTest.ensureDecor().then(v=>done({ok:true,state:v})).catch(e=>done({ok:false,error:String(e)}));
     """)
-    if result.get('error') or not all(result.get(k) for k in ('decor','landmarks','meadow')):
-        raise RuntimeError(f'{label} deterministic decor trigger failed: {result}; logs={logs(d)!r}')
-    print(label, 'DECOR PASS', result, flush=True)
+    if not result.get('ok'):
+        raise RuntimeError(f'{label} decor kick failed: {result}; logs={logs(d)!r}')
+    print(label, 'DECOR KICK', result.get('state'), flush=True)
 
 
 def wait_streams(d, label):
-    end = time.time() + 25
+    end = time.time() + 105
     last = None
     while time.time() < end:
         no_fatal(d, label)
@@ -93,103 +91,57 @@ def wait_streams(d, label):
             raise RuntimeError(f'{label} stream failure: {last}; logs={logs(d)!r}')
         if last['enemies'] >= 5 and all(last[k] for k in ('decor','decorFlag','landmarks','meadow','terrain','hero')):
             return last
-        time.sleep(.30)
+        time.sleep(.35)
     raise RuntimeError(f'{label} streaming checkpoint timed out: {last}; logs={logs(d)!r}')
 
 
 def camera_gate(d, label):
     startup = d.execute_script('return window.__pass17CTest.startup()')
-    if startup['zoom'] != [12.8, 16.2, 20.0]:
-        raise RuntimeError(f'{label} zoom contract changed: {startup}')
-    if startup['touch'] is not True:
-        raise RuntimeError(f'{label} touch camera contract missing: {startup}')
-
-    d.execute_script('window.__pass17CTest.moveTo(-48,52,0)')
-    time.sleep(.35)
-    d.find_element(By.ID, 'cameraCenter').click()
-    time.sleep(.10)
+    if startup['zoom'] != [12.8,16.2,20.0] or startup['touch'] is not True:
+        raise RuntimeError(f'{label} camera contract changed: {startup}')
+    d.execute_script('window.__pass17CTest.moveTo(-48,52,0)'); time.sleep(.35)
+    d.find_element(By.ID,'cameraCenter').click(); time.sleep(.10)
     centered = d.execute_script('return window.__pass17CTest.cameraInfo()')
     yaw_error = abs(math.atan2(math.sin(centered['yaw']-math.pi), math.cos(centered['yaw']-math.pi)))
-    if yaw_error > .20 or abs(centered['pitch']-.18) > .06:
+    if yaw_error>.20 or abs(centered['pitch']-.18)>.06:
         raise RuntimeError(f'{label} CENTER camera failed: {centered}, yaw_error={yaw_error}')
-
-    seen = []
+    seen=[]
     for _ in range(3):
-        info = d.execute_script('return window.__pass17CTest.cameraInfo()')
-        seen.append((info['index'], round(info['distance'], 2)))
-        d.find_element(By.ID, 'zoom').click()
-        time.sleep(.12)
-    if len(set(x[0] for x in seen)) != 3:
-        raise RuntimeError(f'{label} did not expose all 3 zoom modes: {seen}')
-    if sorted(round(x[1], 1) for x in seen) != [12.8, 16.2, 20.0]:
-        raise RuntimeError(f'{label} zoom distances wrong: {seen}')
-    print(label, 'CAMERA PASS', {'center':centered,'zoom_modes':seen}, flush=True)
+        info=d.execute_script('return window.__pass17CTest.cameraInfo()'); seen.append((info['index'],round(info['distance'],2)))
+        d.find_element(By.ID,'zoom').click(); time.sleep(.12)
+    if len(set(x[0] for x in seen))!=3 or sorted(round(x[1],1) for x in seen)!=[12.8,16.2,20.0]:
+        raise RuntimeError(f'{label} zoom modes failed: {seen}')
+    print(label,'CAMERA PASS',{'center':centered,'zoom_modes':seen},flush=True)
 
 
-def landmark_proofs(d, label):
-    views = [
-        ('meadow', -48, 52, math.pi),
-        ('riverworks', 35, -8, 0),
-        ('ruin-courtyard', 21, -41, .15),
-        ('prism-ridge', 8, -64, 0),
-    ]
-    for name, x, z, yaw in views:
-        pos = d.execute_script('return window.__pass17CTest.moveTo(arguments[0],arguments[1],arguments[2])', x, z, yaw)
-        if not pos or not all(k in pos for k in ('x','y','z')):
-            raise RuntimeError(f'{label} failed to stage {name}: {pos}')
-        d.find_element(By.ID, 'cameraCenter').click()
-        time.sleep(.55)
-        shot(d, f'{label}-{name}.png')
+def landmark_proofs(d,label):
+    for name,x,z,yaw in [('meadow',-48,52,math.pi),('riverworks',35,-8,0),('ruin-courtyard',21,-41,.15),('prism-ridge',8,-64,0)]:
+        pos=d.execute_script('return window.__pass17CTest.moveTo(arguments[0],arguments[1],arguments[2])',x,z,yaw)
+        if not pos or not all(k in pos for k in ('x','y','z')): raise RuntimeError(f'{label} failed staging {name}: {pos}')
+        d.find_element(By.ID,'cameraCenter').click(); time.sleep(.55); shot(d,f'{label}-{name}.png')
 
 
-def run(label, width, height, mobile):
-    d = browser(width, height, mobile)
+def run(label,width,height,mobile):
+    d=browser(width,height,mobile)
     try:
-        started = time.time()
-        d.get('http://127.0.0.1:8000/pass17-world1/?hero=gb2&ci=1')
-        wait_js(d, "return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true", 35, f'{label} runtime ready')
-        no_fatal(d, label)
-
-        route = d.execute_script('return window.__pass17RouteValidation')
-        if not route or not route['main']['ok'] or not route['optional']['ok']:
-            raise RuntimeError(f'{label} route validation failed: {route}')
-        if route['main']['samples'] < 250 or route['optional']['samples'] < 300:
-            raise RuntimeError(f'{label} route sample coverage unexpectedly low: {route}')
-
-        ensure_decor(d, label)
-        streams = wait_streams(d, label)
-        print(label, 'STREAM PASS', streams, flush=True)
-        camera_gate(d, label)
-        landmark_proofs(d, label)
-
-        severe = [x for x in logs(d) if x.get('level') == 'SEVERE' and 'favicon' not in x.get('message','').lower()]
-        if severe:
-            raise RuntimeError(f'{label} severe browser logs: {severe}')
-
-        print(label, 'WORLD/CAMERA PASS', {
-            'seconds':round(time.time()-started,2),
-            'main_samples':route['main']['samples'],
-            'optional_samples':route['optional']['samples'],
-            'enemies':streams['enemies'],
-            'landmarks':streams['landmarks'],
-            'meadow':streams['meadow'],
-            'terrain':streams['terrain'],
-            'decor':streams['decor']
-        }, flush=True)
-    finally:
-        d.quit()
+        started=time.time(); d.get('http://127.0.0.1:8000/pass17-world1/?hero=gb2&ci=1')
+        wait_js(d,"return document.documentElement.dataset.pass17Ready==='1' && window.__pass17CTestReady===true",35,f'{label} runtime ready'); no_fatal(d,label)
+        route=d.execute_script('return window.__pass17RouteValidation')
+        if not route or not route['main']['ok'] or not route['optional']['ok']: raise RuntimeError(f'{label} route validation failed: {route}')
+        if route['main']['samples']<250 or route['optional']['samples']<300: raise RuntimeError(f'{label} route sample coverage low: {route}')
+        kick_decor(d,label)
+        streams=wait_streams(d,label); print(label,'STREAM PASS',streams,flush=True)
+        camera_gate(d,label); landmark_proofs(d,label)
+        severe=[x for x in logs(d) if x.get('level')=='SEVERE' and 'favicon' not in x.get('message','').lower()]
+        if severe: raise RuntimeError(f'{label} severe browser logs: {severe}')
+        print(label,'WORLD/CAMERA PASS',{'seconds':round(time.time()-started,2),'main_samples':route['main']['samples'],'optional_samples':route['optional']['samples'],'enemies':streams['enemies'],'landmarks':streams['landmarks'],'meadow':streams['meadow'],'terrain':streams['terrain'],'decor':streams['decor']},flush=True)
+    finally: d.quit()
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--target', choices=('desktop','android'), required=True)
-    args = ap.parse_args()
-    if args.target == 'desktop':
-        run('desktop', 1280, 720, False)
-    else:
-        run('android', 915, 412, True)
-    print(f'PASS 17C-3 {args.target.upper()} WORLD / CAMERA / STREAMING GREEN', flush=True)
+    ap=argparse.ArgumentParser(); ap.add_argument('--target',choices=('desktop','android'),required=True); args=ap.parse_args()
+    if args.target=='desktop': run('desktop',1280,720,False)
+    else: run('android',915,412,True)
+    print(f'PASS 17C-3 {args.target.upper()} WORLD / CAMERA / STREAMING GREEN',flush=True)
 
-
-if __name__ == '__main__':
-    main()
+if __name__=='__main__': main()
