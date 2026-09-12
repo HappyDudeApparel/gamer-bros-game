@@ -63,9 +63,10 @@ export function createPrismValleyWorld({scene,assets,mobile=false,setPhase=()=>{
     {x:0,z:19,y:bridgeY},{x:11,z:18},{x:17,z:13},{x:24,z:8},{x:30,z:2},{x:34,z:-6},{x:31,z:-14},{x:27,z:-21},
     {x:25,z:-27},{x:23,z:-33},{x:21,z:-39},{x:19,z:-44},{x:17,z:-50},{x:14,z:-56},{x:10,z:-62},{x:6,z:-69}
    ]);
-   // Clover Cliffs: ground approach to the spring and elevated landing route are validated separately.
-   // The airborne spring arc is intentionally not treated as a walkable ground segment.
-   route([{x:-16,z:20},{x:-20,z:12},{x:-23,z:4},{x:-27,z:-5},{x:-30,z:-14},{x:-29,z:-24}],true);
+   route([
+    {x:-16,z:20},{x:-20,z:12},{x:-23,z:4},{x:-27,z:-5},{x:-30,z:-14},
+    {x:-29.8,z:-16},{x:-29.6,z:-18},{x:-29.4,z:-20},{x:-29.2,z:-22},{x:-29,z:-24}
+   ],true);
    route([{x:-31,z:-31,y:dShelf},{x:-38,z:-39,y:dShelf+.25},{x:-31,z:-49,y:dShelf+.45}],true);
    route([{x:-31,z:-49,y:dShelf+.45},{x:-20,z:-45},{x:-8,z:-42},{x:5,z:-40},{x:18,z:-39}],true);
    route([{x:30,z:2},{x:39,z:0},{x:44,z:-8},{x:40,z:-17},{x:32,z:-22},{x:27,z:-21}],true);
