@@ -114,7 +114,14 @@ function addPrismAccents() {
 
 function setView(name='concept') {
   const view = manifest.cameraViews[name]; if (!view) throw new Error(`Unknown Golden Slice view ${name}`);
-  currentView=name; camera.position.fromArray(view.position); camera.fov=mobile?view.fovMobile:view.fovDesktop; camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); camera.lookAt(new THREE.Vector3(...view.target)); camera.updateMatrixWorld(true); return name;
+  currentView=name;
+  if (name === 'concept') {
+    camera.position.set(mobile ? 16.5 : 18.5, mobile ? 16.5 : 17.5, mobile ? 40.0 : 42.5);
+    camera.fov = mobile ? 58 : 54;
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    camera.lookAt(new THREE.Vector3(-1.0, 4.0, -7.0)); camera.updateMatrixWorld(true); return name;
+  }
+  camera.position.fromArray(view.position); camera.fov=mobile?view.fovMobile:view.fovDesktop; camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); camera.lookAt(new THREE.Vector3(...view.target)); camera.updateMatrixWorld(true); return name;
 }
 
 function ridgeProjection() {
@@ -139,6 +146,15 @@ function getMetrics() {
   };
 }
 
+function presentationRecord(record) {
+  const out = {...record};
+  if (record.role === 'cliff') out.targetMax = record.targetMax * 0.62;
+  else if (record.role === 'far-cliff') out.targetMax = record.targetMax * 0.68;
+  else if (record.role === 'terrain') out.targetMax = record.targetMax * 1.12;
+  else if (record.role === 'ridge') out.targetMax = record.targetMax * 0.86;
+  return out;
+}
+
 async function build() {
   status.textContent='Building Creek Crossing from real kit assets…';
   manifest=await fetch('../data/pass18/golden-slice-creek.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`manifest ${r.status}`);return r.json();});
@@ -146,7 +162,7 @@ async function build() {
   const anisotropy=Math.min(WL.materials.maxAnisotropy,renderer.capabilities.getMaxAnisotropy());
   for (const record of manifest.placements) {
     const object=await registry.clone(record.asset,{castShadow:record.castShadow!==false,receiveShadow:true});
-    const root=createPass18PlacementRoot(object,record,{castShadow:record.castShadow!==false,receiveShadow:true,anisotropy});
+    const root=createPass18PlacementRoot(object,presentationRecord(record),{castShadow:record.castShadow!==false,receiveShadow:true,anisotropy});
     root.userData.pass18GoldenRole=record.role; worldRoot.add(root);
   }
   addWater(); manifest.waterfalls.forEach(addWaterfall); waterfallsReady=waterfallMaterials.length===manifest.waterfalls.length; addPrismAccents();
