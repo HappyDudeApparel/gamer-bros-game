@@ -1,6 +1,12 @@
 import * as THREE from 'three';
 import { Pass18AssetRegistry } from './asset-registry.js';
-import { createPass18PlacementRoot } from './asset-placement.js';
+import {
+  createPass18PlacementRoot,
+  groupPass18TerrainRecordsByAsset,
+  pass18TileMatrix,
+  expandPass18CreekBank,
+  expandPass18CreekBankCorners,
+} from './asset-placement.js';
 import { PASS18_WORLD_LANGUAGE as WL, pass18MobileProfile, pass18PixelRatio } from './world-language.js';
 
 const canvas = document.getElementById('goldenSlice');
@@ -132,39 +138,69 @@ function ridgeProjection() {
 }
 
 function roleCounts() {
-  const out={}; for (const p of manifest.placements) out[p.role]=(out[p.role]||0)+1; return out;
+  const out={}; for (const p of manifest.__allPlacements) out[p.role]=(out[p.role]||0)+1; return out;
 }
 
 function getMetrics() {
   const snap=registry.snapshot(); return {
     version:manifest.version, worldLanguage:manifest.worldLanguage, reviewStatus:manifest.reviewStatus, currentView,
-    realPlacements:manifest.placements.length, roles:roleCounts(), bridgeAsset:manifest.placements.find(p=>p.id==='bridge')?.asset,
-    waterfallHousingCount:manifest.placements.filter(p=>p.asset==='nature.cliff.waterfall'||p.asset==='nature.cliff.waterfallTop').length,
+    realPlacements:manifest.__allPlacements.length, roles:roleCounts(), bridgeAsset:manifest.placements.find(p=>p.id==='bridge')?.asset,
+    waterfallHousingCount:manifest.__allPlacements.filter(p=>p.asset==='nature.cliff.waterfall'||p.asset==='nature.cliff.waterfallTop').length,
     waterReady, waterfallsReady, prismAccents:manifest.prismAccents.length, ridge:ridgeProjection(), registry:snap,
     render:{calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures},
     acceptance:manifest.acceptance
   };
 }
 
+// Presentation adjustment now applies only to genuine props whose role still
+// benefits from a depth-legibility nudge. Terrain/cliff/bridge no longer
+// pass through here at all — they carry no targetMax and are placed at
+// native tile scale (terrain) or an explicit authored non-uniform scale
+// (the bridge). This is deliberately not a percentage patch on the terrain
+// — the terrain problem was fixed at the placement-method level instead.
 function presentationRecord(record) {
-  const out = {...record};
-  if (record.role === 'cliff') out.targetMax = record.targetMax * 0.62;
-  else if (record.role === 'far-cliff') out.targetMax = record.targetMax * 0.68;
-  else if (record.role === 'terrain') out.targetMax = record.targetMax * 1.12;
-  else if (record.role === 'ridge') out.targetMax = record.targetMax * 0.86;
+  const out = { ...record };
+  if (record.role === 'ridgeLandmark') out.targetMax = record.targetMax * 0.86;
   return out;
+}
+
+async function buildTerrain(anisotropy) {
+  const bankRecords = (manifest.creekBanks || []).map(bank => {
+    const { fill, westEdge, eastEdge } = expandPass18CreekBank(bank, manifest.water.points);
+    const corners = expandPass18CreekBankCorners(bank, westEdge, eastEdge);
+    return [...fill, ...westEdge, ...eastEdge, ...corners];
+  }).flat();
+  const authoredTiles = manifest.placements.filter(p => p.kind === 'tile');
+  const terrainRecords = [...authoredTiles, ...bankRecords];
+
+  const groups = groupPass18TerrainRecordsByAsset(terrainRecords);
+  for (const [assetId, group] of groups) {
+    const matrices = group.map(record => pass18TileMatrix(record));
+    const instanced = await registry.createInstancedGroup(assetId, matrices, { castShadow: true, receiveShadow: true, anisotropy });
+    instanced.userData.pass18GoldenRole = group[0].role;
+    worldRoot.add(instanced);
+  }
+  return terrainRecords;
+}
+
+async function buildProps(anisotropy) {
+  const propRecords = manifest.placements.filter(p => p.kind !== 'tile');
+  for (const record of propRecords) {
+    const object = await registry.clone(record.asset, { castShadow: record.castShadow !== false, receiveShadow: true });
+    const root = createPass18PlacementRoot(object, presentationRecord(record), { castShadow: record.castShadow !== false, receiveShadow: true, anisotropy });
+    root.userData.pass18GoldenRole = record.role; worldRoot.add(root);
+  }
+  return propRecords;
 }
 
 async function build() {
   status.textContent='Building Creek Crossing from real kit assets…';
   manifest=await fetch('../data/pass18/golden-slice-creek.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`manifest ${r.status}`);return r.json();});
-  if (manifest.version!=='18-2.0'||manifest.worldLanguage!==WL.version||manifest.reviewStatus!=='PENDING_USER') throw new Error('Golden Slice manifest contract mismatch');
+  if (manifest.version!=='18-2.1'||manifest.worldLanguage!==WL.version||manifest.reviewStatus!=='PENDING_USER') throw new Error('Golden Slice manifest contract mismatch');
   const anisotropy=Math.min(WL.materials.maxAnisotropy,renderer.capabilities.getMaxAnisotropy());
-  for (const record of manifest.placements) {
-    const object=await registry.clone(record.asset,{castShadow:record.castShadow!==false,receiveShadow:true});
-    const root=createPass18PlacementRoot(object,presentationRecord(record),{castShadow:record.castShadow!==false,receiveShadow:true,anisotropy});
-    root.userData.pass18GoldenRole=record.role; worldRoot.add(root);
-  }
+  const terrainRecords = await buildTerrain(anisotropy);
+  const propRecords = await buildProps(anisotropy);
+  manifest.__allPlacements = [...terrainRecords, ...propRecords];
   addWater(); manifest.waterfalls.forEach(addWaterfall); waterfallsReady=waterfallMaterials.length===manifest.waterfalls.length; addPrismAccents();
   setView('concept');
   status.textContent='18-2 technical proof ready · visual approval pending';
