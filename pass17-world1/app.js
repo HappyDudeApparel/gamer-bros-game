@@ -6,7 +6,7 @@ import { createPrismValleyWorld } from './world.js?v=17.0.0';
 import { createEnemySystem } from './enemies.js?v=17.0.0';
 import { createPrismBreaker } from './power.js?v=17.0.0';
 
-window.__pass17ModuleStarted=true;window.__bootPhase='module-started';
+window.__pass17ModuleStarted=true;window.__bootPhase='module-started';window.__pass17CVersion='17C1';window.__pass17ModuleStartMs=performance.now();window.__pass17FrameCount=0;window.__pass17PortalWatchdog='idle';
 const mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||matchMedia('(pointer:coarse)').matches;
 const $=s=>document.querySelector(s),canvas=$('#game'),boot=$('#boot'),fatal=$('#fatal'),errorEl=$('#error'),statusEl=$('#status'),barEl=$('#bar'),objectiveEl=$('#objective'),heroNameEl=$('#heroName'),healthEl=$('#health'),coinsEl=$('#coins'),gemsEl=$('#gems'),chargeBar=$('#chargeBar'),chargeWrap=$('#chargeWrap'),pad=$('#pad'),stick=$('#stick'),jumpBtn=$('#jump'),runBtn=$('#run'),actionBtn=$('#action'),zoomBtn=$('#zoom'),cameraCenterBtn=$('#cameraCenter'),menuBtn=$('#menu'),retryBtn=$('#retry'),toastEl=$('#toast');
 const qp=new URLSearchParams(location.search),ci=qp.has('ci'),requested=qp.get('hero'),saved=localStorage.getItem('gamerBroCharacter'),heroId=requested==='gb1'||requested==='gb2'?requested:(saved==='gb1'||saved==='gb2'?saved:'gb2'),colorway=heroId==='gb1'?'pink':'teal';localStorage.setItem('gamerBroCharacter',heroId);heroNameEl.textContent=heroId.toUpperCase();menuBtn.onclick=()=>location.href='../';retryBtn.onclick=()=>location.reload();
@@ -17,7 +17,7 @@ const scene=new THREE.Scene();scene.background=new THREE.Color(0x88cbe1);scene.f
 
 const assets=createAssetLibrary({mobile});const world=createPrismValleyWorld({scene,assets,mobile,setPhase});let sites=null,bro=null,heroRoot=null,tube=null,tubeWarm=false,tubeWarmPromise=null,enemies=null,power=null;const heroBaseScale=new THREE.Vector3(1,1,1);
 const player={x:0,y:0,z:0,yaw:Math.PI,vy:0,speed:0,grounded:true,jumpCount:0,holdTimer:0,hearts:5,damageCooldown:0,springCooldown:0,boostX:0,boostZ:0};const input={up:false,down:false,left:false,right:false,run:false,jump:false,jumpQueued:false},analog={x:0,y:0,active:false,pointerId:null};const WALK=9.375,RUN=15.875,GRAVITY=8.4,JUMP=5.15,DOUBLE=4.7,HOLD=3.95,HOLD_INTERVAL=.22,STEP=.95;
-let coins=0,gems=0,checkpoint=0,hitPause=0,complete=false;const checkpoints=[];
+let coins=0,gems=0,checkpoint=0,hitPause=0,complete=false;const checkpoints=[];let portalActiveFor=0,portalLastState='idle';
 function updateHUD(){healthEl.textContent='♥'.repeat(Math.max(0,player.hearts))+'♡'.repeat(Math.max(0,5-player.hearts));coinsEl.textContent=String(coins);gemsEl.textContent=String(gems)}
 function checkpointPosition(){return checkpoints[Math.max(0,Math.min(checkpoint,checkpoints.length-1))]||sites?.spawn||{x:0,z:30,y:0}}
 function resetPlayer(death=false){const p=death?checkpointPosition():sites.spawn;player.x=p.x;player.z=p.z;player.y=(world.groundAt(p.x,p.z,p.y+1.5)??p.y)+.04;player.yaw=Math.PI;player.vy=0;player.speed=0;player.boostX=player.boostZ=0;player.grounded=true;player.jumpCount=0;player.holdTimer=0;player.springCooldown=.4;if(death)player.hearts=5;if(bro){bro.setMotion('idle');bro.setHome(player.x,player.z,player.yaw);heroRoot.position.y=player.y;heroRoot.scale.copy(heroBaseScale);bro.update(0,0,0)}updateHUD()}
@@ -58,7 +58,7 @@ function bindControls(){const map={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:
   function endCameraDrag(e){if(cameraPointerId===null||e.pointerId!==cameraPointerId)return;dragging=false;cameraPointerId=null;recenter=-1.25}canvas.addEventListener('pointerdown',e=>{if(tube?.state!=='idle'||complete)return;if(e.pointerType!=='touch'&&e.button!==0)return;if(cameraPointerId!==null)return;e.preventDefault();cameraPointerId=e.pointerId;dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);recenter=0});canvas.addEventListener('pointermove',e=>{if(!dragging||e.pointerId!==cameraPointerId)return;e.preventDefault();const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;const yawScale=e.pointerType==='touch'?.00415:.0031,pitchScale=e.pointerType==='touch'?.00325:.0023;camYaw-=dx*yawScale;camPitch=THREE.MathUtils.clamp(camPitch+dy*pitchScale,.025,.82);recenter=0});canvas.addEventListener('pointerup',endCameraDrag);canvas.addEventListener('pointercancel',endCameraDrag);canvas.addEventListener('lostpointercapture',e=>{if(e.pointerId===cameraPointerId){dragging=false;cameraPointerId=null;recenter=-1.25}});addEventListener('wheel',e=>{camDistance=THREE.MathUtils.clamp(camDistance+Math.sign(e.deltaY)*.75,8.2,20);zoomBtn&&(zoomBtn.textContent='ZOOM · CUSTOM')},{passive:true})
 }
 function resize(){renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize,{passive:true});resize();
-let last=performance.now(),elapsed=0;function frame(now=performance.now()){requestAnimationFrame(frame);let dt=Math.min(.033,Math.max(.001,(now-last)/1000));last=now;if(hitPause>0){hitPause=Math.max(0,hitPause-dt);updateCamera(dt);renderer.render(scene,camera);return}elapsed+=dt;updatePlayer(dt,elapsed);power?.update(dt,elapsed);const hs=power?.consumeHitStop()||0;if(hs>0)hitPause=Math.max(hitPause,hs);enemies?.update(dt,elapsed);world.update(dt,elapsed);updateCollectibles();updateHazards();objective();chargeBar.style.width=`${Math.round((power?.charge||0)*100)}%`;chargeWrap?.classList.toggle('active',(power?.charge||0)>.01);tube?.update(elapsed,dt);updateCamera(dt);renderer.render(scene,camera)}
+let last=performance.now(),elapsed=0;function frame(now=performance.now()){requestAnimationFrame(frame);window.__pass17FrameCount=(window.__pass17FrameCount||0)+1;let dt=Math.min(.033,Math.max(.001,(now-last)/1000));last=now;if(tube){const s=tube.state;window.__pass17PortalState=s;if(s!==portalLastState){portalLastState=s;window.__pass17PortalLastChangeMs=performance.now()}if(s!=='idle'&&s!=='complete'){portalActiveFor+=dt;window.__pass17PortalWatchdog=portalActiveFor>16?'timeout':'active'}else if(s==='complete'){window.__pass17PortalWatchdog='complete'}else{portalActiveFor=0;window.__pass17PortalWatchdog='idle'}}if(hitPause>0){hitPause=Math.max(0,hitPause-dt);updateCamera(dt);renderer.render(scene,camera);return}elapsed+=dt;updatePlayer(dt,elapsed);power?.update(dt,elapsed);const hs=power?.consumeHitStop()||0;if(hs>0)hitPause=Math.max(hitPause,hs);enemies?.update(dt,elapsed);world.update(dt,elapsed);updateCollectibles();updateHazards();objective();chargeBar.style.width=`${Math.round((power?.charge||0)*100)}%`;chargeWrap?.classList.toggle('active',(power?.charge||0)>.01);tube?.update(elapsed,dt);updateCamera(dt);renderer.render(scene,camera)}
 
 (async()=>{try{
   setPhase('Loading Prism Valley V2…',10);sites=await world.build();world.refreshBounds();const validation=world.validateRoutes();window.__pass17RouteValidation=validation;if(!validation.main.ok)throw new Error(`Main-route probe failed: ${JSON.stringify(validation.main.failures.slice(0,3))}`);if(!validation.optional.ok)throw new Error(`Optional-route probe failed: ${JSON.stringify(validation.optional.failures.slice(0,3))}`);document.documentElement.dataset.routeMain='1';document.documentElement.dataset.routeOptional='1';
@@ -67,17 +67,46 @@ let last=performance.now(),elapsed=0;function frame(now=performance.now()){reque
   createTube();
   enemies=createEnemySystem({assets,parent:world.root,groundAt:world.groundAt,getPlayerPosition:v=>v.set(player.x,player.y,player.z),damagePlayer,onEnemyKilled:enemyKilled,toast});
   power=createPrismBreaker({scene,bro,getHeroState:()=>player,getEnemies:()=>enemies.living(),damageEnemy:(e,serial,opts)=>enemies.damage(e,serial,opts),toast,mobile});
+  if(ci){
+    const testMoveTo=(x,z,yaw=0)=>{const gy=world.groundAt(x,z,1e3);player.x=x;player.z=z;player.y=(gy??0)+.04;player.yaw=yaw;player.vy=0;player.speed=0;player.boostX=player.boostZ=0;player.grounded=true;player.jumpCount=0;player.springCooldown=.4;bro.setMotion('idle');bro.setHome(player.x,player.z,player.yaw);heroRoot.position.y=player.y;bro.update(elapsed,0,0);return {x:player.x,y:player.y,z:player.z,yaw:player.yaw}};
+    window.__pass17CTest={
+      moveTo:testMoveTo,
+      firstEnemy:()=>{const e=enemies.living()[0];return e?{id:e.id,hp:e.hp,alive:e.alive,role:e.role,state:e.state,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}:null},
+      stageCombat:(distance=4)=>{const e=enemies.living()[0];if(!e)return null;e.alertRadius=0;e.attackRange=0;e.state='patrol';e.timer=.1;e.telegraph.visible=false;e.didContact=false;e.knock.set(0,0,0);const p=testMoveTo(e.root.position.x,e.root.position.z-distance,0);return {player:p,enemy:{id:e.id,hp:e.hp,alive:e.alive,state:e.state,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}}},
+      stageEnemyAttack:()=>{const e=enemies.living()[0];if(!e)return null;e.alertRadius=12;e.attackRange=2.15;e.walkSpeed=2.25;e.lungeSpeed=Math.max(6.2,e.lungeSpeed||0);e.state='patrol';e.timer=0;e.telegraph.visible=false;e.didContact=false;e.knock.set(0,0,0);player.hearts=5;player.damageCooldown=0;updateHUD();const p=testMoveTo(e.root.position.x,e.root.position.z-1.45,0);player.damageCooldown=0;return {player:p,enemy:{id:e.id,hp:e.hp,alive:e.alive,state:e.state,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}}},
+      enemyInfo:(id)=>{const e=enemies.enemies.find(q=>q.id===id);return e?{id:e.id,hp:e.hp,alive:e.alive,role:e.role,state:e.state,telegraph:e.telegraph.visible,x:e.root.position.x,y:e.root.position.y,z:e.root.position.z}:null},
+      combatInfo:()=>({hearts:player.hearts,coins,gems,living:enemies.living().length,healthText:healthEl.textContent,coinsText:coinsEl.textContent,gemsText:gemsEl.textContent}),
+      combatReset:()=>{player.hearts=5;player.damageCooldown=0;updateHUD();return {hearts:player.hearts,coins,gems,living:enemies.living().length}},
+      combatStep:(dt=.04)=>{elapsed+=dt;player.damageCooldown=Math.max(0,player.damageCooldown-dt);power.update(dt,elapsed);enemies.update(dt,elapsed);return {hearts:player.hearts,coins,gems,living:enemies.living().length,charge:power.charge,cooldown:power.cooldown}},
+      powerInfo:()=>({charging:power.charging,charge:power.charge,cooldown:power.cooldown,cameraKick:power.cameraKick,recoil:power.recoil}),
+      powerStart:()=>power.start(),powerRelease:()=>power.release(),
+      cameraInfo:()=>({index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}),
+      cameraCenter:()=>{centerCamera();return {index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}},
+      cameraCycle:()=>{cycleCameraZoom();return {index:camZoomIndex,distance:camDistance,yaw:camYaw,pitch:camPitch,levels:[...CAMERA_ZOOMS]}},
+      ensureDecor:()=>world.decorate({}),
+      checkpointDecor:()=>world.checkpointDecor(),
+      portalWarm:async()=>{await beginTubeWarm();return {prewarmed:tube.prewarmed,state:tube.state}},
+      portalPrime:async()=>{await beginTubeWarm();testMoveTo(sites.tube.x,sites.tube.z,0);return {prewarmed:tube.prewarmed,state:tube.state,x:player.x,y:player.y,z:player.z}},
+      portalInfo:()=>({state:tube.state,prewarmed:tube.prewarmed,complete:tube.complete,watchdog:window.__pass17PortalWatchdog,frames:window.__pass17FrameCount,component:window.__tubeComponent,entryRadius:tube.entryRadius,transfer:window.__tubeTransferComplete===true,worldComplete:complete,objective:objectiveEl.textContent,retryVisible:retryBtn.classList.contains('show'),heroVisible:heroRoot.visible}),
+      portalColdTrigger:()=>tube.trigger(),
+      portalEnter:async()=>{await beginTubeWarm();testMoveTo(sites.tube.x,sites.tube.z,0);updatePlayer(.016,elapsed);return {state:tube.state,prewarmed:tube.prewarmed,x:player.x,y:player.y,z:player.z,objective:objectiveEl.textContent,entryRadius:tube.entryRadius}},
+      portalStep:(dt=.05)=>{elapsed+=dt;tube.update(elapsed,dt);const s=tube.state;if(s!=='idle'&&s!=='complete'){portalActiveFor+=dt;window.__pass17PortalWatchdog=portalActiveFor>16?'timeout':'active'}else if(s==='complete'){window.__pass17PortalWatchdog='complete'}else{portalActiveFor=0;window.__pass17PortalWatchdog='idle'}return {state:s,prewarmed:tube.prewarmed,complete:tube.complete,watchdog:window.__pass17PortalWatchdog,transfer:window.__tubeTransferComplete===true,worldComplete:complete,objective:objectiveEl.textContent,retryVisible:retryBtn.classList.contains('show'),heroVisible:heroRoot.visible}},
+      portalFocus:()=>{for(let i=0;i<42;i++)updateCamera(.05);renderer.render(scene,camera);return {state:tube.state,x:camera.position.x,y:camera.position.y,z:camera.position.z,distance:camDistance,yaw:camYaw,pitch:camPitch}},
+      startup:()=>({ms:window.__pass17StartupMs||0,mobile,zoom:[...CAMERA_ZOOMS],touch:window.__pass17TouchCamera===true})
+    };
+    window.__pass17CTestReady=true;
+  }
   bindControls();
   window.__pass17TouchCamera=true;window.__pass17PortalTimingFix=true;window.__pass17CameraZoomLevels=[...CAMERA_ZOOMS];
-  updateHUD();setPhase('Prism Valley V2 ready',100);boot.classList.add('hide');window.__pass17Ready=true;window.__pass='pass17-world1';document.documentElement.dataset.pass17Ready='1';last=performance.now();frame();
+  updateHUD();setPhase('Prism Valley V2 ready',100);boot.classList.add('hide');window.__pass17Ready=true;window.__pass='pass17-world1';window.__pass17StartupMs=Math.round(performance.now()-window.__pass17ModuleStartMs);window.__pass17CReady=true;document.documentElement.dataset.pass17Ready='1';document.documentElement.dataset.pass17c='1';last=performance.now();frame();
 
   // Gameplay owns startup priority. Real animated enemies and decorative dressing stream only after the first rendered frames.
   const later=(fn,delay)=>setTimeout(()=>{const ric=window.requestIdleCallback||((cb)=>setTimeout(cb,180));ric(fn,{timeout:1800})},delay);
-  later(()=>{
+  if(!qp.has('c5portal'))later(()=>{
     window.__pass17EnemyStreamStarted=true;
     enemies.spawnAll(sites.enemySpawns).then(()=>{window.__pass17FirstEnemyReady=true}).catch(e=>{console.error('[Pass17 enemy stream]',e);document.documentElement.dataset.enemyStreamError='1'});
   },mobile?900:450);
-  later(()=>{
+  if(!new URLSearchParams(location.search).has('c3visual'))later(()=>{
     window.__pass17DecorStreamStarted=true;
     world.decorate({}).then(()=>{window.__pass17DecorReady=true}).catch(e=>{console.warn('[Pass17 decor stream]',e);document.documentElement.dataset.decorStreamError='1'});
   },mobile?5200:3200);
