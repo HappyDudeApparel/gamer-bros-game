@@ -97,8 +97,8 @@ def run(target):
             raise RuntimeError(f'{target} production entry condition failed: {entered}')
         print(target, 'ENTRY PASS', entered, flush=True)
 
-        # Advance the production tube update() to an active charge frame, then allow the real
-        # renderer one frame for visual proof.
+        # Advance the production tube update() to an active charge frame, then converge the
+        # real production portal camera before taking one meaningful rendered proof frame.
         active = d.execute_script("""
           const t=window.__pass17CTest, seen=[];
           for(let i=0;i<90;i++){
@@ -110,7 +110,11 @@ def run(target):
         if 'charge' not in active['seen'] or active['info']['watchdog'] == 'timeout':
             raise RuntimeError(f'{target} portal did not reach active charge: {active}')
         print(target, 'ACTIVE PORTAL PASS', active, flush=True)
-        time.sleep(.20)
+        focus = d.execute_script('return window.__pass17CTest.portalFocus()')
+        if focus['state'] != 'charge':
+            raise RuntimeError(f'{target} portal camera focus lost active charge: {focus}')
+        print(target, 'PORTAL CAMERA PASS', focus, flush=True)
+        time.sleep(.16)
         shot = PROOF / f'{target}-portal-charge.png'
         if not d.save_screenshot(str(shot)):
             raise RuntimeError(f'{target} portal screenshot failed')
@@ -137,7 +141,7 @@ def run(target):
         severe = [x for x in logs(d) if x.get('level') == 'SEVERE' and 'favicon' not in x.get('message', '').lower()]
         if severe:
             raise RuntimeError(f'{target} severe browser logs: {severe}')
-        print(target, 'PASS 17C-5 PORTAL GREEN', {'active': active, 'finish': finish, 'proof': str(shot)}, flush=True)
+        print(target, 'PASS 17C-5 PORTAL GREEN', {'active': active, 'focus': focus, 'finish': finish, 'proof': str(shot)}, flush=True)
     finally:
         d.quit()
 
