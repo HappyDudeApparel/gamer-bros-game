@@ -48,7 +48,7 @@
     {"id":"F02","section":"F","asset":"nature.platform.grass","position":[-2,11.8,-37],"rotationY":0.02,"targetMax":9.6},
     {"id":"F03","section":"F","asset":"nature.cliff.large","position":[-10,11.2,-40],"rotationY":0.28,"targetMax":9.2},
     {"id":"F04","section":"F","asset":"nature.cliff.corner","position":[7,11.0,-40],"rotationY":-0.32,"targetMax":8.8},
-    {"id":"F05","section":"F","asset":"nature.platform.grass","position":[-2,14.5,-44],"rotationY":0.0,"targetMax":10.6},
+    {"id":"F05","section":"F","asset":"nature.platform.grass","position":[-2,14.5,-44],"rotationY":0.0,"targetMax":12.6},
     {"id":"F06","section":"F","asset":"nature.cliff.waterfall","position":[-12,10.2,-46],"rotationY":0.18,"targetMax":8.0},
     {"id":"F07","section":"F","asset":"nature.cliff.waterfall","position":[8,10.0,-47],"rotationY":-0.2,"targetMax":8.0}
   ],
@@ -62,9 +62,9 @@
     {"id":"E.wallA","section":"E","asset":"fantasy.wall.corner","position":[-5,9.1,-26],"rotationY":0.25,"targetMax":6.2,"role":"lower-bypass frame"},
     {"id":"E.wallB","section":"E","asset":"fantasy.wall","position":[6,9.3,-27],"rotationY":-0.2,"targetMax":6.4,"role":"high-route frame"},
     {"id":"E.banner","section":"E","asset":"dungeon.banner.blue","position":[2,10.0,-25],"rotationY":0.0,"targetMax":3.0,"role":"courtyard vertical read"},
-    {"id":"F.gate","section":"F","asset":"castle.gate","position":[-2,15.0,-43],"rotationY":0.0,"targetMax":8.4,"role":"Prism Ridge ceremonial silhouette"},
-    {"id":"F.flagL","section":"F","asset":"castle.flag","position":[-7,15.2,-43],"rotationY":0.15,"targetMax":4.2,"role":"ridge banner"},
-    {"id":"F.flagR","section":"F","asset":"castle.flag","position":[3,15.2,-43],"rotationY":-0.15,"targetMax":4.2,"role":"ridge banner"}
+    {"id":"F.gate","section":"F","asset":"castle.gate","position":[-2,15.0,-43],"rotationY":0.0,"targetMax":13.2,"role":"Prism Ridge ceremonial silhouette"},
+    {"id":"F.flagL","section":"F","asset":"castle.flag","position":[-7,15.2,-43],"rotationY":0.15,"targetMax":5.2,"role":"ridge banner"},
+    {"id":"F.flagR","section":"F","asset":"castle.flag","position":[3,15.2,-43],"rotationY":-0.15,"targetMax":5.2,"role":"ridge banner"}
   ],
   "river": {
     "width": 3.6,
@@ -132,7 +132,7 @@
   ],
   "cameraViews": {
     "overview":{"position":[31,34,38],"target":[0,6,-8]},
-    "spawn":{"position":[13,7,39],"target":[-2,10,-25]},
+    "spawn":{"position":[10,5.8,36],"target":[-2,14.5,-43]},
     "clover":{"position":[20,14,-9],"target":[-1,5,8]},
     "ruins":{"position":[17,16,-17],"target":[-2,12,-38]},
     "ridge":{"position":[11,22,-36],"target":[0,5,-8]}
