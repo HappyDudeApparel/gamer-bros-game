@@ -7,6 +7,7 @@ on:
       - 'index.html'
       - 'title-v5.js'
       - 'scripts/build_pass17a.py'
+      - 'scripts/fix_pass17a_bridge.py'
       - 'scripts/test_pass17a_browser.py'
       - '.github/workflows/build-validate-pass17a.yml'
   workflow_dispatch:
@@ -20,7 +21,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build Pass 17A
-        run: python scripts/build_pass17a.py
+        run: |
+          python scripts/build_pass17a.py
+          python scripts/fix_pass17a_bridge.py
       - name: Validate JavaScript
         run: |
           node --check title-v5.js
@@ -33,6 +36,7 @@ jobs:
         run: |
           grep -q "pass17-prism-valley-v2" pass17-world1/world.js
           grep -q "continuous-prism-valley-terrain" pass17-world1/world.js
+          grep -q "creek-crossing-stone-deck" pass17-world1/world.js
           grep -q "__pass17ContinuousTerrain" pass17-world1/world.js
           grep -q "pass17-world1" title-v5.js
           grep -q "PRISM VALLEY V2" index.html
