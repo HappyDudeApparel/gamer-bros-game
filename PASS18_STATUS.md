@@ -13,6 +13,8 @@
 - 18-0A Real asset acquisition + kit audit — **COMPLETE / GREEN**
 - 18-0B Look Calibration — **COMPLETE / GREEN**
 - 18-0C AssetRegistry + gallery + budget HUD + spatial/collision architecture — **COMPLETE / GREEN**
+- 18-1 Whole-map structural skeleton — **COMPLETE / GREEN**
+- 18-1B In-browser placement tool — **NOT STARTED**
 
 For exact current evidence and the next task, use `CURRENT_WORK.md` and the newest relevant file under `checkpoints/`.
 
