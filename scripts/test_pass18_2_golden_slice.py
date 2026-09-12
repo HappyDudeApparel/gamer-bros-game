@@ -41,7 +41,7 @@ def wait_ready(d, seconds=90):
 
 
 def assert_metrics(m):
-    if m['version'] != '18-2.0' or m['worldLanguage'] != '18-0B.2' or m['reviewStatus'] != 'PENDING_USER':
+    if m['version'] != '18-2.1' or m['worldLanguage'] != '18-0B.2' or m['reviewStatus'] != 'PENDING_USER':
         raise RuntimeError(f'golden slice status contract failed: {m}')
     a=m['acceptance']; roles=m['roles']
     if m['realPlacements'] < a['minRealPlacements']: raise RuntimeError(f'placement density failed {m["realPlacements"]}')

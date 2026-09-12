@@ -3356,6 +3356,7 @@
     "requiresAnimatedWaterfall": true,
     "requiresRidgeInConceptFrustum": true,
     "maxRouteNodeGap": 1.45,
-    "visualApproval": "USER_REQUIRED"
+    "visualApproval": "USER_REQUIRED",
+    "minCliffs": 60
   }
 }
