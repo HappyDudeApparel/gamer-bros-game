@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#a9def2">
+<title>Gamer Bros — Pass 18 World Authoring</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#10212d;background:#a9def2;--panel:#f8fff3ec;--ink:#10212d;--accent:#174c5b;--soft:#e8f8ee;--line:#7ea6aa66}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}button,input{font:inherit}button{touch-action:manipulation}#editor{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}.panel{position:fixed;z-index:5;top:max(10px,env(safe-area-inset-top));bottom:max(10px,env(safe-area-inset-bottom));background:var(--panel);border:1px solid #ffffffdd;border-radius:16px;box-shadow:0 10px 34px #15364435;backdrop-filter:blur(10px);padding:10px;display:flex;flex-direction:column;gap:7px;overflow:hidden}.palette{left:max(10px,env(safe-area-inset-left));width:min(292px,28vw)}.tools{right:max(10px,env(safe-area-inset-right));width:min(306px,29vw)}h1,h2,p{margin:0}h1{font-size:13px;letter-spacing:.02em}h2{font-size:9px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}.micro{font-size:8px;line-height:1.35;opacity:.72}.search,.field{width:100%;border:1px solid var(--line);border-radius:9px;padding:7px 8px;background:#fff;color:var(--ink);min-width:0}.filters,.modeGrid,.compactGrid,.cameraGrid{display:flex;gap:4px;flex-wrap:wrap}.filters button,.modeGrid button,.compactGrid button,.cameraGrid button,.action{border:1px solid #456d7540;background:var(--soft);border-radius:8px;padding:6px 7px;font-size:8px;font-weight:800;color:#15343d;min-height:29px}.filters button.active,.modeGrid button.active,.assetRow.active{background:var(--accent);color:#fff}.list{overflow:auto;display:flex;flex-direction:column;gap:5px;padding-right:2px;min-height:0}.assetRow{width:100%;text-align:left;background:#ffffffc9;border:1px solid #8db5aa40;border-radius:9px;padding:7px;color:var(--ink)}.assetRow b,.assetRow span,.assetRow code{display:block}.assetRow b{font-size:9px}.assetRow span{font-size:7px;opacity:.7}.assetRow code{font-size:6px;opacity:.62;margin-top:2px;overflow-wrap:anywhere}.section{background:#ffffff8c;border:1px solid #8db5aa35;border-radius:10px;padding:7px;display:flex;flex-direction:column;gap:5px}.row{display:grid;grid-template-columns:1fr 1fr;gap:5px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.toggleLine{display:flex;align-items:center;gap:5px;font-size:8px}.toggleLine input[type=number]{width:56px}.selection{white-space:pre-line;background:#10212de8;color:#fff;border-radius:8px;padding:7px;font:700 7px/1.35 ui-monospace,SFMono-Regular,monospace;min-height:44px}.summary{white-space:pre-line;background:#e7f6f7;border-radius:8px;padding:7px;font:700 7px/1.35 ui-monospace,SFMono-Regular,monospace}.danger{background:#ffe8e8!important;color:#6d1f24!important}.primary{background:#174c5b!important;color:#fff!important}.modeBadge{position:fixed;left:50%;bottom:max(10px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:4;background:#10212de5;color:#fff;padding:8px 12px;border-radius:999px;font-size:8px;font-weight:900;pointer-events:none;box-shadow:0 4px 16px #10212d35}.tips{font-size:7px;line-height:1.3;opacity:.64}.scrollTools{overflow:auto;display:flex;flex-direction:column;gap:7px;padding-right:1px}.spacer{height:1px;background:#5b7c8030;margin:1px 0}
+@media(max-width:980px){.palette{width:200px}.tools{width:238px}.panel{padding:7px;gap:5px;border-radius:12px}.panel h1{font-size:9px}.micro{font-size:6px}.filters button,.modeGrid button,.compactGrid button,.cameraGrid button,.action{font-size:6px;padding:4px 5px;min-height:25px}.assetRow{padding:5px}.assetRow b{font-size:7px}.assetRow span,.assetRow code{font-size:5px}.section{padding:5px;gap:4px}.selection,.summary{font-size:5.5px;padding:5px;min-height:34px}.tips{font-size:5px}.search,.field{font-size:7px;padding:5px 6px}.toggleLine{font-size:6px}.toggleLine input[type=number]{width:46px}.modeBadge{font-size:6px;padding:6px 9px}}
+@media(max-width:700px){.palette{width:168px}.tools{width:210px}.modeGrid button{flex:1 1 27%}.filters{max-height:52px;overflow:auto}.modeBadge{display:none}}
+</style>
+<script type="importmap">{"imports":{"three":"../vendor/three/three.module.min.js","three/addons/":"../vendor/three/addons/"}}</script>
+</head>
+<body>
+<canvas id="editor" aria-label="Pass 18 world authoring viewport"></canvas>
+<aside class="panel palette" id="palettePanel">
+  <h1>PASS 18 · WORLD AUTHORING</h1>
+  <p class="micro" id="status">Starting 18-1B editor…</p>
+  <input class="search" id="assetSearch" aria-label="Search approved asset palette" placeholder="Search approved real assets">
+  <div class="filters" id="categoryFilters"></div>
+  <div class="list" id="assetList"></div>
+</aside>
+<aside class="panel tools" id="toolPanel">
+  <div class="scrollTools">
+    <div class="section">
+      <h2>Author mode</h2>
+      <div class="modeGrid" id="modeButtons">
+        <button type="button" data-mode="place">PLACE</button>
+        <button type="button" data-mode="select">SELECT</button>
+        <button type="button" data-mode="move">MOVE</button>
+        <button type="button" data-mode="rotate">ROTATE</button>
+        <button type="button" data-mode="scale">SCALE</button>
+        <button type="button" data-mode="scatter">SCATTER</button>
+        <button type="button" data-mode="path">PATH</button>
+        <button type="button" data-mode="fence">FENCE</button>
+      </div>
+      <p class="tips">Left drag edits in MOVE / ROTATE / SCALE. Right-drag or Alt-drag orbits the camera. Wheel zooms.</p>
+    </div>
+    <div class="section">
+      <h2>Selection</h2>
+      <div class="selection" id="selection">Nothing selected</div>
+      <div class="row3">
+        <button class="action" data-nudge="xm">X−</button><button class="action" data-nudge="yp">Y+</button><button class="action" data-nudge="xp">X+</button>
+        <button class="action" data-nudge="zm">Z−</button><button class="action" data-nudge="ym">Y−</button><button class="action" data-nudge="zp">Z+</button>
+      </div>
+      <button type="button" class="action danger" id="deleteSelected">DELETE SELECTED</button>
+    </div>
+    <div class="section">
+      <h2>Snapping</h2>
+      <div class="row">
+        <label class="toggleLine"><input id="gridSnap" type="checkbox" checked>XZ grid <input class="field" id="gridStep" type="number" min="0.05" step="0.05" value="0.5"></label>
+        <label class="toggleLine"><input id="verticalSnap" type="checkbox" checked>Y snap <input class="field" id="verticalStep" type="number" min="0.05" step="0.05" value="0.25"></label>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Scatter brush</h2>
+      <div class="row"><label class="toggleLine">Count <input class="field" id="scatterCount" type="number" min="1" max="24" value="6"></label><label class="toggleLine">Radius <input class="field" id="scatterRadius" type="number" min="0.5" max="12" step="0.5" value="3"></label></div>
+      <p class="tips">Choose a repeatable Nature asset, switch to SCATTER and tap/click a real structural surface.</p>
+    </div>
+    <div class="section">
+      <h2>Polyline authoring</h2>
+      <div class="row"><button type="button" class="action primary" id="finishPolyline" disabled>FINISH LINE</button><button type="button" class="action" id="clearPolyline">CLEAR DRAFT</button></div>
+      <p class="tips">PATH exports with a Nature path asset hint. FENCE exports with the real KayKit barrier asset hint.</p>
+    </div>
+    <div class="section">
+      <h2>Camera pose</h2>
+      <div class="cameraGrid"><button class="action" data-camera="left">↶</button><button class="action" data-camera="right">↷</button><button class="action" data-camera="up">↑</button><button class="action" data-camera="down">↓</button><button class="action" data-camera="in">＋</button><button class="action" data-camera="out">−</button></div>
+      <input class="field" id="cameraLabel" placeholder="Camera label">
+      <button type="button" class="action" id="captureCamera">CAPTURE CAMERA POSE</button>
+    </div>
+    <div class="section">
+      <h2>Chunk export</h2>
+      <div class="summary" id="summary">0 placements · 0 polylines · 0 cameras</div>
+      <button type="button" class="action primary" id="exportJson">EXPORT CHUNK JSON</button>
+      <p class="tips">Exports placements, polylines and camera poses grouped into 24-unit world chunks. Structural skeleton data stays separate and untouched.</p>
+    </div>
+  </div>
+</aside>
+<div class="modeBadge" id="modeBadge">SELECT</div>
+<script type="module" src="../src/pass18/editor.js?v=18-1B.0"></script>
+</body>
+</html>
