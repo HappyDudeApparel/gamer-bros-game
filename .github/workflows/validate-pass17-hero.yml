@@ -1,0 +1,45 @@
+name: Validate Pass 17 Concept Hero
+on:
+  push:
+    branches: [pass17-concept-match]
+    paths:
+      - 'src/pass17-concept-hero.js'
+      - 'src/pass17-gamer-bro.js'
+      - 'index.html'
+      - 'title-v5.js'
+      - 'pass17-world1/index.html'
+      - 'scripts/patch_pass17_concept_hero.py'
+      - 'scripts/test_pass17_hero_browser.py'
+      - '.github/workflows/validate-pass17-hero.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hero-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate hero JavaScript
+        run: |
+          node --check src/pass17-concept-hero.js
+          node --check src/pass17-gamer-bro.js
+          node --check title-v5.js
+          node --check pass17-world1/app.js
+          grep -q 'pass17-gamer-bro.js' index.html
+          grep -q 'pass17-gamer-bro.js' pass17-world1/index.html
+      - name: Browser dependencies
+        run: pip install selenium
+      - name: Desktop + Android title/world hero gate
+        env:
+          PASS17_HERO_SHOTS: /tmp/pass17-hero-shots
+        run: |
+          python -m http.server 8000 >/tmp/pass17-hero-http.log 2>&1 &
+          sleep 2
+          python scripts/test_pass17_hero_browser.py
+      - name: Upload hero proof shots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pass17-concept-hero-proof
+          path: /tmp/pass17-hero-shots/*.png
+          if-no-files-found: warn
