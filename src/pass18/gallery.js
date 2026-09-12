@@ -36,6 +36,8 @@ sun.shadow.bias = WL.lighting.shadowBias; sun.shadow.normalBias = WL.lighting.sh
 Object.assign(sun.shadow.camera, WL.lighting.shadowCamera); sun.shadow.camera.updateProjectionMatrix(); scene.add(sun);
 
 const registry = new Pass18AssetRegistry();
+// The gallery stays fully visible for human inspection. Spatial culling is proven with dedicated
+// near/mid/far groups below so the proof itself does not hide the assets we are trying to inspect.
 const spatial = new Pass18SpatialGrid({ cellSize: 28 });
 const hud = createPass18BudgetHud({ renderer, registry, spatial });
 const galleryRoot = new THREE.Group(); scene.add(galleryRoot);
@@ -57,9 +59,6 @@ async function placeCard(id, x, z, target = 5) {
   const object = fit(await registry.clone(id), target);
   object.position.x += x; object.position.z += z;
   const group = new THREE.Group(); group.add(object); galleryRoot.add(group);
-  spatial.registerVisual(group, { x, z });
-  const box = new THREE.Box3().setFromObject(object);
-  spatial.registerCollider(box, { assetId: id });
   return object;
 }
 
@@ -111,6 +110,8 @@ async function build() {
   for (let i = 0; i < 10; i += 1) rockMatrices.push(pass18Transform({ position: [13 + (i % 5) * 2.0, 0, 13 + Math.floor(i / 5) * 2.5], rotation: [0, i * .47, 0], scale: [1.5,1.5,1.5] }));
   const rockBatch = await registry.createStaticBatch('nature.rock.largeA', rockMatrices); showcase.add(rockBatch);
 
+  // Dedicated spatial architecture proof: render visibility and gameplay collision candidates are indexed
+  // independently of the dense gallery/render hierarchy.
   const near = new THREE.Group(); const mid = new THREE.Group(); const far = new THREE.Group();
   near.position.set(0,0,0); mid.position.set(35,0,0); far.position.set(70,0,0);
   scene.add(near, mid, far); spatial.registerVisual(near); spatial.registerVisual(mid); spatial.registerVisual(far);
