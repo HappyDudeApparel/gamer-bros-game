@@ -5,27 +5,27 @@ Production branch: `main` (DO NOT MODIFY during rebuild)
 
 ## Current checkpoint
 
-**18-0A — Real asset acquisition + kit audit**
+**18-0B — Look Calibration**
 
-Status: **COMPLETE / GREEN**
+Status: **IN PROGRESS**
 
 Production baseline remains:
 - `main` / Pass 17C: `97834f6d21e0d4e6af0d9d36ad355215126ceda0`
 
 Pass 18 remains isolated on `pass18-rebuild`.
 
-## 18-0A certification
+## Completed checkpoint — 18-0A
+
+18-0A Real asset acquisition + kit audit is **COMPLETE / GREEN**.
 
 Successful workflow:
 - `Import reusable world assets`
 - run `34679720690`
 - conclusion: **SUCCESS**
-- trigger head: `250fb2fe052bec869a5e664584d4fea8e1e61eb8`
 - generated asset commit: `c9cab92b0ff6c85c3248d92eaee316e89c2437d8`
-- durable checkpoint file commit: `c4a7929ffa3c4977e95d2d2a676f091a2fa8a256`
 
-Verified asset-library result:
-- total permanent library: **2,523 files / 84 MB**
+Verified permanent library:
+- total: **2,523 files / 84 MB**
 - Kenney Nature Kit: **329 3D files**
 - Kenney Fantasy Town Kit: **167 3D files**
 - Kenney Castle Kit: **76 3D files**
@@ -34,17 +34,30 @@ Verified asset-library result:
 - KayKit Medieval Hexagon: **221 3D files**
 - KayKit Dungeon Remastered: **203 3D files**
 
-Hard spot-checks passed for:
-- `kenney/nature-kit/bridge_stone.glb`
-- `kenney/nature-kit/cliff_waterfall_rock.glb`
-- `kenney/fantasy-town-kit/wall-arch.glb`
-- `kenney/castle-kit/bridge-straight-pillar.glb`
+`ASSET_DECISIONS.md` remains controlling: no custom geometry may be committed without a documented kit search and specific reason a real asset does not fit.
 
-The Nature kit now provides the missing real modular cliff, slope, cave, corner, step, waterfall-housing, bridge, path/river, fence, rock, flower, grass, bush and tree vocabulary. Fantasy Town provides arches/walls/broken walls, stairs, fences, planks/poles, lanterns and watermills. Castle provides bridge/gate, banner/flag, stair, tower and wall support.
+## 18-0B work already committed
 
-The import workflow is branch-safe: it pushes generated assets back to the active `pass18-rebuild` branch only. `main` was not modified.
+- `src/pass18/world-language.js` — first authored runtime visual-language constants; no generated patch layer.
+- `src/pass18/calibration.js` — tiny clean Three.js calibration scene using real Kenney Nature Kit assets.
+- `pass18-calibration/index.html` — dedicated calibration browser surface.
+- `data/pass18/cameras.json` — fixed desktop and Android-landscape proof camera poses.
 
-`ASSET_DECISIONS.md` is controlling: no custom geometry may be committed without a documented search of the approved kit family and a specific reason a real asset does not fit.
+Current calibration design intentionally uses real Nature Kit ground/cliff/waterfall-housing/bridge/tree/rock/bush/flower/grass/mushroom assets as the visible proof. It does not use proxy world terrain.
+
+## 18-0B values under test
+
+- Three.js r180 retained.
+- ACES filmic tone mapping; exposure 1.12.
+- sRGB output.
+- Hemisphere environment light plus directional sun and light fill.
+- Desktop shadow map 2048; mobile 1024.
+- Desktop DPR cap 1.5; mobile DPR cap 1.25.
+- Desktop FOV 48; mobile landscape FOV 52.
+- Atmospheric fog near/far 42 / 112.
+- Real authored kit materials are preserved rather than globally recolored.
+
+These values are NOT certified until the browser proof workflow succeeds and the screenshots are visually inspected.
 
 ## Durable recovery files
 
@@ -60,17 +73,11 @@ Exact recovery command:
 
 ## NEXT TASK
 
-**18-0B — Look Calibration**
-
-Goal: prove and freeze the Prism Valley visual language BEFORE building the map.
-
-Scope only:
-- build a tiny clean calibration scene using real Pass 18 asset-family pieces;
-- tune and compare palette, sunlight, mobile contact shadow strategy, tone mapping/exposure, sky, atmospheric haze, environment lighting, FOV/camera pitch and mobile resolution policy;
-- use real Nature cliff/tree/grass/stone pieces, not proxy geometry as the visual proof;
-- write the accepted runtime constants into `src/pass18/world-language.js` and human-readable calibration documentation;
-- produce matched proof screenshots and performance measurements;
-- update checkpoint/status files;
-- STOP before 18-0C.
-
-**Do not begin 18-0B until the user explicitly says GO.**
+**Finish 18-0B only:**
+1. Add the browser validation/performance proof and workflow.
+2. Validate the calibration scene on desktop and Android-landscape profiles.
+3. Capture matched screenshots and inspect them for brightness, depth, real-asset readability, shadows, framing and mobile crop.
+4. Repair the authored calibration module/constants if the proof is weak; do not stack patch scripts.
+5. Freeze accepted values in `WORLD_LANGUAGE.md` and the 18-0B checkpoint record.
+6. Update this file to `18-0B COMPLETE / GREEN` with the exact final branch SHA and workflow evidence.
+7. STOP. Do NOT begin 18-0C without the user's next GO.
