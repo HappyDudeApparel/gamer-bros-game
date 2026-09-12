@@ -13,7 +13,10 @@ if n!=1:
 world.write_text(w)
 
 s=app.read_text()
-old=re.compile(r"  await createPlayer\(\);createTube\(\);setPhase\('Spawning animated enemies…',72\);enemies=createEnemySystem\(\{assets,parent:world\.root,groundAt:world\.groundAt,getPlayerPosition:v=>v\.set\(player\.x,player\.y,player\.z\),damagePlayer,onEnemyKilled:enemyKilled,toast\}\);await enemies\.spawnAll\(sites\.enemySpawns\);document\.documentElement\.dataset\.enemies=String\(enemies\.enemies\.length\);\n  power=createPrismBreaker\(\{scene,bro,getHeroState:\(\)=>player,getEnemies:\(\)=>enemies\.living\(\),damageEnemy:\(e,serial,opts\)=>enemies\.damage\(e,serial,opts\),toast,mobile\}\);bindControls\(\);window\.__pass16TouchCamera=true;window\.__pass16PortalTimingFix=true;window\.__pass16CameraZoomLevels=\[\.\.\.CAMERA_ZOOMS\];updateHUD\(\);setPhase\('Prism Valley ready',100\);boot\.classList\.add\('hide'\);window\.__pass16Ready=true;window\.__pass='pass16-world1';document\.documentElement\.dataset\.pass16Ready='1';last=performance\.now\(\);frame\(\);\n  if\(!ci\)setTimeout\(\(\)=>beginTubeWarm\(\),mobile\?1800:650\);")
+start=s.find("  await createPlayer();createTube();")
+end=s.find("\n}catch(e){fail(e)}})();",start)
+if start<0 or end<0:
+    raise SystemExit(f'Could not locate inherited boot tail: start={start} end={end}')
 new="""  await createPlayer();
   createTube();
   enemies=createEnemySystem({assets,parent:world.root,groundAt:world.groundAt,getPlayerPosition:v=>v.set(player.x,player.y,player.z),damagePlayer,onEnemyKilled:enemyKilled,toast});
@@ -34,8 +37,6 @@ new="""  await createPlayer();
   },mobile?5200:3200);
   if(!ci)later(()=>beginTubeWarm(),mobile?2200:900);
 """
-s,n=old.subn(new,s,count=1)
-if n!=1:
-    raise SystemExit(f'Expected one blocking boot block, replaced {n}')
+s=s[:start]+new+s[end:]
 app.write_text(s)
 print('PASS16_NONBLOCKING_BOOT_OK')
