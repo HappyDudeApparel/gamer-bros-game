@@ -21,6 +21,7 @@ export class Pass18AssetRegistry {
   constructor({ loader = new GLTFLoader() } = {}) {
     this.loader = loader;
     this.sources = new Map();
+    this.partsCache = new Map();
     this.metrics = {
       sourceLoads: 0,
       cacheHits: 0,
@@ -105,6 +106,58 @@ export class Pass18AssetRegistry {
     this.metrics.staticBatchInstances += matrices.length;
     this.metrics.staticBatches += 1;
     return batch;
+  }
+
+  // Returns every mesh primitive of a loaded source with its geometry,
+  // material and its local-to-source-root matrix baked in. Multi-primitive
+  // real assets (cliff.steps, cliff.waterfall(Top), bridge.stone, every
+  // ground_path*/ground_river* variant) need one InstancedMesh per
+  // primitive — createInstanced/createStaticBatch above only ever look at
+  // the first primitive via firstMeshSource and would silently drop the
+  // rest, so they are not safe to reuse for the terrain-tile family.
+  async parts(id) {
+    if (this.partsCache.has(id)) return this.partsCache.get(id);
+    const source = await this.source(id);
+    source.updateMatrixWorld(true);
+    const parts = [];
+    source.traverse(node => {
+      if (node.isMesh) parts.push({ geometry: node.geometry, material: node.material, matrix: node.matrixWorld.clone() });
+    });
+    if (!parts.length) throw new Error(`${id} has no mesh parts for instancing`);
+    this.partsCache.set(id, parts);
+    return parts;
+  }
+
+  // Real multi-primitive-aware instancing: one THREE.InstancedMesh per mesh
+  // primitive, each holding every placement of that asset. Draw calls scale
+  // with primitive count, not instance count — this is how hundreds of
+  // terrain-tile placements stay within the render-call budget instead of
+  // becoming hundreds of individually cloned draw calls.
+  async createInstancedGroup(id, matrices, options = {}) {
+    if (!Array.isArray(matrices) || !matrices.length) throw new Error('createInstancedGroup requires matrices');
+    const parts = await this.parts(id);
+    const group = new THREE.Group();
+    group.name = `Pass18Instanced-${id}`;
+    group.userData.pass18AssetId = id;
+    const combined = new THREE.Matrix4();
+    for (const part of parts) {
+      if (options.anisotropy && part.material?.map) part.material.map.anisotropy = options.anisotropy;
+      const mesh = new THREE.InstancedMesh(part.geometry, part.material, matrices.length);
+      mesh.castShadow = options.castShadow ?? true;
+      mesh.receiveShadow = options.receiveShadow ?? true;
+      mesh.userData.pass18AssetId = id;
+      mesh.userData.pass18PlacementMode = 'instanced-group';
+      matrices.forEach((matrix, index) => {
+        combined.multiplyMatrices(matrix, part.matrix);
+        mesh.setMatrixAt(index, combined);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      group.add(mesh);
+    }
+    this.metrics.placements += matrices.length;
+    this.metrics.instancedInstances += matrices.length;
+    this.metrics.instancedDrawCalls = (this.metrics.instancedDrawCalls || 0) + parts.length;
+    return group;
   }
 
   snapshot() {
