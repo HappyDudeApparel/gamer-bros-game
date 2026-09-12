@@ -1,0 +1,140 @@
+{
+  "version": "18-1.0",
+  "title": "Prism Valley V2 structural skeleton",
+  "units": "world-units",
+  "sections": [
+    {"id":"A","name":"Portal Meadow","center":[0,1.6,31],"radius":13,"elevation":1.6,"role":"spawn meadow and first valley reveal"},
+    {"id":"B","name":"Creek Crossing","center":[0,0.7,17],"radius":11,"elevation":0.7,"role":"primary bridge crossing plus spring shortcut"},
+    {"id":"C","name":"Riverworks","center":[-8,1.8,4],"radius":12,"elevation":1.8,"role":"ravine-side mechanical landmark and pipe-loop junction"},
+    {"id":"D","name":"Clover Cliffs","center":[8,6.5,-9],"radius":13,"elevation":6.5,"role":"layered climb with forgiving main route and high mastery route"},
+    {"id":"E","name":"Ruin Courtyard","center":[2,10.5,-24],"radius":12,"elevation":10.5,"role":"central ruin encounter with lower bypass and high route"},
+    {"id":"F","name":"Prism Ridge","center":[-2,17.0,-41],"radius":13,"elevation":17.0,"role":"ceremonial destination ridge and portal approach"}
+  ],
+  "terrain": [
+    {"id":"A01","section":"A","asset":"nature.ground.grass","position":[-6,1.2,35],"rotationY":0.04,"targetMax":12.6},
+    {"id":"A02","section":"A","asset":"nature.ground.grass","position":[6,1.2,34],"rotationY":-0.08,"targetMax":12.2},
+    {"id":"A03","section":"A","asset":"nature.path.bend","position":[-4,1.25,25],"rotationY":0.3,"targetMax":11.8},
+    {"id":"A04","section":"A","asset":"nature.ground.grass","position":[6,1.15,25],"rotationY":0.12,"targetMax":11.8},
+    {"id":"A05","section":"A","asset":"nature.platform.grass","position":[-10,1.2,29],"rotationY":-0.18,"targetMax":7.4},
+
+    {"id":"B01","section":"B","asset":"nature.ground.grass","position":[-8,0.3,19],"rotationY":0.08,"targetMax":11.4},
+    {"id":"B02","section":"B","asset":"nature.ground.grass","position":[8,0.3,19],"rotationY":-0.08,"targetMax":11.4},
+    {"id":"B03","section":"B","asset":"nature.cliff.corner","position":[-7,0.0,12],"rotationY":0.35,"targetMax":7.2},
+    {"id":"B04","section":"B","asset":"nature.cliff.large","position":[7,0.0,12],"rotationY":-0.28,"targetMax":7.2},
+    {"id":"B05","section":"B","asset":"nature.cliff.steps","position":[11,0.1,13],"rotationY":-0.45,"targetMax":6.8},
+
+    {"id":"C01","section":"C","asset":"nature.ground.grass","position":[-15,1.0,7],"rotationY":0.06,"targetMax":11.0},
+    {"id":"C02","section":"C","asset":"nature.platform.grass","position":[-5,1.1,7],"rotationY":-0.12,"targetMax":9.0},
+    {"id":"C03","section":"C","asset":"nature.cliff.large","position":[-16,0.3,-1],"rotationY":0.2,"targetMax":8.0},
+    {"id":"C04","section":"C","asset":"nature.cliff.waterfallTop","position":[-5,0.6,-1],"rotationY":-0.3,"targetMax":7.8},
+    {"id":"C05","section":"C","asset":"nature.platform.grass","position":[-11,2.2,-5],"rotationY":0.22,"targetMax":8.4},
+    {"id":"C06","section":"C","asset":"kenney.platform.slope","position":[-1,1.1,-4],"rotationY":-0.2,"targetMax":8.8},
+
+    {"id":"D01","section":"D","asset":"kenney.platform.slope","position":[1,2.8,-6],"rotationY":-0.35,"targetMax":10.0},
+    {"id":"D02","section":"D","asset":"nature.platform.grass","position":[7,4.1,-7],"rotationY":0.08,"targetMax":9.4},
+    {"id":"D03","section":"D","asset":"nature.cliff.steps","position":[13,4.7,-10],"rotationY":0.42,"targetMax":8.6},
+    {"id":"D04","section":"D","asset":"nature.platform.grass","position":[9,6.3,-15],"rotationY":-0.18,"targetMax":9.0},
+    {"id":"D05","section":"D","asset":"nature.cliff.corner","position":[3,4.0,-15],"rotationY":0.3,"targetMax":8.0},
+    {"id":"D06","section":"D","asset":"nature.platform.grass","position":[14,7.6,-18],"rotationY":0.16,"targetMax":7.6},
+
+    {"id":"E01","section":"E","asset":"nature.platform.grass","position":[1,8.4,-21],"rotationY":0.05,"targetMax":10.4},
+    {"id":"E02","section":"E","asset":"nature.platform.grass","position":[9,8.6,-24],"rotationY":-0.12,"targetMax":8.8},
+    {"id":"E03","section":"E","asset":"nature.cliff.large","position":[-6,6.2,-24],"rotationY":0.3,"targetMax":8.6},
+    {"id":"E04","section":"E","asset":"nature.cliff.corner","position":[-1,7.0,-30],"rotationY":-0.24,"targetMax":8.0},
+    {"id":"E05","section":"E","asset":"nature.cliff.steps","position":[7,8.0,-31],"rotationY":0.18,"targetMax":7.8},
+    {"id":"E06","section":"E","asset":"kenney.platform.slope","position":[1,8.0,-33],"rotationY":0.05,"targetMax":9.0},
+
+    {"id":"F01","section":"F","asset":"nature.cliff.steps","position":[-2,9.5,-34],"rotationY":0.0,"targetMax":9.6},
+    {"id":"F02","section":"F","asset":"nature.platform.grass","position":[-2,11.8,-37],"rotationY":0.02,"targetMax":9.6},
+    {"id":"F03","section":"F","asset":"nature.cliff.large","position":[-10,11.2,-40],"rotationY":0.28,"targetMax":9.2},
+    {"id":"F04","section":"F","asset":"nature.cliff.corner","position":[7,11.0,-40],"rotationY":-0.32,"targetMax":8.8},
+    {"id":"F05","section":"F","asset":"nature.platform.grass","position":[-2,14.5,-44],"rotationY":0.0,"targetMax":10.6},
+    {"id":"F06","section":"F","asset":"nature.cliff.waterfall","position":[-12,10.2,-46],"rotationY":0.18,"targetMax":8.0},
+    {"id":"F07","section":"F","asset":"nature.cliff.waterfall","position":[8,10.0,-47],"rotationY":-0.2,"targetMax":8.0}
+  ],
+  "structures": [
+    {"id":"B.bridge","section":"B","asset":"nature.bridge.stone","position":[0,0.7,16],"rotationY":1.5708,"targetMax":9.0,"role":"primary creek crossing"},
+    {"id":"C.frameA","section":"C","asset":"castle.bridge.pillar","position":[-13,1.5,2],"rotationY":0.0,"targetMax":7.6,"role":"Riverworks ravine frame"},
+    {"id":"C.frameB","section":"C","asset":"castle.bridge.straight","position":[-8,2.5,0],"rotationY":1.5708,"targetMax":8.0,"role":"Riverworks cross-ravine deck"},
+    {"id":"C.arch","section":"C","asset":"kaykit.arch.green","position":[-4,2.0,3],"rotationY":1.5708,"targetMax":5.4,"role":"Riverworks mechanical silhouette placeholder"},
+    {"id":"D.stairs","section":"D","asset":"castle.stairs.stone","position":[9,6.3,-17],"rotationY":0.0,"targetMax":5.8,"role":"high-route climb cue"},
+    {"id":"E.archA","section":"E","asset":"fantasy.wall.arch","position":[0,9.2,-24],"rotationY":0.0,"targetMax":6.4,"role":"courtyard center arch"},
+    {"id":"E.wallA","section":"E","asset":"fantasy.wall.corner","position":[-5,9.1,-26],"rotationY":0.25,"targetMax":6.2,"role":"lower-bypass frame"},
+    {"id":"E.wallB","section":"E","asset":"fantasy.wall","position":[6,9.3,-27],"rotationY":-0.2,"targetMax":6.4,"role":"high-route frame"},
+    {"id":"E.banner","section":"E","asset":"dungeon.banner.blue","position":[2,10.0,-25],"rotationY":0.0,"targetMax":3.0,"role":"courtyard vertical read"},
+    {"id":"F.gate","section":"F","asset":"castle.gate","position":[-2,15.0,-43],"rotationY":0.0,"targetMax":8.4,"role":"Prism Ridge ceremonial silhouette"},
+    {"id":"F.flagL","section":"F","asset":"castle.flag","position":[-7,15.2,-43],"rotationY":0.15,"targetMax":4.2,"role":"ridge banner"},
+    {"id":"F.flagR","section":"F","asset":"castle.flag","position":[3,15.2,-43],"rotationY":-0.15,"targetMax":4.2,"role":"ridge banner"}
+  ],
+  "river": {
+    "width": 3.6,
+    "surfaceColor": 4637897,
+    "points": [
+      [2.8,0.18,27.0],
+      [2.0,0.12,21.5],
+      [0.2,0.08,16.0],
+      [-3.6,0.08,10.8],
+      [-8.2,0.18,5.0],
+      [-10.0,0.45,-1.0],
+      [-7.0,1.45,-7.0],
+      [-1.5,3.2,-13.5],
+      [2.0,5.1,-20.0],
+      [0.0,7.4,-27.0],
+      [-2.0,10.6,-34.5],
+      [-2.0,14.2,-42.0],
+      [-7.0,12.2,-48.0]
+    ],
+    "waterfallAfterPointIndices": [5,7,9,10,11]
+  },
+  "routes": {
+    "main": {
+      "label":"Main Route",
+      "maxGrade":0.48,
+      "points":[
+        [0,1.8,34],[2,1.8,29],[4,1.6,24],[5,1.3,20],[2,1.1,17],[0,1.0,15],[-3,1.0,12],[-7,1.4,8],[-10,1.9,4],[-9,2.4,0],[-4,3.1,-4],[1,3.9,-7],[5,5.0,-10],[8,6.4,-14],[8,7.6,-18],[5,8.6,-21],[2,9.6,-24],[0,10.6,-28],[-1,11.8,-32],[-2,13.1,-35],[-2,14.6,-38],[-2,16.1,-41],[-2,17.4,-44]
+      ]
+    },
+    "springShortcut": {
+      "label":"Spring Shortcut",
+      "maxGrade":0.78,
+      "points":[[7,1.0,18],[10,2.0,14],[9,3.2,10],[5,3.6,7],[1,3.7,4],[-3,3.3,1]],
+      "reconnectTolerance":6.0
+    },
+    "pipeLoop": {
+      "label":"Pipe Loop",
+      "maxGrade":0.62,
+      "points":[[-10,1.9,4],[-15,2.2,2],[-16,2.6,-3],[-12,3.0,-6],[-7,3.0,-5],[-4,3.1,-4]],
+      "reconnectTolerance":4.0
+    },
+    "cloverMastery": {
+      "label":"Clover High Mastery Route",
+      "maxGrade":0.82,
+      "points":[[3,4.2,-7],[7,6.0,-8],[12,8.0,-11],[14,9.3,-15],[11,9.8,-19],[6,9.2,-21]],
+      "reconnectTolerance":5.0
+    },
+    "lowerBypass": {
+      "label":"Ruin Lower Bypass",
+      "maxGrade":0.5,
+      "points":[[5,8.6,-21],[9,8.8,-24],[10,9.0,-28],[7,9.4,-31],[3,10.4,-33],[-1,11.8,-32]],
+      "reconnectTolerance":5.0
+    },
+    "ruinHighRoute": {
+      "label":"Ruin High Route",
+      "maxGrade":0.72,
+      "points":[[5,8.6,-21],[4,10.2,-24],[1,12.0,-26],[-3,13.0,-29],[-5,13.5,-33],[-2,14.6,-38]],
+      "reconnectTolerance":5.0
+    }
+  },
+  "sightlines": [
+    {"id":"spawnToRidge","from":[0,3.0,33],"to":[-2,18.0,-43],"maxDistance":90,"purpose":"Prism Ridge reads as the destination from Portal Meadow"},
+    {"id":"cloverLookback","from":[13,10.0,-16],"to":[0,2.0,29],"maxDistance":65,"purpose":"high Clover route looks back over earlier valley"},
+    {"id":"ridgeLookback","from":[-2,18.0,-43],"to":[0,2.0,20],"maxDistance":75,"purpose":"Prism Ridge can look back across most of Prism Valley"}
+  ],
+  "cameraViews": {
+    "overview":{"position":[31,34,38],"target":[0,6,-8]},
+    "spawn":{"position":[13,7,39],"target":[-2,10,-25]},
+    "clover":{"position":[20,14,-9],"target":[-1,5,8]},
+    "ruins":{"position":[17,16,-17],"target":[-2,12,-38]},
+    "ridge":{"position":[11,22,-36],"target":[0,5,-8]}
+  }
+}
