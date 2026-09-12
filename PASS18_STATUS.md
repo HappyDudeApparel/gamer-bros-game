@@ -14,7 +14,8 @@
 - 18-0B Look Calibration — **COMPLETE / GREEN**
 - 18-0C AssetRegistry + gallery + budget HUD + spatial/collision architecture — **COMPLETE / GREEN**
 - 18-1 Whole-map structural skeleton — **COMPLETE / GREEN**
-- 18-1B In-browser placement tool — **NOT STARTED**
+- 18-1B In-browser world authoring tool — **COMPLETE / GREEN**
+- 18-2 Golden Slice, Creek Crossing — **NOT STARTED**
 
 For exact current evidence and the next task, use `CURRENT_WORK.md` and the newest relevant file under `checkpoints/`.
 
