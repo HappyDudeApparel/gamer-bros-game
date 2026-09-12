@@ -5,20 +5,32 @@
 Two full calibration rounds against the downloaded Kenney Nature Kit
 (documented on `pass18-rebuild`, see `src/pass18/calibration-diorama.js`)
 took the material/lighting recipe from ~45/100 to ~62/100 resemblance to
-the Prism Valley concept art and then hit a hard ceiling. Root cause,
-verified directly from the real glTF JSON rather than assumed: the entire
-Nature Kit ships flat `metallicFactor:1, roughnessFactor:1`, no textures,
-no per-asset material identity. No amount of engine-side lighting,
-tone-mapping, or hue tuning can put back detail the source asset never
-had. KayKit assets (already in the catalog for barriers/castle pieces) by
-contrast ship real textures and correct PBR values and look right
-immediately — proving the *engine and pipeline* were never the bottleneck,
-the *asset library* was.
+the Prism Valley concept art, then hit a hard ceiling. The cause was
+**combined, not material-only**:
 
-The pivot is therefore: stop tuning around a capped library, and build a
+- **Geometry/silhouette was the decisive blocker.** The Nature Kit's
+  repeated slab/retaining-wall cliff language does not resemble the
+  concept's custom grass-over-rock, terraced, overhanging terrain — no
+  amount of relighting or recoloring a flat-sided slab makes it read as an
+  overhang. This is a shape problem, not a shading problem, and shading
+  fixes alone could never close it.
+- **Material richness also remained below the concept**, independently of
+  geometry. Verified directly from the real glTF JSON rather than assumed:
+  the entire Nature Kit ships flat `metallicFactor:1, roughnessFactor:1`,
+  no textures, no per-asset material identity. KayKit assets (already in
+  the catalog for barriers/castle pieces) by contrast ship real textures
+  and correct PBR values and look right immediately — proving the *engine
+  and pipeline* were never the bottleneck, the *asset library's* material
+  treatment was one real contributor.
+
+Neither factor alone fully explains the ceiling; both had to be true at
+once for two full calibration rounds to still land at 62/100. The pivot is
+justified by that **combined visual mismatch**, together with the
+permanent anti-band-aid rule (Rule 1 below): stop tuning lighting/palette
+around a library whose *shapes* cannot be fixed that way, and build a
 small custom "Prism Kit" of modular assets purpose-made for the target
-style, produced procedurally/via script (not hand-modeled, not one giant
-procedural landscape — see Rule 1 in `PRISM_KIT_RULES.md`).
+style's geometry AND material language, produced procedurally/via script
+(not hand-modeled, not one giant procedural landscape).
 
 ## Pipeline correction made in this session: skip Blender
 

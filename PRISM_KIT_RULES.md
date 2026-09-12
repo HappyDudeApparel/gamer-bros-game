@@ -67,18 +67,29 @@ scene that unmistakably reads as the same game may be a conditional pass.
 
 ## 6. Failure taxonomy (used by `tools/prism-kit/lib/pipeline.mjs`)
 
-| Class | Meaning | Allowed automatic action |
+| Class | Meaning | Allowed action |
 |---|---|---|
 | 1 | Safe mechanical (missing project-local dir, etc.) | Auto-repair, retry (max 2) |
-| 2 | Code/build (assertion, validator, schema failure in code just written) | Bounded targeted fix, retry (max 2) — **never suppress or loosen the test itself** |
-| 3 | Tool/environment (missing dependency, version mismatch) | Safe project-local or user-local repair only (e.g. downloading a matched chromedriver into `.prism-cache/`); anything system-wide or destructive or ambiguous **stops and asks once** |
-| 4 | Visual failure | **Never** auto-declared success; counts toward the two-round kill switch in Rule 4 |
-| 5 | Architectural/unknown | **Stop immediately.** Write a failure capsule. Never improvise a new architecture silently. |
+| 2 | Code/build (assertion, validator, schema failure in code just written) | Claude Code inspects the diagnosed error, makes **one bounded targeted source fix**, then resumes/re-runs. Never a blind identical rerun, never weakening or suppressing the failing validator/test to get green. |
+| 3 | Tool/environment (missing dependency, version mismatch) | Safe project-local or user-local repair may be automated (e.g. downloading a matched chromedriver into `.prism-cache/`); anything system-wide, destructive, or ambiguous **stops and asks once** |
+| 4 | Visual failure | A bounded visual correction **within the current prototype round** is allowed — fix it, render again. It never auto-declares success, and each such round counts toward the two-round kill switch in Rule 4. |
+| 5 | Architectural/unknown | **Stop immediately.** Write a failure capsule. Never improvise a new architecture silently. Escalate. |
 
 Retries are capped at 2 per stage and must be gated on a *diagnosed*
 change — never a blind identical rerun. `classifyFailure()` in
 `pipeline.mjs` is the single source of truth for this classification;
 extend it there, not ad hoc in a stage script.
+
+**What the pipeline/checkpoint system is for, and what it is not for:**
+the checkpoint (`.prism-cache/<asset>/state.json`) preserves *state* —
+which stages already succeeded, so a resume doesn't redo finished work.
+It does not, and cannot, perform diagnosis or repair by itself. For every
+Class 1-4 failure, Claude Code is the one that reads the actual error,
+decides what changed, and edits the actual source (a generator script, a
+validator, a material treatment) before the next attempt — the pipeline
+only enforces the retry cap, the skip-on-resume boundaries (Rule 7), and
+the capsule-on-give-up. A rerun with no source change between attempts is
+never a valid use of the retry budget.
 
 ## 7. Checkpoints and resume never bypass validation
 
