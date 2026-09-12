@@ -1822,9 +1822,9 @@
       "id": "rock3",
       "asset": "nature.rock.largeA",
       "position": [
-        -12,
+        -10,
         0.72,
-        5
+        7
       ],
       "rotationY": 0.2,
       "role": "rock",
@@ -1835,7 +1835,7 @@
       "id": "rock4",
       "asset": "nature.rock.largeC",
       "position": [
-        11,
+        8,
         0.72,
         24
       ],
@@ -1848,7 +1848,7 @@
       "id": "rock5",
       "asset": "nature.rock.largeA",
       "position": [
-        12,
+        8,
         0.72,
         13
       ],
@@ -1863,7 +1863,7 @@
       "position": [
         8,
         0.72,
-        5
+        7
       ],
       "rotationY": 1.0,
       "role": "rock",
@@ -1900,7 +1900,7 @@
       "id": "tree1",
       "asset": "nature.tree.default",
       "position": [
-        -15,
+        -10,
         0.72,
         28
       ],
@@ -1913,7 +1913,7 @@
       "id": "tree2",
       "asset": "nature.tree.tall",
       "position": [
-        -13,
+        -10,
         0.72,
         23
       ],
@@ -1926,7 +1926,7 @@
       "id": "tree3",
       "asset": "nature.tree.oak",
       "position": [
-        -14,
+        -10,
         0.72,
         9
       ],
@@ -1939,9 +1939,9 @@
       "id": "tree4",
       "asset": "nature.tree.default",
       "position": [
-        -12,
+        -10,
         0.72,
-        1
+        8
       ],
       "rotationY": -0.2,
       "role": "vegetation",
@@ -1952,7 +1952,7 @@
       "id": "tree5",
       "asset": "nature.tree.tall",
       "position": [
-        14,
+        8,
         0.72,
         27
       ],
@@ -1965,7 +1965,7 @@
       "id": "tree6",
       "asset": "nature.tree.oak",
       "position": [
-        15,
+        8,
         0.72,
         20
       ],
@@ -1978,9 +1978,9 @@
       "id": "tree7",
       "asset": "nature.tree.default",
       "position": [
-        15,
+        8,
         0.72,
-        6
+        9
       ],
       "rotationY": -0.5,
       "role": "vegetation",
@@ -1991,9 +1991,9 @@
       "id": "tree8",
       "asset": "nature.tree.tall",
       "position": [
-        12,
+        8,
         0.72,
-        0
+        11
       ],
       "rotationY": 0.2,
       "role": "vegetation",
@@ -2045,7 +2045,7 @@
       "position": [
         8,
         0.72,
-        24
+        22
       ],
       "rotationY": 1.6,
       "role": "vegetation",
@@ -2238,7 +2238,7 @@
       "id": "flora13",
       "asset": "nature.flower.purpleA",
       "position": [
-        11,
+        8,
         0.72,
         25
       ],
@@ -2251,7 +2251,7 @@
       "id": "flora14",
       "asset": "nature.grass",
       "position": [
-        12.2,
+        8,
         0.72,
         18
       ],
@@ -2277,7 +2277,7 @@
       "id": "flora16",
       "asset": "nature.flower.yellowB",
       "position": [
-        -12,
+        -10,
         0.72,
         18
       ],
@@ -3137,7 +3137,7 @@
       "position": [
         -2,
         17.0,
-        -40
+        -41
       ],
       "rotationY": 0.0,
       "role": "ridgeLandmark",
@@ -3261,9 +3261,9 @@
     {
       "id": "fall-far",
       "position": [
-        -3.5,
-        4.9,
-        -12.2
+        8.0,
+        8.0,
+        -9.5
       ],
       "width": 2.2,
       "height": 4.0,
